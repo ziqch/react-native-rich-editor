@@ -2,7 +2,8 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "react-native-rich-editor": ["./src/index"]
+      "react-native-rich-editor": ["./src/index"],
+      "react-native-rich-editor-web": ["./web/lib/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

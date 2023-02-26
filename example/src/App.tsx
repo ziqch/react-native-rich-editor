@@ -17,7 +17,15 @@ export default function App() {
   });
   return (
     <SafeAreaView style={styles.container}>
-      <ReactNativeRichEditor height={height} width={width} />
+      <ReactNativeRichEditor
+        height={height}
+        width={width}
+        initialValue={[
+          { insert: 'Hello ' },
+          { insert: 'World!', attributes: { bold: true } },
+          { insert: '\n' },
+        ]}
+      />
     </SafeAreaView>
   );
 }

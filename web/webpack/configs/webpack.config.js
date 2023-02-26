@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const root = path.resolve(__dirname, '../../');
+const TerserPlugin = require('terser-webpack-plugin');
+const root = path.resolve(__dirname, '../../../');
 module.exports = {
   entry: path.resolve(__dirname, '../../src/index.ts'),
   module: {
@@ -34,8 +35,8 @@ module.exports = {
     quill: 'Quill',
   },
   output: {
-    filename: 'index.js',
-    path: path.resolve(root, './lib'),
+    filename: 'web.js',
+    path: path.resolve(root, './src'),
     libraryTarget: 'umd',
   },
   plugins: [
@@ -44,4 +45,12 @@ module.exports = {
       inject: 'body',
     }),
   ],
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+      }),
+    ],
+  },
 };
