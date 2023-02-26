@@ -133,7 +133,8 @@
   },
   "eslintIgnore": [
     "node_modules/",
-    "lib/"
+    "lib/",
+    "src/web.js"
   ],
   "prettier": {
     "quoteProps": "consistent",
@@ -157,6 +158,9 @@
     ]
   },
   "dependencies": {
-    "react-native-webview": "^11.26.1"
+    "@types/quill": "^2.0.10",
+    "@types/uuid": "^9.0.1",
+    "react-native-webview": "^11.26.1",
+    "uuid": "^9.0.0"
   }
 }
