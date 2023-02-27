@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import { ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import type { WebViewInitializeConfig } from './utils/contract';
+import { RichEditorToolBar } from './RichEditorToolBar';
 // @ts-ignore
 import html from './web.js';
 import type { DeltaOperation } from 'quill';
@@ -145,6 +146,7 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
           overScrollMode={'never'}
         />
       </ScrollView>
+      <RichEditorToolBar />
     </>
   );
 };
