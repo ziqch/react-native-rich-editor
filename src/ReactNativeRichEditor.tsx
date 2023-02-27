@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import type { WebViewInitializeConfig } from './utils/contract';
 // @ts-ignore
@@ -12,6 +12,7 @@ export interface IRichEditorProps {
   width: number;
   height: number;
   initialValue: DeltaOperation[];
+  renderLoading?: () => JSX.Element;
 }
 
 interface IRichEditorState {
@@ -33,6 +34,13 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     webView: {
       height: state.webViewHeight,
       width: props.width,
+    },
+    loading: {
+      position: 'absolute',
+      right: 0,
+      left: 0,
+      bottom: 0,
+      top: 0,
     },
   });
   const webViewRef = React.useRef<WebView>(null);
@@ -84,7 +92,7 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
   }, [props.initialValue]);
 
   const bridge = useBridge({
-    webViewInstance: webViewRef.current,
+    webViewRef,
     onWebViewInit,
     onEditorReady,
     scrollWebView,
@@ -100,26 +108,40 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     [bridge]
   );
 
+  const renderLoading = React.useCallback(() => {
+    if (!state.loading) {
+      return <></>;
+    }
+    if (props.renderLoading) {
+      return props.renderLoading();
+    } else {
+      return <ActivityIndicator style={styles.loading} size="large" />;
+    }
+  }, [props, state.loading, styles.loading]);
+
   return (
-    <ScrollView
-      ref={scrollViewRef}
-      style={styles.container}
-      scrollEventThrottle={16}
-      onLayout={onLayout}
-      onScroll={onScroll}
-    >
-      <WebView
-        ref={webViewRef}
-        scrollEnabled={false}
-        nestedScrollEnabled={false}
-        source={{ html }}
-        style={styles.webView}
-        keyboardDisplayRequiresUserAction={false}
-        hideKeyboardAccessoryView={true}
-        startInLoadingState={true}
-        onMessage={onMessage}
-        overScrollMode={'never'}
-      />
-    </ScrollView>
+    <>
+      {renderLoading()}
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.container}
+        scrollEventThrottle={16}
+        onLayout={onLayout}
+        onScroll={onScroll}
+      >
+        <WebView
+          ref={webViewRef}
+          scrollEnabled={false}
+          nestedScrollEnabled={false}
+          source={{ html }}
+          style={styles.webView}
+          keyboardDisplayRequiresUserAction={false}
+          hideKeyboardAccessoryView={true}
+          startInLoadingState={true}
+          onMessage={onMessage}
+          overScrollMode={'never'}
+        />
+      </ScrollView>
+    </>
   );
 };
