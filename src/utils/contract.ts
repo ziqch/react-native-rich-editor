@@ -12,7 +12,7 @@ export class Resolver<F extends (...args: any) => any> {
 
   public resolve(...args: Parameters<F>): ReturnType<F> {
     if (this.resolver) {
-      return this.resolver(args);
+      return this.resolver.apply(this, args);
     } else {
       throw Error(`Unregistered Resolver: ${this.token}`);
     }
@@ -23,23 +23,31 @@ export enum RNResolverTokenBuiltin {
   OnTextLengthChange = '@CALL[OnTextLengthChange]__builtin',
   SetReactNativeState = '@CALL[SetReactNativeState]__builtin',
   ScrollWebView = '@CALL[ScrollWebView]__builtin',
-  OnWebViewReady = '@CALL[OnWebViewReady]__builtin',
+  OnWebViewInit = '@CALL[onWebViewInit]__builtin',
   OnEditorReady = '@CALL[OnEditorReady]__builtin',
 }
 
+export enum Direction {
+  UP,
+  DOWN,
+}
+
 export interface RNResolverListBuiltin {
-  [RNResolverTokenBuiltin.SetReactNativeState]: Resolver<(state: any) => void>;
-  [RNResolverTokenBuiltin.ScrollWebView]: Resolver<
-    (y: number, isDownward: boolean) => void
+  [RNResolverTokenBuiltin.SetReactNativeState]: Resolver<
+    (key: string, value: string) => void
   >;
-  [RNResolverTokenBuiltin.OnWebViewReady]: Resolver<
+  [RNResolverTokenBuiltin.ScrollWebView]: Resolver<
+    (offset: number, direction: Direction) => void
+  >;
+  [RNResolverTokenBuiltin.OnWebViewInit]: Resolver<
     () => WebViewInitializeConfig
   >;
   [RNResolverTokenBuiltin.OnEditorReady]: Resolver<() => void>;
 }
 
 export interface WebViewInitializeConfig {
-  scripts: string[];
+  scriptsURL: string[];
+  cssURL: string[];
   initialValue: DeltaOperation[];
   quillOptions: QuillOptionsStatic;
 }
