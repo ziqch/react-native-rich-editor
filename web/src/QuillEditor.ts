@@ -1,20 +1,19 @@
 import type Quill from 'quill';
-import type { DeltaOperation, QuillOptionsStatic, RangeStatic } from 'quill';
+import type { DeltaOperation, RangeStatic } from 'quill';
 import type Bridge from '../../src/utils/Bridge';
+import { Resolver } from '../../src/utils/Resolver';
 import {
   Direction,
   QuillResolverListBuiltin,
   QuillResolverTokenBuiltin,
-  Resolver,
   RNResolverListBuiltin,
   RNResolverTokenBuiltin,
 } from '../../src/utils/contract';
 
 export default function init(
-  id: string,
+  quill: Quill,
   bridge: Bridge<QuillResolverListBuiltin, RNResolverListBuiltin>,
-  initialValue: DeltaOperation[],
-  options: QuillOptionsStatic
+  initialValue: DeltaOperation[]
 ) {
   const _Quill = (window as any).Quill as typeof Quill;
   const Delta = _Quill.import('delta');
@@ -22,7 +21,6 @@ export default function init(
     static ScrollOffsetBuffer = 20;
     private readonly quill: Quill;
     private readonly history: any;
-    private readonly el: HTMLElement;
     private readonly bridge: Bridge<
       QuillResolverListBuiltin,
       RNResolverListBuiltin
@@ -30,20 +28,14 @@ export default function init(
     private viewHeight = 0;
     private previousContentLength = 0;
     private previousSectionRange: RangeStatic | null = { index: 0, length: 0 };
-    private options: QuillOptionsStatic = {} as QuillOptionsStatic;
 
     constructor(
-      id: string,
+      quill: Quill,
       bridge: Bridge<QuillResolverListBuiltin, RNResolverListBuiltin>,
-      initialValue: DeltaOperation[],
-      options: QuillOptionsStatic
+      initialValue: DeltaOperation[]
     ) {
       this.bridge = bridge;
-      this.el = document.createElement('div');
-      this.el.id = id;
-      window.document.body.append(this.el);
-      this.options = options;
-      this.quill = new _Quill(this.el, this.options);
+      this.quill = quill;
       this.history = this.quill.getModule('history');
       this.quill.setContents(new Delta(initialValue));
       this.setEvents();
@@ -55,6 +47,10 @@ export default function init(
       this.quill.on('text-change', () => {
         this.updateViewHeight();
         this.calculateScrollOffsetWhenTextChange();
+        this.bridge.call(
+          RNResolverTokenBuiltin.OnTextChange,
+          this.getContents()
+        );
       });
       this.quill.on('selection-change', (range) => {
         this.calculateScrollOffsetWhenSelect(range);
@@ -167,32 +163,33 @@ export default function init(
       this.quill.root.focus();
     }
 
-    private getContents(index: number, length: number) {
+    private getContents(index?: number, length?: number) {
       return this.quill.getContents(index, length).ops;
     }
     private registerResolvers() {
       this.bridge.registerResolvers({
-        [QuillResolverTokenBuiltin.Focus]: new Resolver<() => void>(
+        [QuillResolverTokenBuiltin.Focus]: new Resolver(
           QuillResolverTokenBuiltin.Focus,
           this.undo.bind(this)
         ),
-        [QuillResolverTokenBuiltin.Blur]: new Resolver<() => void>(
+        [QuillResolverTokenBuiltin.Blur]: new Resolver(
           QuillResolverTokenBuiltin.Blur,
           this.blur.bind(this)
         ),
-        [QuillResolverTokenBuiltin.Undo]: new Resolver<() => void>(
+        [QuillResolverTokenBuiltin.Undo]: new Resolver(
           QuillResolverTokenBuiltin.Undo,
           this.undo.bind(this)
         ),
-        [QuillResolverTokenBuiltin.Redo]: new Resolver<() => void>(
+        [QuillResolverTokenBuiltin.Redo]: new Resolver(
           QuillResolverTokenBuiltin.Redo,
           this.redo.bind(this)
         ),
-        [QuillResolverTokenBuiltin.getContents]: new Resolver<
-          (index: number, length: number) => DeltaOperation[]
-        >(QuillResolverTokenBuiltin.getContents, this.getContents.bind(this)),
+        [QuillResolverTokenBuiltin.GetContents]: new Resolver(
+          QuillResolverTokenBuiltin.GetContents,
+          this.getContents.bind(this)
+        ),
       });
     }
   }
-  return new QuillEditor(id, bridge, initialValue, options);
+  return new QuillEditor(quill, bridge, initialValue);
 }

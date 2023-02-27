@@ -84,12 +84,16 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
 
   const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
     return {
-      scriptsURL: ['https://cdn.quilljs.com/1.3.6/quill.js'],
-      cssURL: ['https://cdn.quilljs.com/1.3.6/quill.snow.css'],
+      quillScript: 'https://cdn.quilljs.com/1.3.6/quill.js',
+      cssList: ['https://cdn.quilljs.com/1.3.6/quill.snow.css'],
       initialValue: props.initialValue,
       quillOptions: {},
     };
   }, [props.initialValue]);
+
+  const onTextChange = (delta: DeltaOperation[]) => {
+    console.log(delta);
+  };
 
   const bridge = useBridge({
     webViewRef,
@@ -97,13 +101,12 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     onEditorReady,
     scrollWebView,
     setReactNativeState,
+    onTextChange,
   });
 
   const onMessage = React.useCallback(
     (e: WebViewMessageEvent) => {
-      if (bridge) {
-        bridge.on(e.nativeEvent.data);
-      }
+      bridge.on(e.nativeEvent.data);
     },
     [bridge]
   );
