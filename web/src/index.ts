@@ -14,14 +14,14 @@ try {
   (window as any)[ReactNativeBridgeToken] = reactNativeBridge;
   console.log('webview ready!!');
   reactNativeBridge
-    .call(RNResolverTokenBuiltin.OnWebViewReady)
+    .call(RNResolverTokenBuiltin.OnWebViewInit)
     .then((config) => {
       console.log('config', config);
       const loadPromise: Promise<void>[] = [];
-      config.scripts.forEach((scriptUrl) => {
+      config.scriptsURL.forEach((url) => {
         const script = document.createElement('script');
         script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', scriptUrl);
+        script.setAttribute('src', url);
         loadPromise.push(
           new Promise<void>((revolve, reject) => {
             script.onload = () => revolve();
@@ -30,8 +30,20 @@ try {
         );
         document.body.append(script);
       });
+      config.cssURL.forEach((url) => {
+        const link = document.createElement('link');
+        link.setAttribute('rel', 'stylesheet');
+        link.setAttribute('href', url);
+        loadPromise.push(
+          new Promise<void>((revolve, reject) => {
+            link.onload = () => revolve();
+            link.onabort = () => reject();
+          })
+        );
+        document.body.append(link);
+      });
       Promise.allSettled(loadPromise).then(() => {
-        console.log('quill loaded');
+        console.log('assets loaded');
         (window as any).$QuillEditor = init(
           '$editor',
           reactNativeBridge,

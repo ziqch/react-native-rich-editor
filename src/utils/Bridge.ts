@@ -1,7 +1,7 @@
 import type { Resolver } from './contract';
 import { v4 as uuidv4 } from 'uuid';
 
-type ResolverInnerType<S> = S extends Resolver<infer T> ? T : never;
+export type ResolverInnerType<S> = S extends Resolver<infer T> ? T : never;
 type ResolverList<T> = { [K in keyof T]: Resolver<any> };
 interface CallbackControl<T> {
   resolve: (data: T) => void;
@@ -33,12 +33,12 @@ class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
     this.resolvers = Object.assign(this.resolvers, resolvers);
   }
 
-  private async callResolver(token: keyof SRC, ...args: any) {
+  private async callResolver(token: keyof SRC, args: any) {
     const resolver = this.resolvers[token];
     if (!resolver) {
       throw new Error(`Unregistered Resolver: ${String(token)}`);
     } else {
-      return resolver.resolve(args);
+      return resolver.resolve(...args);
     }
   }
 
@@ -69,7 +69,7 @@ class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
         break;
       case ActionType.CALL:
         const args = action.payload ? JSON.parse(action.payload) : [];
-        const res = await this.callResolver(action.token as keyof SRC, ...args);
+        const res = await this.callResolver(action.token as keyof SRC, args);
         const callbackAction: Action = {
           actionType: ActionType.CALLBACK,
           token: action.token,

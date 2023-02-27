@@ -1,99 +1,124 @@
 import React, { FC } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
-import Bridge from './utils/Bridge';
-import {
-  RNResolverTokenBuiltin,
-  QuillResolverListBuiltin,
-  RNResolverListBuiltin,
-  Resolver,
-  WebViewInitializeConfig,
-} from './utils/contract';
+import type { WebViewInitializeConfig } from './utils/contract';
 // @ts-ignore
 import html from './web.js';
 import type { DeltaOperation } from 'quill';
+import { useBridge } from './hooks/useBridge';
+import { useEditorScroll } from './hooks/useEditorScroll';
 
-export interface RichEditionProps {
+export interface IRichEditorProps {
   width: number;
   height: number;
   initialValue: DeltaOperation[];
 }
 
-export const ReactNativeRichEditor: FC<RichEditionProps> = (props) => {
-  const { width, height } = props;
+interface IRichEditorState {
+  webViewHeight: number;
+  loading: boolean;
+}
+
+export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
+  const [state, setState] = React.useState<IRichEditorState>({
+    webViewHeight: 0,
+    loading: true,
+  });
   const styles = StyleSheet.create({
     container: {
-      height,
-      width,
+      height: props.height,
+      width: props.width,
+      flex: 1,
     },
     webView: {
-      width,
-      height: 2000,
+      height: state.webViewHeight,
+      width: props.width,
     },
   });
-  const webViewRef = React.useRef<WebView>();
-  const bridgeRef =
-    React.useRef<Bridge<RNResolverListBuiltin, QuillResolverListBuiltin>>();
-  const onWebViewReady = React.useCallback((): WebViewInitializeConfig => {
+  const webViewRef = React.useRef<WebView>(null);
+  const {
+    scrollWebView,
+    scrollViewRef,
+    onScroll,
+    onLayout,
+    viewScrollInfoRef,
+  } = useEditorScroll({
+    webViewHeight: state.webViewHeight,
+  });
+
+  const setReactNativeState = React.useCallback(
+    (key: string, value: string) => {
+      try {
+        const v = JSON.parse(value);
+        const newState = Object.assign({}, state, {
+          [key]: v,
+        });
+        setState(newState);
+        if (key === 'webViewHeight') {
+          const { scrollTop, h } = viewScrollInfoRef.current;
+          if (scrollTop + h > v) {
+            scrollViewRef.current?.scrollToEnd();
+          }
+        }
+      } catch (e) {
+        return;
+      }
+    },
+    [scrollViewRef, state, viewScrollInfoRef]
+  );
+
+  const onEditorReady = () => {
+    setState({
+      ...state,
+      loading: false,
+    });
+  };
+
+  const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
     return {
-      scripts: ['https://cdn.quilljs.com/1.3.6/quill.js'],
+      scriptsURL: ['https://cdn.quilljs.com/1.3.6/quill.js'],
+      cssURL: ['https://cdn.quilljs.com/1.3.6/quill.snow.css'],
       initialValue: props.initialValue,
       quillOptions: {},
     };
   }, [props.initialValue]);
 
-  const onLoadStart = React.useCallback(() => {
-    const webviewInstance = webViewRef.current;
-    if (!webviewInstance) return;
-    bridgeRef.current = new Bridge<
-      RNResolverListBuiltin,
-      QuillResolverListBuiltin
-    >(
-      (data) =>
-        webviewInstance.injectJavaScript(
-          `$ReactNativeBridge.on(${JSON.stringify(data)})`
-        ),
-      {
-        [RNResolverTokenBuiltin.OnWebViewReady]: new Resolver<
-          () => WebViewInitializeConfig
-        >(RNResolverTokenBuiltin.OnWebViewReady, onWebViewReady.bind(this)),
-        [RNResolverTokenBuiltin.SetReactNativeState]: new Resolver<
-          (state: any) => void
-        >(RNResolverTokenBuiltin.SetReactNativeState, () => {}),
-        [RNResolverTokenBuiltin.ScrollWebView]: new Resolver<
-          (state: any) => void
-        >(RNResolverTokenBuiltin.ScrollWebView, () => {}),
-        [RNResolverTokenBuiltin.OnEditorReady]: new Resolver<() => void>(
-          RNResolverTokenBuiltin.OnEditorReady,
-          () => {}
-        ),
-      }
-    );
-  }, [onWebViewReady, webViewRef]);
+  const bridge = useBridge({
+    webViewInstance: webViewRef.current,
+    onWebViewInit,
+    onEditorReady,
+    scrollWebView,
+    setReactNativeState,
+  });
 
   const onMessage = React.useCallback(
     (e: WebViewMessageEvent) => {
-      if (bridgeRef.current) {
-        bridgeRef.current.on(e.nativeEvent.data);
+      if (bridge) {
+        bridge.on(e.nativeEvent.data);
       }
     },
-    [bridgeRef]
+    [bridge]
   );
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      ref={scrollViewRef}
+      style={styles.container}
+      scrollEventThrottle={16}
+      onLayout={onLayout}
+      onScroll={onScroll}
+    >
       <WebView
-        // @ts-ignore
         ref={webViewRef}
-        style={styles.webView}
         scrollEnabled={false}
         nestedScrollEnabled={false}
-        onLoadStart={onLoadStart}
         source={{ html }}
+        style={styles.webView}
         keyboardDisplayRequiresUserAction={false}
         hideKeyboardAccessoryView={true}
         startInLoadingState={true}
         onMessage={onMessage}
+        overScrollMode={'never'}
       />
     </ScrollView>
   );

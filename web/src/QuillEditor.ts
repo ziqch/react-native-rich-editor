@@ -1,12 +1,13 @@
 import type Quill from 'quill';
-import type { RangeStatic, QuillOptionsStatic, DeltaOperation } from 'quill';
+import type { DeltaOperation, QuillOptionsStatic, RangeStatic } from 'quill';
 import type Bridge from '../../src/utils/Bridge';
 import {
-  RNResolverTokenBuiltin,
-  QuillResolverTokenBuiltin,
+  Direction,
   QuillResolverListBuiltin,
-  RNResolverListBuiltin,
+  QuillResolverTokenBuiltin,
   Resolver,
+  RNResolverListBuiltin,
+  RNResolverTokenBuiltin,
 } from '../../src/utils/contract';
 
 export default function init(
@@ -47,6 +48,7 @@ export default function init(
       this.quill.setContents(new Delta(initialValue));
       this.setEvents();
       this.registerResolvers();
+      this.updateViewHeight();
     }
 
     private setEvents() {
@@ -61,11 +63,12 @@ export default function init(
 
     private updateViewHeight() {
       const rect = this.quill.root.getBoundingClientRect();
-      const hasChanged = this.viewHeight !== rect.height;
-      if (hasChanged) {
-        this.bridge.call(RNResolverTokenBuiltin.SetReactNativeState, {
-          webviewHeight: rect.height,
-        });
+      if (this.viewHeight !== rect.height) {
+        this.bridge.call(
+          RNResolverTokenBuiltin.SetReactNativeState,
+          'webViewHeight',
+          JSON.stringify(rect.height)
+        );
       }
       this.viewHeight = rect.height;
     }
@@ -76,19 +79,20 @@ export default function init(
       setTimeout(() => {
         const curSelection = this.quill.getSelection();
         if (!curSelection) return;
-        const isDownward = prevLen <= curLen;
+        const direction = prevLen <= curLen ? Direction.DOWN : Direction.UP;
         const curBound = this.quill.getBounds(
           curSelection.index,
           curSelection.length
         );
-        const offset = isDownward
-          ? curBound.bottom
-          : curBound.top - QuillEditor.ScrollOffsetBuffer;
+        const offset =
+          direction === Direction.DOWN
+            ? curBound.bottom
+            : curBound.top - QuillEditor.ScrollOffsetBuffer;
         if (offset !== -1) {
           this.bridge.call(
             RNResolverTokenBuiltin.ScrollWebView,
             offset,
-            isDownward
+            direction
           );
         }
         this.previousContentLength = curLen;
@@ -102,7 +106,7 @@ export default function init(
       }
       const curBound = this.quill.getBounds(range.index, range.length);
       let offset = -1,
-        isDownward = true;
+        direction = Direction.DOWN;
       if (!range.length) {
         offset = curBound.bottom + QuillEditor.ScrollOffsetBuffer;
       } else {
@@ -118,15 +122,21 @@ export default function init(
           if (!isTopEqual && !isBottomEqual) {
             offset = curBound.bottom + QuillEditor.ScrollOffsetBuffer;
           } else if (!isBottomEqual) {
-            isDownward = curBound.bottom > prevBound.bottom;
+            direction =
+              curBound.bottom > prevBound.bottom
+                ? Direction.DOWN
+                : Direction.UP;
             offset =
               curBound.bottom +
-              QuillEditor.ScrollOffsetBuffer * (isDownward ? 1 : -1);
+              QuillEditor.ScrollOffsetBuffer *
+                (direction === Direction.DOWN ? 1 : -1);
           } else if (!isTopEqual) {
-            isDownward = curBound.top > prevBound.top;
+            direction =
+              curBound.top > prevBound.top ? Direction.DOWN : Direction.UP;
             offset =
               curBound.top +
-              QuillEditor.ScrollOffsetBuffer * (isDownward ? 1 : -1);
+              QuillEditor.ScrollOffsetBuffer *
+                (direction === Direction.DOWN ? 1 : -1);
           }
         }
       }
@@ -135,7 +145,7 @@ export default function init(
         this.bridge.call(
           RNResolverTokenBuiltin.ScrollWebView,
           offset,
-          isDownward
+          direction
         );
       }
     }

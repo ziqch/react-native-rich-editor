@@ -1,21 +1,6 @@
 # react-native-rich-editor
 
-react native rich editor
-
-## Installation
-
-```sh
-npm install react-native-rich-editor
-```
-
-## Usage
-
-```js
-import { multiply } from 'react-native-rich-editor';
-
-// ...
-
-const result = await multiply(3, 7);
+react native rich editor, still WIP
 ```
 
 ## Contributing
