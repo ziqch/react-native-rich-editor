@@ -6,6 +6,7 @@ import {
   RNResolverListBuiltin,
   ReactNativeBridgeToken,
 } from '../../src/utils/contract';
+
 try {
   const reactNativeBridge = new Bridge<
     QuillResolverListBuiltin,
@@ -51,6 +52,7 @@ try {
           config.quillOptions
         );
         console.log('quill ready');
+        reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
       });
     });
 } catch (e: any) {

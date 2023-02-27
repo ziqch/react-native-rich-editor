@@ -9,7 +9,7 @@ import {
 import type { WebView } from 'react-native-webview';
 
 export interface useBridgeProps {
-  webViewInstance: WebView | null;
+  webViewRef: React.RefObject<WebView | null>;
   onWebViewInit: ResolverInnerType<
     RNResolverListBuiltin[RNResolverTokenBuiltin.OnWebViewInit]
   >;
@@ -26,19 +26,16 @@ export interface useBridgeProps {
 
 export const useBridge = (props: useBridgeProps) => {
   const {
-    webViewInstance,
+    webViewRef,
     scrollWebView,
     onWebViewInit,
     setReactNativeState,
     onEditorReady,
   } = props;
   return React.useMemo(() => {
-    if (!webViewInstance) {
-      return null;
-    }
     return new Bridge<RNResolverListBuiltin, QuillResolverListBuiltin>(
       (data) =>
-        webViewInstance.injectJavaScript(
+        webViewRef.current?.injectJavaScript(
           `$ReactNativeBridge.on(${JSON.stringify(data)})`
         ),
       {
@@ -68,6 +65,6 @@ export const useBridge = (props: useBridgeProps) => {
     onWebViewInit,
     scrollWebView,
     setReactNativeState,
-    webViewInstance,
+    webViewRef,
   ]);
 };
