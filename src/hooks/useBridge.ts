@@ -1,8 +1,8 @@
 import React from 'react';
-import Bridge, { ResolverInnerType } from '../utils/Bridge';
+import Bridge, { ResolverInnerType, Transceiver } from '../utils/Bridge';
+import { Resolver } from '../utils/Resolver';
 import {
   QuillResolverListBuiltin,
-  Resolver,
   RNResolverListBuiltin,
   RNResolverTokenBuiltin,
 } from '../utils/contract';
@@ -22,6 +22,9 @@ export interface useBridgeProps {
   onEditorReady: ResolverInnerType<
     RNResolverListBuiltin[RNResolverTokenBuiltin.OnEditorReady]
   >;
+  onTextChange: ResolverInnerType<
+    RNResolverListBuiltin[RNResolverTokenBuiltin.OnTextChange]
+  >;
 }
 
 export const useBridge = (props: useBridgeProps) => {
@@ -31,37 +34,43 @@ export const useBridge = (props: useBridgeProps) => {
     onWebViewInit,
     setReactNativeState,
     onEditorReady,
+    onTextChange,
   } = props;
   return React.useMemo(() => {
-    return new Bridge<RNResolverListBuiltin, QuillResolverListBuiltin>(
-      (data) =>
-        webViewRef.current?.injectJavaScript(
-          `$ReactNativeBridge.on(${JSON.stringify(data)})`
-        ),
-      {
-        [RNResolverTokenBuiltin.OnWebViewInit]: new Resolver(
-          RNResolverTokenBuiltin.OnWebViewInit,
-          onWebViewInit
-        ),
-
-        [RNResolverTokenBuiltin.SetReactNativeState]: new Resolver(
-          RNResolverTokenBuiltin.SetReactNativeState,
-          setReactNativeState
-        ),
-
-        [RNResolverTokenBuiltin.ScrollWebView]: new Resolver(
-          RNResolverTokenBuiltin.ScrollWebView,
-          scrollWebView
-        ),
-
-        [RNResolverTokenBuiltin.OnEditorReady]: new Resolver(
-          RNResolverTokenBuiltin.OnEditorReady,
-          onEditorReady
-        ),
-      }
+    Transceiver.getInstance().setSender((data) =>
+      webViewRef.current?.injectJavaScript(
+        `$ReactNativeBridge.on(${JSON.stringify(data)})`
+      )
     );
+    return new Bridge<RNResolverListBuiltin, QuillResolverListBuiltin>({
+      [RNResolverTokenBuiltin.OnWebViewInit]: new Resolver(
+        RNResolverTokenBuiltin.OnWebViewInit,
+        onWebViewInit
+      ),
+
+      [RNResolverTokenBuiltin.SetReactNativeState]: new Resolver(
+        RNResolverTokenBuiltin.SetReactNativeState,
+        setReactNativeState
+      ),
+
+      [RNResolverTokenBuiltin.ScrollWebView]: new Resolver(
+        RNResolverTokenBuiltin.ScrollWebView,
+        scrollWebView
+      ),
+
+      [RNResolverTokenBuiltin.OnEditorReady]: new Resolver(
+        RNResolverTokenBuiltin.OnEditorReady,
+        onEditorReady
+      ),
+
+      [RNResolverTokenBuiltin.OnTextChange]: new Resolver(
+        RNResolverTokenBuiltin.OnEditorReady,
+        onTextChange
+      ),
+    });
   }, [
     onEditorReady,
+    onTextChange,
     onWebViewInit,
     scrollWebView,
     setReactNativeState,

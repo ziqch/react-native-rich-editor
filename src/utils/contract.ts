@@ -1,26 +1,8 @@
 import type { QuillOptionsStatic, DeltaOperation } from 'quill';
-
-export class Resolver<F extends (...args: any) => any> {
-  private static readonly allResolvers = new Map<string, Resolver<any>>();
-  public readonly token: string;
-  private readonly resolver: F | undefined;
-  constructor(token: string, resolver?: F) {
-    this.token = token;
-    this.resolver = resolver;
-    Resolver.allResolvers.set(token, this);
-  }
-
-  public resolve(...args: Parameters<F>): ReturnType<F> {
-    if (this.resolver) {
-      return this.resolver.apply(this, args);
-    } else {
-      throw Error(`Unregistered Resolver: ${this.token}`);
-    }
-  }
-}
+import type { Resolver } from './Resolver';
 
 export enum RNResolverTokenBuiltin {
-  OnTextLengthChange = '@CALL[OnTextLengthChange]__builtin',
+  OnTextChange = '@CALL[OnTextChange]__builtin',
   SetReactNativeState = '@CALL[SetReactNativeState]__builtin',
   ScrollWebView = '@CALL[ScrollWebView]__builtin',
   OnWebViewInit = '@CALL[onWebViewInit]__builtin',
@@ -43,11 +25,15 @@ export interface RNResolverListBuiltin {
     () => WebViewInitializeConfig
   >;
   [RNResolverTokenBuiltin.OnEditorReady]: Resolver<() => void>;
+  [RNResolverTokenBuiltin.OnTextChange]: Resolver<
+    (delta: DeltaOperation[]) => void
+  >;
 }
 
 export interface WebViewInitializeConfig {
-  scriptsURL: string[];
-  cssURL: string[];
+  quillScript: string;
+  scriptsList?: string[];
+  cssList?: string[];
   initialValue: DeltaOperation[];
   quillOptions: QuillOptionsStatic;
 }
@@ -59,21 +45,21 @@ export enum QuillResolverTokenBuiltin {
   Blur = '@CALL[Blur]__builtin',
   Undo = '@CALL[Undo]__builtin',
   Redo = '@CALL[Redo]__builtin',
-  getContents = '@CALL[getContents]__builtin',
-  getLength = '@CALL[getLength]__builtin',
-  getText = '@CALL[getText]__builtin',
-  setContents = '@CALL[setContents]__builtin',
-  setText = '@CALL[setText]__builtin',
-  updateContents = '@CALL[updateContents]__builtin',
-  quillAPI = '@CALL[quillAPI]__builtin',
+  GetContents = '@CALL[GetContents]__builtin',
+  GetLength = '@CALL[GetLength]__builtin',
+  GetText = '@CALL[GetText]__builtin',
+  SetContents = '@CALL[SetContents]__builtin',
+  SetText = '@CALL[SetText]__builtin',
+  UpdateContents = '@CALL[UpdateContents]__builtin',
+  QuillAPI = '@CALL[QuillAPI]__builtin',
 }
 export interface QuillResolverListBuiltin {
   [QuillResolverTokenBuiltin.Focus]: Resolver<() => void>;
   [QuillResolverTokenBuiltin.Blur]: Resolver<() => void>;
   [QuillResolverTokenBuiltin.Undo]: Resolver<() => void>;
   [QuillResolverTokenBuiltin.Redo]: Resolver<() => void>;
-  [QuillResolverTokenBuiltin.getContents]: Resolver<
-    (index: number, length: number) => DeltaOperation[]
+  [QuillResolverTokenBuiltin.GetContents]: Resolver<
+    (index?: number, length?: number) => DeltaOperation[]
   >;
   // [QuillResolverTokenBuiltin.getLength]: Resolver<() => number>;
   // [QuillResolverTokenBuiltin.getText]: Resolver<
@@ -94,3 +80,4 @@ export interface QuillResolverListBuiltin {
 }
 
 export const ReactNativeBridgeToken = '$ReactNativeBridge';
+export const QuillInstanceToken = '$QuillInstance';

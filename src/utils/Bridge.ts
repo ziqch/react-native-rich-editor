@@ -1,4 +1,4 @@
-import type { Resolver } from './contract';
+import type { Resolver } from './Resolver';
 import { v4 as uuidv4 } from 'uuid';
 
 export type ResolverInnerType<S> = S extends Resolver<infer T> ? T : never;
@@ -18,23 +18,33 @@ interface Action {
   error?: string;
   payload: string;
 }
-class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
+
+export class Transceiver {
   private readonly queue: Action[] = [];
   private readonly callbackPool = new Map<string, CallbackControl<any>>();
-  private resolvers: SRC;
-  private readonly send: (data: string) => void;
+  private sender: (data: string) => void = () => {};
 
-  constructor(send: (data: string) => void, resolvers?: SRC) {
-    this.send = send;
-    this.resolvers = resolvers ?? ({} as SRC);
+  private constructor() {}
+
+  private static instance: Transceiver;
+
+  public static getInstance() {
+    if (!Transceiver.instance) {
+      Transceiver.instance = new Transceiver();
+    }
+    return Transceiver.instance;
   }
 
-  public registerResolvers(resolvers: SRC) {
-    this.resolvers = Object.assign(this.resolvers, resolvers);
+  public setSender(sender: (data: string) => void) {
+    this.sender = sender;
   }
 
-  private async callResolver(token: keyof SRC, args: any) {
-    const resolver = this.resolvers[token];
+  private async callResolver(
+    token: string,
+    resolvers: ResolverList<any>,
+    args: any
+  ) {
+    const resolver = resolvers[token];
     if (!resolver) {
       throw new Error(`Unregistered Resolver: ${String(token)}`);
     } else {
@@ -42,21 +52,15 @@ class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
     }
   }
 
-  private async execute(size: number) {
+  private async execute(size: number, resolvers: ResolverList<any>) {
     await Promise.resolve();
     while (size--) {
       const cur = this.queue.shift() as Action;
-      this.consumeMessage(cur);
+      this.consume(cur, resolvers);
     }
   }
 
-  public on(message: string) {
-    const msg = JSON.parse(message);
-    this.queue.push(msg);
-    this.execute(this.queue.length);
-  }
-
-  private async consumeMessage(action: Action) {
+  private async consume(action: Action, resolvers: ResolverList<any>) {
     switch (action.actionType) {
       case ActionType.CALLBACK:
         const control = this.callbackPool.get(action.id);
@@ -69,7 +73,7 @@ class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
         break;
       case ActionType.CALL:
         const args = action.payload ? JSON.parse(action.payload) : [];
-        const res = await this.callResolver(action.token as keyof SRC, args);
+        const res = await this.callResolver(action.token, resolvers, args);
         const callbackAction: Action = {
           actionType: ActionType.CALLBACK,
           token: action.token,
@@ -80,13 +84,13 @@ class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
     }
   }
 
-  private async dispatch<T>(action: Action): Promise<T> {
+  async dispatch<T>(action: Action): Promise<T> {
     switch (action.actionType) {
       case ActionType.CALLBACK:
-        this.send(JSON.stringify(action));
+        this.sender(JSON.stringify(action));
         return Promise.resolve({} as T);
       case ActionType.CALL:
-        this.send(JSON.stringify(action));
+        this.sender(JSON.stringify(action));
         return new Promise<T>((resolve, reject) => {
           this.callbackPool.set(action.id, { resolve, reject });
         });
@@ -94,11 +98,33 @@ class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
         return Promise.resolve({} as T);
     }
   }
+
+  public on(message: string, resolvers: ResolverList<any>) {
+    const msg = JSON.parse(message);
+    this.queue.push(msg);
+    this.execute(this.queue.length, resolvers);
+  }
+}
+class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
+  private resolvers: SRC;
+  private readonly transceiver = Transceiver.getInstance();
+
+  constructor(resolvers?: SRC) {
+    this.resolvers = resolvers ?? ({} as SRC);
+  }
+
+  public registerResolvers(resolvers: SRC) {
+    this.resolvers = Object.assign(this.resolvers, resolvers);
+  }
+
+  public on(message: string) {
+    this.transceiver.on(message, this.resolvers);
+  }
   public call<K extends keyof TGT>(
     token: K,
     ...args: Parameters<ResolverInnerType<TGT[K]>>
   ) {
-    return this.dispatch<ReturnType<ResolverInnerType<TGT[K]>>>({
+    return this.transceiver.dispatch<ReturnType<ResolverInnerType<TGT[K]>>>({
       actionType: ActionType.CALL,
       token: token as string,
       payload: JSON.stringify(args),
