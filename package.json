@@ -53,16 +53,22 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.2.2",
+    "@expo/vector-icons": "^13.0.0",
     "@react-native-community/eslint-config": "^3.0.2",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
+    "@types/quill": "^2.0.10",
     "@types/react": "~17.0.21",
     "@types/react-native": "0.70.0",
+    "@types/uuid": "^9.0.1",
     "commitlint": "^17.0.2",
     "del-cli": "^5.0.0",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "expo-asset": "^8.9.0",
+    "expo-font": "^11.1.1",
+    "expo-modules-core": "^1.2.3",
     "jest": "^28.1.1",
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
@@ -76,6 +82,10 @@
     "@types/react": "17.0.21"
   },
   "peerDependencies": {
+    "@expo/vector-icons": "^13.0.0",
+    "expo-asset": "^8.9.0",
+    "expo-font": "^11.1.1",
+    "expo-modules-core": "^1.2.3",
     "react": ">=16.8",
     "react-native": ">=0.67"
   },
@@ -158,10 +168,10 @@
     ]
   },
   "dependencies": {
-    "@rneui/base": "^4.0.0-rc.7",
-    "@rneui/themed": "^4.0.0-rc.7",
-    "@types/quill": "^2.0.10",
-    "@types/uuid": "^9.0.1",
+    "@expo/vector-icons": "^13.0.0",
+    "expo-asset": "^8.9.0",
+    "expo-font": "^11.1.1",
+    "expo-modules-core": "^1.2.3",
     "react-native-webview": "^11.26.1",
     "uuid": "^9.0.0"
   }
