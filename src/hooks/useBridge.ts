@@ -1,5 +1,8 @@
 import React from 'react';
-import Bridge, { ResolverInnerType, Transceiver } from '../utils/Bridge';
+import Bridge, {
+  ResolverFunctionTypeByToken,
+  Transceiver,
+} from '../utils/Bridge';
 import { Resolver } from '../utils/Resolver';
 import {
   QuillResolverListBuiltin,
@@ -10,20 +13,25 @@ import type { WebView } from 'react-native-webview';
 
 export interface useBridgeProps {
   webViewRef: React.RefObject<WebView | null>;
-  onWebViewInit: ResolverInnerType<
-    RNResolverListBuiltin[RNResolverTokenBuiltin.OnWebViewInit]
+  onWebViewInit: ResolverFunctionTypeByToken<
+    RNResolverTokenBuiltin.OnWebViewInit,
+    RNResolverListBuiltin
   >;
-  setReactNativeState: ResolverInnerType<
-    RNResolverListBuiltin[RNResolverTokenBuiltin.SetReactNativeState]
+  setReactNativeState: ResolverFunctionTypeByToken<
+    RNResolverTokenBuiltin.SetReactNativeState,
+    RNResolverListBuiltin
   >;
-  scrollWebView: ResolverInnerType<
-    RNResolverListBuiltin[RNResolverTokenBuiltin.ScrollWebView]
+  scrollWebView: ResolverFunctionTypeByToken<
+    RNResolverTokenBuiltin.ScrollWebView,
+    RNResolverListBuiltin
   >;
-  onEditorReady: ResolverInnerType<
-    RNResolverListBuiltin[RNResolverTokenBuiltin.OnEditorReady]
+  onEditorReady: ResolverFunctionTypeByToken<
+    RNResolverTokenBuiltin.OnEditorReady,
+    RNResolverListBuiltin
   >;
-  onTextChange: ResolverInnerType<
-    RNResolverListBuiltin[RNResolverTokenBuiltin.OnTextChange]
+  onTextChange: ResolverFunctionTypeByToken<
+    RNResolverTokenBuiltin.OnTextChange,
+    RNResolverListBuiltin
   >;
 }
 
@@ -42,32 +50,16 @@ export const useBridge = (props: useBridgeProps) => {
         `$ReactNativeBridge.on(${JSON.stringify(data)})`
       )
     );
-    return new Bridge<RNResolverListBuiltin, QuillResolverListBuiltin>({
-      [RNResolverTokenBuiltin.OnWebViewInit]: new Resolver(
-        RNResolverTokenBuiltin.OnWebViewInit,
-        onWebViewInit
-      ),
-
-      [RNResolverTokenBuiltin.SetReactNativeState]: new Resolver(
+    return new Bridge<RNResolverListBuiltin, QuillResolverListBuiltin>([
+      new Resolver(RNResolverTokenBuiltin.OnWebViewInit, onWebViewInit),
+      new Resolver(
         RNResolverTokenBuiltin.SetReactNativeState,
         setReactNativeState
       ),
-
-      [RNResolverTokenBuiltin.ScrollWebView]: new Resolver(
-        RNResolverTokenBuiltin.ScrollWebView,
-        scrollWebView
-      ),
-
-      [RNResolverTokenBuiltin.OnEditorReady]: new Resolver(
-        RNResolverTokenBuiltin.OnEditorReady,
-        onEditorReady
-      ),
-
-      [RNResolverTokenBuiltin.OnTextChange]: new Resolver(
-        RNResolverTokenBuiltin.OnEditorReady,
-        onTextChange
-      ),
-    });
+      new Resolver(RNResolverTokenBuiltin.ScrollWebView, scrollWebView),
+      new Resolver(RNResolverTokenBuiltin.OnEditorReady, onEditorReady),
+      new Resolver(RNResolverTokenBuiltin.OnTextChange, onTextChange),
+    ]);
   }, [
     onEditorReady,
     onTextChange,

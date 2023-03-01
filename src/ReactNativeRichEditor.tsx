@@ -13,6 +13,7 @@ export interface IRichEditorProps {
   width: number;
   height: number;
   initialValue: DeltaOperation[];
+  onTextChange?: (delta: DeltaOperation[]) => void;
   renderLoading?: () => JSX.Element;
 }
 
@@ -93,7 +94,7 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
   }, [props.initialValue]);
 
   const onTextChange = (delta: DeltaOperation[]) => {
-    console.log(delta);
+    props.onTextChange?.(delta);
   };
 
   const bridge = useBridge({
