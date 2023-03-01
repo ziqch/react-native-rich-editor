@@ -5,7 +5,10 @@ import {
   StatusBar,
   StyleSheet,
 } from 'react-native';
-import { ReactNativeRichEditor } from 'react-native-rich-editor';
+import {
+  ReactNativeRichEditor,
+  RichEditorToolBar,
+} from 'react-native-rich-editor';
 
 export default function App() {
   const { height, width } = useWindowDimensions();
@@ -25,7 +28,9 @@ export default function App() {
           { insert: 'World!', attributes: { bold: true } },
           { insert: '\n' },
         ]}
-      />
+      >
+        <RichEditorToolBar />
+      </ReactNativeRichEditor>
     </SafeAreaView>
   );
 }
