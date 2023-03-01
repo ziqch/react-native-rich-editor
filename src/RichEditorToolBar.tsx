@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-  View,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  useWindowDimensions,
   TouchableOpacity,
+  useWindowDimensions,
+  View,
 } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { BridgeContext } from './BridgeContextProvider';
