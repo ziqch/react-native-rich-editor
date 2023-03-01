@@ -71,3 +71,4 @@ export type QuillResolverListBuiltin = Array<
 
 export const ReactNativeBridgeToken = '$ReactNativeBridge';
 export const QuillInstanceToken = '$QuillInstance';
+export const BridgeBuiltinKey = 'Bridge__builtin';

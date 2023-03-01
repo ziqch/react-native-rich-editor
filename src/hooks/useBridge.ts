@@ -35,7 +35,7 @@ export interface useBridgeProps {
   >;
 }
 
-export const useBridge = (props: useBridgeProps) => {
+export const useBuiltinBridge = (props: useBridgeProps) => {
   const {
     webViewRef,
     scrollWebView,

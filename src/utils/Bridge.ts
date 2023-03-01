@@ -2,7 +2,7 @@ import type { Resolver } from './Resolver';
 import { v4 as uuidv4 } from 'uuid';
 
 type ElementOf<T> = T extends Array<infer E> ? E : never;
-type ResolverList = Array<Resolver<any, any>>;
+export type ResolverList = Array<Resolver<any, any>>;
 export type ResolverFunctionType<R> = R extends Resolver<any, infer F>
   ? F
   : never;

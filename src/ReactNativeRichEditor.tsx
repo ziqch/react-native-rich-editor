@@ -2,12 +2,14 @@ import React, { FC } from 'react';
 import { ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import type { WebViewInitializeConfig } from './utils/contract';
-import { RichEditorToolBar } from './RichEditorToolBar';
 // @ts-ignore
 import html from './web.js';
 import type { DeltaOperation } from 'quill';
-import { useBridge } from './hooks/useBridge';
+import { useBuiltinBridge } from './hooks/useBridge';
 import { useEditorScroll } from './hooks/useEditorScroll';
+import { BridgeContextProvider } from './BridgeContextProvider';
+import { BridgeRegister } from './BridgeRegister';
+import { BridgeBuiltinKey } from './utils/contract';
 
 export interface IRichEditorProps {
   width: number;
@@ -97,7 +99,7 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     props.onTextChange?.(delta);
   };
 
-  const bridge = useBridge({
+  const bridge__builtin = useBuiltinBridge({
     webViewRef,
     onWebViewInit,
     onEditorReady,
@@ -108,9 +110,9 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
 
   const onMessage = React.useCallback(
     (e: WebViewMessageEvent) => {
-      bridge.on(e.nativeEvent.data);
+      bridge__builtin.on(e.nativeEvent.data);
     },
-    [bridge]
+    [bridge__builtin]
   );
 
   const renderLoading = React.useCallback(() => {
@@ -147,7 +149,13 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
           overScrollMode={'never'}
         />
       </ScrollView>
-      <RichEditorToolBar />
+      <BridgeContextProvider>
+        <BridgeRegister
+          registerKey={BridgeBuiltinKey}
+          bridge={bridge__builtin}
+        />
+        {props.children}
+      </BridgeContextProvider>
     </>
   );
 };

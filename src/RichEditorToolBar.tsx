@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { BridgeContext } from './BridgeContextProvider';
 
 const ToolBarStyles = StyleSheet.create({
   container: {
@@ -30,6 +31,8 @@ const ToolBarStyles = StyleSheet.create({
 });
 export const RichEditorToolBar = () => {
   const { width } = useWindowDimensions();
+  const { bridges } = React.useContext(BridgeContext);
+  console.log('toolbar', bridges);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
