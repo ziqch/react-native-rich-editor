@@ -1,4 +1,4 @@
-import type { QuillOptionsStatic, DeltaOperation } from 'quill';
+import type { DeltaOperation, QuillOptionsStatic } from 'quill';
 import type { Resolver } from './Resolver';
 
 export enum RNResolverTokenBuiltin {

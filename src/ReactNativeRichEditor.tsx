@@ -1,15 +1,14 @@
 import React, { FC } from 'react';
-import { ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
-import type { WebViewInitializeConfig } from './utils/contract';
-// @ts-ignore
-import html from './web.js';
+import { BridgeBuiltinKey, WebViewInitializeConfig } from './utils';
 import type { DeltaOperation } from 'quill';
-import { useBuiltinBridge } from './hooks/useBridge';
+import { useBuiltinBridge } from './hooks/useBuiltBridge';
 import { useEditorScroll } from './hooks/useEditorScroll';
 import { BridgeContextProvider } from './BridgeContextProvider';
 import { BridgeRegister } from './BridgeRegister';
-import { BridgeBuiltinKey } from './utils/contract';
+// @ts-ignore
+import html from './web.js';
 
 export interface IRichEditorProps {
   width: number;
