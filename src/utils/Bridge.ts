@@ -1,8 +1,17 @@
 import type { Resolver } from './Resolver';
 import { v4 as uuidv4 } from 'uuid';
 
-export type ResolverInnerType<S> = S extends Resolver<infer T> ? T : never;
-type ResolverList<T> = { [K in keyof T]: Resolver<any> };
+type ElementOf<T> = T extends Array<infer E> ? E : never;
+type ResolverList = Array<Resolver<any, any>>;
+export type ResolverFunctionType<R> = R extends Resolver<any, infer F>
+  ? F
+  : never;
+export type ResolverFunctionTypeByToken<
+  T,
+  RL extends ResolverList
+> = ResolverFunctionType<Extract<ElementOf<RL>, Resolver<T, any>>>;
+export type ResolverTokens<RL extends ResolverList> =
+  ElementOf<RL> extends Resolver<infer T, any> ? T : never;
 interface CallbackControl<T> {
   resolve: (data: T) => void;
   reject: (error: any) => void;
@@ -41,10 +50,10 @@ export class Transceiver {
 
   private async callResolver(
     token: string,
-    resolvers: ResolverList<any>,
+    resolvers: Map<string, Resolver<any, any>>,
     args: any
   ) {
-    const resolver = resolvers[token];
+    const resolver = resolvers.get(token);
     if (!resolver) {
       throw new Error(`Unregistered Resolver: ${String(token)}`);
     } else {
@@ -52,7 +61,10 @@ export class Transceiver {
     }
   }
 
-  private async execute(size: number, resolvers: ResolverList<any>) {
+  private async execute(
+    size: number,
+    resolvers: Map<string, Resolver<any, any>>
+  ) {
     await Promise.resolve();
     while (size--) {
       const cur = this.queue.shift() as Action;
@@ -60,7 +72,10 @@ export class Transceiver {
     }
   }
 
-  private async consume(action: Action, resolvers: ResolverList<any>) {
+  private async consume(
+    action: Action,
+    resolvers: Map<string, Resolver<any, any>>
+  ) {
     switch (action.actionType) {
       case ActionType.CALLBACK:
         const control = this.callbackPool.get(action.id);
@@ -99,32 +114,41 @@ export class Transceiver {
     }
   }
 
-  public on(message: string, resolvers: ResolverList<any>) {
+  public on(message: string, resolvers: Map<any, Resolver<any, any>>) {
     const msg = JSON.parse(message);
     this.queue.push(msg);
     this.execute(this.queue.length, resolvers);
   }
 }
-class Bridge<SRC extends ResolverList<SRC>, TGT extends ResolverList<TGT>> {
-  private resolvers: SRC;
+class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
   private readonly transceiver = Transceiver.getInstance();
+  private readonly resolvers = new Map<string, Resolver<any, any>>();
 
   constructor(resolvers?: SRC) {
-    this.resolvers = resolvers ?? ({} as SRC);
+    this.registerResolvers(resolvers);
   }
 
-  public registerResolvers(resolvers: SRC) {
-    this.resolvers = Object.assign(this.resolvers, resolvers);
+  public registerResolvers(resolvers: SRC = [] as any) {
+    resolvers.forEach((resolver) => {
+      if (this.resolvers.has(resolver.token)) {
+        throw new Error(`Duplicated resolver token: ${resolver.token}`);
+      } else {
+        this.resolvers.set(resolver.token, resolver);
+      }
+    });
   }
 
   public on(message: string) {
     this.transceiver.on(message, this.resolvers);
   }
-  public call<K extends keyof TGT>(
+
+  public call<K extends ResolverTokens<TGT>>(
     token: K,
-    ...args: Parameters<ResolverInnerType<TGT[K]>>
+    ...args: Parameters<ResolverFunctionTypeByToken<K, TGT>>
   ) {
-    return this.transceiver.dispatch<ReturnType<ResolverInnerType<TGT[K]>>>({
+    return this.transceiver.dispatch<
+      ReturnType<ResolverFunctionTypeByToken<K, TGT>>
+    >({
       actionType: ActionType.CALL,
       token: token as string,
       payload: JSON.stringify(args),

@@ -167,28 +167,16 @@ export default function init(
       return this.quill.getContents(index, length).ops;
     }
     private registerResolvers() {
-      this.bridge.registerResolvers({
-        [QuillResolverTokenBuiltin.Focus]: new Resolver(
-          QuillResolverTokenBuiltin.Focus,
-          this.undo.bind(this)
-        ),
-        [QuillResolverTokenBuiltin.Blur]: new Resolver(
-          QuillResolverTokenBuiltin.Blur,
-          this.blur.bind(this)
-        ),
-        [QuillResolverTokenBuiltin.Undo]: new Resolver(
-          QuillResolverTokenBuiltin.Undo,
-          this.undo.bind(this)
-        ),
-        [QuillResolverTokenBuiltin.Redo]: new Resolver(
-          QuillResolverTokenBuiltin.Redo,
-          this.redo.bind(this)
-        ),
-        [QuillResolverTokenBuiltin.GetContents]: new Resolver(
+      this.bridge.registerResolvers([
+        new Resolver(QuillResolverTokenBuiltin.Focus, this.undo.bind(this)),
+        new Resolver(QuillResolverTokenBuiltin.Blur, this.blur.bind(this)),
+        new Resolver(QuillResolverTokenBuiltin.Undo, this.undo.bind(this)),
+        new Resolver(QuillResolverTokenBuiltin.Redo, this.redo.bind(this)),
+        new Resolver(
           QuillResolverTokenBuiltin.GetContents,
           this.getContents.bind(this)
         ),
-      });
+      ]);
     }
   }
   return new QuillEditor(quill, bridge, initialValue);

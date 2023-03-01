@@ -32,21 +32,25 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepack": "bob build",
     "release": "release-it",
+    "start": "yarn --cwd example start",
     "example": "yarn --cwd example",
-    "bootstrap": "yarn example && yarn install"
+    "web": "yarn --cwd web",
+    "build-web": "yarn --cwd web build",
+    "dev-web": "yarn --cwd web dev",
+    "bootstrap": "yarn example && yarn web && yarn install"
   },
   "keywords": [
     "react-native",
     "ios",
     "android"
   ],
-  "repository": "https://github.com/ziqianch/react-native-rich-editor",
+  "repository": "https://github.com/ziqch/react-native-rich-editor",
   "author": "senn <dawnever.czq@gmail.com> (https://github.com/ziqch)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ziqianch/react-native-rich-editor/issues"
+    "url": "https://github.com/ziqch/react-native-rich-editor/issues"
   },
-  "homepage": "https://github.com/ziqianch/react-native-rich-editor#readme",
+  "homepage": "https://github.com/ziqch/react-native-rich-editor#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
@@ -97,6 +101,7 @@
     "preset": "react-native",
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
+      "<rootDir>/web/",
       "<rootDir>/lib/"
     ]
   },
@@ -136,7 +141,8 @@
           "singleQuote": true,
           "tabWidth": 2,
           "trailingComma": "es5",
-          "useTabs": false
+          "useTabs": false,
+          "endOfLine": "auto"
         }
       ]
     }
