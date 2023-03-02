@@ -29,7 +29,7 @@ const ToolBarStyles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-export const RichEditorToolBar = () => {
+const RichEditorToolBar = () => {
   const { width } = useWindowDimensions();
   const { bridges } = React.useContext(BridgeContext);
   console.log('toolbar', bridges);
@@ -54,3 +54,5 @@ export const RichEditorToolBar = () => {
     </KeyboardAvoidingView>
   );
 };
+
+export default RichEditorToolBar;

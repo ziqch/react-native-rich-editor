@@ -34,9 +34,9 @@
     "release": "release-it",
     "start": "yarn --cwd example start",
     "example": "yarn --cwd example",
-    "web": "yarn --cwd web",
-    "build-web": "yarn --cwd web build",
-    "dev-web": "yarn --cwd web dev",
+    "web": "yarn --cwd src/web",
+    "build-web": "yarn --cwd src/web build",
+    "dev-web": "yarn --cwd src/web dev",
     "bootstrap": "yarn example && yarn web && yarn install"
   },
   "keywords": [
@@ -158,7 +158,7 @@
   "eslintIgnore": [
     "node_modules/",
     "lib/",
-    "src/web.js"
+    "src/react-native/web.js"
   ],
   "prettier": {
     "quoteProps": "consistent",
@@ -168,7 +168,7 @@
     "useTabs": false
   },
   "react-native-builder-bob": {
-    "source": "src",
+    "source": "src/react-native",
     "output": "lib",
     "targets": [
       "commonjs",

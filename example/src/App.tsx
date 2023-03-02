@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {
-  useWindowDimensions,
   SafeAreaView,
   StatusBar,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import {
   ReactNativeRichEditor,

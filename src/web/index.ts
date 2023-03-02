@@ -1,12 +1,12 @@
 import init from './QuillEditor';
-import Bridge, { Transceiver } from '../../src/utils/Bridge';
 import {
-  RNResolverTokenBuiltin,
-  QuillResolverListBuiltin,
-  RNResolverListBuiltin,
-  ReactNativeBridgeToken,
+  Bridge,
   QuillInstanceToken,
-} from '../../src/utils/contract';
+  QuillResolverListBuiltin,
+  ReactNativeBridgeToken,
+  RNResolverListBuiltin,
+  RNResolverTokenBuiltin,
+} from '../utils';
 import type Quill from 'quill';
 import type { QuillOptionsStatic } from 'quill';
 
@@ -55,7 +55,7 @@ const mountQuill = (options: QuillOptionsStatic) => {
 };
 
 try {
-  Transceiver.getInstance().setSender((data) =>
+  Bridge.setSender((data) =>
     (window as any).ReactNativeWebView.postMessage(data)
   );
 
