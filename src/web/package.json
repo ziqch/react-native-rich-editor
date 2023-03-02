@@ -2,7 +2,7 @@
   "name": "react-native-rich-editor-web",
   "version": "1.0.0",
   "description": "react native rich editor web",
-  "main": "lib/index.js",
+  "main": "index.ts",
   "license": "MIT",
   "scripts": {
     "build": "webpack --config webpack/configs/webpack.build.js",

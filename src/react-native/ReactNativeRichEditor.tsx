@@ -1,12 +1,20 @@
-import React, { FC } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
-import { BridgeBuiltinKey, WebViewInitializeConfig } from './utils';
+import {
+  Bridge,
+  BuiltinBridgeKey,
+  QuillResolverListBuiltin,
+  Resolver,
+  RNResolverListBuiltin,
+  RNResolverTokenBuiltin,
+  WebViewInitializeConfig,
+} from '../utils';
 import type { DeltaOperation } from 'quill';
-import { useBuiltinBridge } from './hooks/useBuiltBridge';
+import { useBridge } from './hooks/useBridge';
 import { useEditorScroll } from './hooks/useEditorScroll';
 import { BridgeContextProvider } from './BridgeContextProvider';
-import { BridgeRegister } from './BridgeRegister';
+import BridgeRegister from './BridgeRegister';
 // @ts-ignore
 import html from './web.js';
 
@@ -23,7 +31,7 @@ interface IRichEditorState {
   loading: boolean;
 }
 
-export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
+const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
   const [state, setState] = React.useState<IRichEditorState>({
     webViewHeight: 0,
     loading: true,
@@ -47,6 +55,11 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     },
   });
   const webViewRef = React.useRef<WebView>(null);
+  Bridge.setSender((data) =>
+    webViewRef.current?.injectJavaScript(
+      `$ReactNativeBridge.on(${JSON.stringify(data)})`
+    )
+  );
   const {
     scrollWebView,
     scrollViewRef,
@@ -61,10 +74,11 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     (key: string, value: string) => {
       try {
         const v = JSON.parse(value);
-        const newState = Object.assign({}, state, {
-          [key]: v,
+        setState((currentState) => {
+          return Object.assign({}, currentState, {
+            [key]: v,
+          });
         });
-        setState(newState);
         if (key === 'webViewHeight') {
           const { scrollTop, h } = viewScrollInfoRef.current;
           if (scrollTop + h > v) {
@@ -75,14 +89,14 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
         return;
       }
     },
-    [scrollViewRef, state, viewScrollInfoRef]
+    [scrollViewRef, viewScrollInfoRef]
   );
 
   const onEditorReady = () => {
-    setState({
-      ...state,
+    setState((current) => ({
+      ...current,
       loading: false,
-    });
+    }));
   };
 
   const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
@@ -98,13 +112,21 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     props.onTextChange?.(delta);
   };
 
-  const bridge__builtin = useBuiltinBridge({
-    webViewRef,
-    onWebViewInit,
-    onEditorReady,
-    scrollWebView,
-    setReactNativeState,
-    onTextChange,
+  const bridge__builtin = useBridge<
+    RNResolverListBuiltin,
+    QuillResolverListBuiltin
+  >({
+    registerKey: BuiltinBridgeKey,
+    initialResolvers: [
+      new Resolver(RNResolverTokenBuiltin.OnWebViewInit, onWebViewInit),
+      new Resolver(
+        RNResolverTokenBuiltin.SetReactNativeState,
+        setReactNativeState
+      ),
+      new Resolver(RNResolverTokenBuiltin.ScrollWebView, scrollWebView),
+      new Resolver(RNResolverTokenBuiltin.OnEditorReady, onEditorReady),
+      new Resolver(RNResolverTokenBuiltin.OnTextChange, onTextChange),
+    ],
   });
 
   const onMessage = React.useCallback(
@@ -148,13 +170,20 @@ export const ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
           overScrollMode={'never'}
         />
       </ScrollView>
-      <BridgeContextProvider>
-        <BridgeRegister
-          registerKey={BridgeBuiltinKey}
-          bridge={bridge__builtin}
-        />
-        {props.children}
-      </BridgeContextProvider>
     </>
   );
 };
+
+const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
+  props
+) => {
+  return (
+    <BridgeContextProvider>
+      <BridgeRegister registerKey={BuiltinBridgeKey} />
+      <$ReactNativeRichEditor {...props} />
+      {props.children}
+    </BridgeContextProvider>
+  );
+};
+
+export default ReactNativeRichEditor;

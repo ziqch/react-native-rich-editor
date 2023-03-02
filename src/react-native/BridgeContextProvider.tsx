@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import type Bridge from './utils/Bridge';
+import type { Bridge } from '../utils';
 
 interface BridgeContextValue {
   bridges: Map<string, Bridge<any, any>>;

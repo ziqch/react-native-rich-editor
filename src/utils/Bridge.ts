@@ -27,11 +27,11 @@ interface Action {
   error?: string;
   payload: string;
 }
-
-export class Transceiver {
+const noop = () => {};
+class Transceiver {
   private readonly queue: Action[] = [];
   private readonly callbackPool = new Map<string, CallbackControl<any>>();
-  private sender: (data: string) => void = () => {};
+  private sender: (data: string) => void = noop;
 
   private constructor() {}
 
@@ -46,6 +46,10 @@ export class Transceiver {
 
   public setSender(sender: (data: string) => void) {
     this.sender = sender;
+  }
+
+  public isConnected() {
+    return this.sender !== noop;
   }
 
   private async callResolver(
@@ -120,9 +124,15 @@ export class Transceiver {
     this.execute(this.queue.length, resolvers);
   }
 }
-class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
-  private readonly transceiver = Transceiver.getInstance();
+export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
+  private static readonly transceiver = Transceiver.getInstance();
   private readonly resolvers = new Map<string, Resolver<any, any>>();
+
+  public static setSender(sender: (data: string) => void) {
+    if (!Bridge.transceiver.isConnected()) {
+      Bridge.transceiver.setSender(sender);
+    }
+  }
 
   constructor(resolvers?: SRC) {
     this.registerResolvers(resolvers);
@@ -131,22 +141,23 @@ class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
   public registerResolvers(resolvers: SRC = [] as any) {
     resolvers.forEach((resolver) => {
       if (this.resolvers.has(resolver.token)) {
-        throw new Error(`Duplicated resolver token: ${resolver.token}`);
-      } else {
-        this.resolvers.set(resolver.token, resolver);
+        console.warn(
+          `Duplicated resolver token: ${resolver.token}, resolver will be override.`
+        );
       }
+      this.resolvers.set(resolver.token, resolver);
     });
   }
 
   public on(message: string) {
-    this.transceiver.on(message, this.resolvers);
+    Bridge.transceiver.on(message, this.resolvers);
   }
 
   public call<K extends ResolverTokens<TGT>>(
     token: K,
     ...args: Parameters<ResolverFunctionTypeByToken<K, TGT>>
   ) {
-    return this.transceiver.dispatch<
+    return Bridge.transceiver.dispatch<
       ReturnType<ResolverFunctionTypeByToken<K, TGT>>
     >({
       actionType: ActionType.CALL,
@@ -156,5 +167,3 @@ class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
     });
   }
 }
-
-export default Bridge;

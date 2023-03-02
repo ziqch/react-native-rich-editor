@@ -1,9 +1,9 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const root = path.resolve(__dirname, '../../../');
+const root = path.resolve(__dirname, '../../../../');
 module.exports = {
-  entry: path.resolve(__dirname, '../../src/index.ts'),
+  entry: path.resolve(__dirname, '../../index.ts'),
   module: {
     rules: [
       {
@@ -36,7 +36,7 @@ module.exports = {
   },
   output: {
     filename: 'web.js',
-    path: path.resolve(root, './src'),
+    path: path.resolve(root, './src/react-native'),
     libraryTarget: 'umd',
   },
   plugins: [

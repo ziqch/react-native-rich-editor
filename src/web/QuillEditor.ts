@@ -1,14 +1,14 @@
 import type Quill from 'quill';
 import type { DeltaOperation, RangeStatic } from 'quill';
-import type Bridge from '../../src/utils/Bridge';
-import { Resolver } from '../../src/utils/Resolver';
+import type { Bridge } from '../utils';
 import {
   Direction,
   QuillResolverListBuiltin,
   QuillResolverTokenBuiltin,
+  Resolver,
   RNResolverListBuiltin,
   RNResolverTokenBuiltin,
-} from '../../src/utils/contract';
+} from '../utils';
 
 export default function init(
   quill: Quill,

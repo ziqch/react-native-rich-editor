@@ -6,7 +6,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { Direction } from '../utils/contract';
+import { Direction } from '../../utils/contract';
 
 interface ViewScrollInfo {
   h: number;
