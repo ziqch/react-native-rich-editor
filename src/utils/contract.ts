@@ -1,7 +1,14 @@
-import type { DeltaOperation, QuillOptionsStatic, Sources } from 'quill';
+import type {
+  DeltaOperation,
+  QuillOptionsStatic,
+  RangeStatic,
+  Sources,
+  StringMap,
+} from 'quill';
 
 export enum RNResolverTokenBuiltin {
   OnTextChange = '@CALL[OnTextChange]__builtin',
+  OnSelectionChange = '@CALL[OnSelectionChange]__builtin',
   UpdateFormat = '@CALL[UpdateFormat]__builtin',
   SetReactNativeState = '@CALL[SetReactNativeState]__builtin',
   ScrollWebView = '@CALL[ScrollWebView]__builtin',
@@ -25,8 +32,17 @@ export type RNResolversBuiltin = {
   ) => void;
   [RNResolverTokenBuiltin.OnWebViewInit]: () => WebViewInitializeConfig;
   [RNResolverTokenBuiltin.OnEditorReady]: () => void;
-  [RNResolverTokenBuiltin.OnTextChange]: (delta: DeltaOperation[]) => void;
-  [RNResolverTokenBuiltin.UpdateFormat]: (format: string[]) => void;
+  [RNResolverTokenBuiltin.OnTextChange]: (
+    delta: DeltaOperation[],
+    oldDelta: DeltaOperation[],
+    source?: Sources
+  ) => void;
+  [RNResolverTokenBuiltin.OnSelectionChange]: (
+    range: RangeStatic,
+    oldRange: RangeStatic,
+    source?: Sources
+  ) => void;
+  [RNResolverTokenBuiltin.UpdateFormat]: (format: StringMap) => void;
 };
 
 export interface WebViewInitializeConfig {
@@ -48,7 +64,7 @@ export enum QuillResolverTokenBuiltin {
   GetText = '@CALL[GetText]__builtin',
   SetContents = '@CALL[SetContents]__builtin',
   SetText = '@CALL[SetText]__builtin',
-  UpdateContents = '@CALL[UpdateContents]__builtin',
+  Format = '@CALL[Format]__builtin',
   QuillAPI = '@CALL[QuillAPI]__builtin',
 }
 
@@ -64,6 +80,11 @@ export type QuillResolversBuiltin = {
   [QuillResolverTokenBuiltin.GetContents]: (
     index?: number,
     length?: number
+  ) => DeltaOperation[];
+  [QuillResolverTokenBuiltin.Format]: (
+    name: string,
+    value: any,
+    source?: Sources
   ) => DeltaOperation[];
 };
 

@@ -29,7 +29,14 @@ export default function App() {
           { insert: '\n' },
         ]}
       >
-        <RichEditorToolBar />
+        <RichEditorToolBar
+          formats={[
+            { format: 'bold', icon: 'bold' },
+            { format: 'italic', icon: 'italic' },
+            { format: 'underline', icon: 'underline' },
+            { format: 'strike', icon: 'strikethrough' },
+          ]}
+        />
       </ReactNativeRichEditor>
     </SafeAreaView>
   );

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import type { Bridge } from '../utils';
+import type { Bridge } from '../../utils';
 
 interface BridgeContextValue {
   bridges: Map<string, Bridge<any, any>>;
@@ -10,7 +10,7 @@ const initialValue: BridgeContextValue = {
   getBridge: () => undefined,
 };
 export const BridgeContext = React.createContext(initialValue);
-export const BridgeContextProvider: FC<{}> = (props) => {
+const BridgeContextProvider: FC<{}> = (props) => {
   const bridges = React.useRef<Map<string, Bridge<any, any>>>(
     new Map<string, Bridge<any, any>>()
   );
@@ -27,3 +27,4 @@ export const BridgeContextProvider: FC<{}> = (props) => {
     </BridgeContext.Provider>
   );
 };
+export default BridgeContextProvider;

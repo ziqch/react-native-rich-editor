@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import type { ResolverList } from '../utils';
+import type { ResolverList } from '../../utils';
 import { BridgeContext } from './BridgeContextProvider';
-import { Bridge } from '../utils';
+import { Bridge } from '../../utils';
 interface IBridgeRegisterProps {
   registerKey: string;
   resolverList?: ResolverList;
