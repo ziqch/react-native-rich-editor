@@ -64,7 +64,6 @@
     "@types/quill": "^2.0.10",
     "@types/react": "~17.0.21",
     "@types/react-native": "0.70.0",
-    "@types/uuid": "^9.0.1",
     "commitlint": "^17.0.2",
     "del-cli": "^5.0.0",
     "eslint": "^8.4.1",
@@ -145,8 +144,7 @@
           "endOfLine": "auto"
         }
       ],
-      "sort-imports":
-      [
+      "sort-imports": [
         "error",
         {
           "ignoreCase": true,
@@ -182,7 +180,6 @@
     ]
   },
   "dependencies": {
-    "react-native-webview": "^11.26.1",
-    "uuid": "^9.0.0"
+    "react-native-webview": "^11.26.1"
   }
 }

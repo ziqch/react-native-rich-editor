@@ -23,7 +23,7 @@ export default function App() {
       <ReactNativeRichEditor
         height={height}
         width={width}
-        initialValue={[
+        defaultValue={[
           { insert: 'Hello ' },
           { insert: 'World!', attributes: { bold: true } },
           { insert: '\n' },

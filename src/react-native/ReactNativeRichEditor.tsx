@@ -4,9 +4,9 @@ import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import {
   Bridge,
   BuiltinBridgeKey,
-  QuillResolverListBuiltin,
-  Resolver,
-  RNResolverListBuiltin,
+  QuillResolversBuiltin,
+  QuillResolverTokenBuiltin,
+  RNResolversBuiltin,
   RNResolverTokenBuiltin,
   WebViewInitializeConfig,
 } from '../utils';
@@ -21,7 +21,7 @@ import html from './web.js';
 export interface IRichEditorProps {
   width: number;
   height: number;
-  initialValue: DeltaOperation[];
+  defaultValue: DeltaOperation[];
   onTextChange?: (delta: DeltaOperation[]) => void;
   renderLoading?: () => JSX.Element;
 }
@@ -55,6 +55,9 @@ const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     },
   });
   const webViewRef = React.useRef<WebView>(null);
+  const bridge__builtin = useBridge<RNResolversBuiltin, QuillResolversBuiltin>(
+    BuiltinBridgeKey
+  );
   Bridge.setSender((data) =>
     webViewRef.current?.injectJavaScript(
       `$ReactNativeBridge.on(${JSON.stringify(data)})`
@@ -92,41 +95,38 @@ const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     [scrollViewRef, viewScrollInfoRef]
   );
 
-  const onEditorReady = () => {
+  const onEditorReady = React.useCallback(() => {
     setState((current) => ({
       ...current,
       loading: false,
     }));
-  };
+    bridge__builtin.call(
+      QuillResolverTokenBuiltin.SetContents,
+      props.defaultValue
+    );
+  }, [bridge__builtin, props.defaultValue]);
 
   const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
     return {
       quillScript: 'https://cdn.quilljs.com/1.3.6/quill.js',
       cssList: ['https://cdn.quilljs.com/1.3.6/quill.snow.css'],
-      initialValue: props.initialValue,
       quillOptions: {},
     };
-  }, [props.initialValue]);
+  }, []);
 
-  const onTextChange = (delta: DeltaOperation[]) => {
-    props.onTextChange?.(delta);
-  };
+  const onTextChange = React.useCallback(
+    (delta: DeltaOperation[]) => {
+      props.onTextChange?.(delta);
+    },
+    [props]
+  );
 
-  const bridge__builtin = useBridge<
-    RNResolverListBuiltin,
-    QuillResolverListBuiltin
-  >({
-    registerKey: BuiltinBridgeKey,
-    initialResolvers: [
-      new Resolver(RNResolverTokenBuiltin.OnWebViewInit, onWebViewInit),
-      new Resolver(
-        RNResolverTokenBuiltin.SetReactNativeState,
-        setReactNativeState
-      ),
-      new Resolver(RNResolverTokenBuiltin.ScrollWebView, scrollWebView),
-      new Resolver(RNResolverTokenBuiltin.OnEditorReady, onEditorReady),
-      new Resolver(RNResolverTokenBuiltin.OnTextChange, onTextChange),
-    ],
+  bridge__builtin.registerResolvers({
+    [RNResolverTokenBuiltin.OnWebViewInit]: onWebViewInit,
+    [RNResolverTokenBuiltin.SetReactNativeState]: setReactNativeState,
+    [RNResolverTokenBuiltin.ScrollWebView]: scrollWebView,
+    [RNResolverTokenBuiltin.OnEditorReady]: onEditorReady,
+    [RNResolverTokenBuiltin.OnTextChange]: onTextChange,
   });
 
   const onMessage = React.useCallback(
