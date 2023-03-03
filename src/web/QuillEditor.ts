@@ -1,6 +1,5 @@
 import type Quill from 'quill';
-import type { DeltaOperation } from 'quill';
-import type { RangeStatic } from 'quill';
+import type { DeltaOperation, RangeStatic, Sources } from 'quill';
 import type { Bridge } from '../utils';
 import {
   Direction,
@@ -9,7 +8,6 @@ import {
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
 } from '../utils';
-import type { Sources } from 'quill';
 
 export default function init(
   quill: Quill,
@@ -39,16 +37,28 @@ export default function init(
     }
 
     private setEvents() {
-      this.quill.on('text-change', () => {
+      this.quill.on('text-change', (delta, oldDelta, source) => {
         this.updateViewHeight();
         this.calculateScrollOffsetWhenTextChange();
         this.bridge.call(
           RNResolverTokenBuiltin.OnTextChange,
-          this.getContents()
+          delta.ops,
+          oldDelta.ops,
+          source
         );
       });
-      this.quill.on('selection-change', (range) => {
+      this.quill.on('selection-change', (range, oldRange, source) => {
         this.calculateScrollOffsetWhenSelect(range);
+        this.bridge.call(
+          RNResolverTokenBuiltin.OnSelectionChange,
+          range,
+          oldRange,
+          source
+        );
+        this.bridge.call(
+          RNResolverTokenBuiltin.UpdateFormat,
+          this.quill.getFormat()
+        );
       });
     }
 
@@ -166,6 +176,10 @@ export default function init(
       return this.quill.setContents(new Delta(delta), source).ops;
     }
 
+    private format(name: string, value: any, source?: Sources) {
+      return this.quill.format(name, value, source).ops;
+    }
+
     private registerResolvers() {
       this.bridge.registerResolvers({
         [QuillResolverTokenBuiltin.Focus]: this.undo.bind(this),
@@ -174,6 +188,7 @@ export default function init(
         [QuillResolverTokenBuiltin.Redo]: this.redo.bind(this),
         [QuillResolverTokenBuiltin.SetContents]: this.setContents.bind(this),
         [QuillResolverTokenBuiltin.GetContents]: this.getContents.bind(this),
+        [QuillResolverTokenBuiltin.Format]: this.format.bind(this),
       });
     }
   }

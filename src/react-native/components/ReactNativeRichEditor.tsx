@@ -9,20 +9,26 @@ import {
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
   WebViewInitializeConfig,
-} from '../utils';
-import type { DeltaOperation } from 'quill';
-import { useBridge } from './hooks/useBridge';
-import { useEditorScroll } from './hooks/useEditorScroll';
-import { BridgeContextProvider } from './BridgeContextProvider';
+} from '../../utils';
+import type { DeltaOperation, RangeStatic, Sources } from 'quill';
+import { useBridge } from '../hooks/useBridge';
+import { useEditorScroll } from '../hooks/useEditorScroll';
+import BridgeContextProvider from './BridgeContextProvider';
 import BridgeRegister from './BridgeRegister';
 // @ts-ignore
-import html from './web.js';
+import html from '../web.js';
+import { FormatEventChannel } from './Format';
 
 export interface IRichEditorProps {
   width: number;
   height: number;
   defaultValue: DeltaOperation[];
   onTextChange?: (delta: DeltaOperation[]) => void;
+  onSelectionChange?: (
+    range: RangeStatic,
+    oldRange: RangeStatic,
+    source?: Sources
+  ) => void;
   renderLoading?: () => JSX.Element;
 }
 
@@ -114,9 +120,16 @@ const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     };
   }, []);
 
-  const onTextChange = React.useCallback(
-    (delta: DeltaOperation[]) => {
-      props.onTextChange?.(delta);
+  const onTextChange = React.useCallback(async () => {
+    const delta = await bridge__builtin.call(
+      QuillResolverTokenBuiltin.GetContents
+    );
+    props.onTextChange?.(delta);
+  }, [bridge__builtin, props]);
+
+  const onSelectionChange = React.useCallback(
+    (range: RangeStatic, oldRange: RangeStatic, source?: Sources) => {
+      props.onSelectionChange?.(range, oldRange, source);
     },
     [props]
   );
@@ -127,6 +140,9 @@ const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
     [RNResolverTokenBuiltin.ScrollWebView]: scrollWebView,
     [RNResolverTokenBuiltin.OnEditorReady]: onEditorReady,
     [RNResolverTokenBuiltin.OnTextChange]: onTextChange,
+    [RNResolverTokenBuiltin.OnSelectionChange]: onSelectionChange,
+    [RNResolverTokenBuiltin.UpdateFormat]:
+      FormatEventChannel.getInstance().publish,
   });
 
   const onMessage = React.useCallback(
