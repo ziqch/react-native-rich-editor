@@ -1,19 +1,19 @@
 import type Quill from 'quill';
-import type { DeltaOperation, RangeStatic } from 'quill';
+import type { DeltaOperation } from 'quill';
+import type { RangeStatic } from 'quill';
 import type { Bridge } from '../utils';
 import {
   Direction,
-  QuillResolverListBuiltin,
+  QuillResolversBuiltin,
   QuillResolverTokenBuiltin,
-  Resolver,
-  RNResolverListBuiltin,
+  RNResolversBuiltin,
   RNResolverTokenBuiltin,
 } from '../utils';
+import type { Sources } from 'quill';
 
 export default function init(
   quill: Quill,
-  bridge: Bridge<QuillResolverListBuiltin, RNResolverListBuiltin>,
-  initialValue: DeltaOperation[]
+  bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>
 ) {
   const _Quill = (window as any).Quill as typeof Quill;
   const Delta = _Quill.import('delta');
@@ -21,23 +21,18 @@ export default function init(
     static ScrollOffsetBuffer = 20;
     private readonly quill: Quill;
     private readonly history: any;
-    private readonly bridge: Bridge<
-      QuillResolverListBuiltin,
-      RNResolverListBuiltin
-    >;
+    private readonly bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>;
     private viewHeight = 0;
     private previousContentLength = 0;
     private previousSectionRange: RangeStatic | null = { index: 0, length: 0 };
 
     constructor(
       quill: Quill,
-      bridge: Bridge<QuillResolverListBuiltin, RNResolverListBuiltin>,
-      initialValue: DeltaOperation[]
+      bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>
     ) {
       this.bridge = bridge;
       this.quill = quill;
       this.history = this.quill.getModule('history');
-      this.quill.setContents(new Delta(initialValue));
       this.setEvents();
       this.registerResolvers();
       this.updateViewHeight();
@@ -166,18 +161,21 @@ export default function init(
     private getContents(index?: number, length?: number) {
       return this.quill.getContents(index, length).ops;
     }
+
+    private setContents(delta: DeltaOperation[], source?: Sources) {
+      return this.quill.setContents(new Delta(delta), source).ops;
+    }
+
     private registerResolvers() {
-      this.bridge.registerResolvers([
-        new Resolver(QuillResolverTokenBuiltin.Focus, this.undo.bind(this)),
-        new Resolver(QuillResolverTokenBuiltin.Blur, this.blur.bind(this)),
-        new Resolver(QuillResolverTokenBuiltin.Undo, this.undo.bind(this)),
-        new Resolver(QuillResolverTokenBuiltin.Redo, this.redo.bind(this)),
-        new Resolver(
-          QuillResolverTokenBuiltin.GetContents,
-          this.getContents.bind(this)
-        ),
-      ]);
+      this.bridge.registerResolvers({
+        [QuillResolverTokenBuiltin.Focus]: this.undo.bind(this),
+        [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
+        [QuillResolverTokenBuiltin.Undo]: this.undo.bind(this),
+        [QuillResolverTokenBuiltin.Redo]: this.redo.bind(this),
+        [QuillResolverTokenBuiltin.SetContents]: this.setContents.bind(this),
+        [QuillResolverTokenBuiltin.GetContents]: this.getContents.bind(this),
+      });
     }
   }
-  return new QuillEditor(quill, bridge, initialValue);
+  return new QuillEditor(quill, bridge);
 }

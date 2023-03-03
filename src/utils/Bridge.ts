@@ -1,17 +1,10 @@
-import type { Resolver } from './Resolver';
-import { v4 as uuidv4 } from 'uuid';
+import { Resolver } from './Resolver';
 
-type ElementOf<T> = T extends Array<infer E> ? E : never;
-export type ResolverList = Array<Resolver<any, any>>;
-export type ResolverFunctionType<R> = R extends Resolver<any, infer F>
-  ? F
-  : never;
-export type ResolverFunctionTypeByToken<
-  T,
+export type ResolverList = { [K in string]: (...args: any) => any };
+export type ResolverFunctionType<
+  T extends keyof RL,
   RL extends ResolverList
-> = ResolverFunctionType<Extract<ElementOf<RL>, Resolver<T, any>>>;
-export type ResolverTokens<RL extends ResolverList> =
-  ElementOf<RL> extends Resolver<infer T, any> ? T : never;
+> = RL[T];
 interface CallbackControl<T> {
   resolve: (data: T) => void;
   reject: (error: any) => void;
@@ -28,6 +21,19 @@ interface Action {
   payload: string;
 }
 const noop = () => {};
+
+const uuid = () => {
+  const s = [];
+  const hexDigits = '0123456789abcdef';
+  for (let i = 0; i < 36; i++) {
+    s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+  }
+  s[14] = '4';
+  // @ts-ignore
+  s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);
+  s[8] = s[13] = s[18] = s[23] = '-';
+  return s.join('');
+};
 class Transceiver {
   private readonly queue: Action[] = [];
   private readonly callbackPool = new Map<string, CallbackControl<any>>();
@@ -138,14 +144,9 @@ export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
     this.registerResolvers(resolvers);
   }
 
-  public registerResolvers(resolvers: SRC = [] as any) {
-    resolvers.forEach((resolver) => {
-      if (this.resolvers.has(resolver.token)) {
-        console.warn(
-          `Duplicated resolver token: ${resolver.token}, resolver will be override.`
-        );
-      }
-      this.resolvers.set(resolver.token, resolver);
+  public registerResolvers(resolvers: Partial<SRC> = {} as any) {
+    Object.keys(resolvers).forEach((token) => {
+      this.resolvers.set(token, new Resolver(token, resolvers[token] ?? noop));
     });
   }
 
@@ -153,17 +154,17 @@ export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
     Bridge.transceiver.on(message, this.resolvers);
   }
 
-  public call<K extends ResolverTokens<TGT>>(
+  public call<K extends keyof TGT>(
     token: K,
-    ...args: Parameters<ResolverFunctionTypeByToken<K, TGT>>
+    ...args: Parameters<ResolverFunctionType<K, TGT>>
   ) {
     return Bridge.transceiver.dispatch<
-      ReturnType<ResolverFunctionTypeByToken<K, TGT>>
+      ReturnType<ResolverFunctionType<K, TGT>>
     >({
       actionType: ActionType.CALL,
       token: token as string,
       payload: JSON.stringify(args),
-      id: uuidv4(),
+      id: uuid(),
     });
   }
 }
