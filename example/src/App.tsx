@@ -8,6 +8,7 @@ import {
 import {
   ReactNativeRichEditor,
   RichEditorToolBar,
+  Size,
 } from 'react-native-rich-editor';
 
 export default function App() {
@@ -31,10 +32,11 @@ export default function App() {
       >
         <RichEditorToolBar
           formats={[
-            { format: 'bold', icon: 'bold' },
-            { format: 'italic', icon: 'italic' },
-            { format: 'underline', icon: 'underline' },
-            { format: 'strike', icon: 'strikethrough' },
+            <Size />,
+            { format: 'bold', icon: 'format-bold' },
+            { format: 'italic', icon: 'format-italic' },
+            { format: 'underline', icon: 'format-underline' },
+            { format: 'strike', icon: 'format-strikethrough' },
           ]}
         />
       </ReactNativeRichEditor>

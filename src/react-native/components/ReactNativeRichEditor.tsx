@@ -13,11 +13,11 @@ import {
 import type { DeltaOperation, RangeStatic, Sources } from 'quill';
 import { useBridge } from '../hooks/useBridge';
 import { useEditorScroll } from '../hooks/useEditorScroll';
-import BridgeContextProvider from './BridgeContextProvider';
-import BridgeRegister from './BridgeRegister';
+import BridgeContextProvider from './bridge/BridgeContextProvider';
+import BridgeRegister from './bridge/BridgeRegister';
 // @ts-ignore
 import html from '../web.js';
-import { FormatEventChannel } from './Format';
+import { FormatEventChannel } from '../utils';
 
 export interface IRichEditorProps {
   width: number;

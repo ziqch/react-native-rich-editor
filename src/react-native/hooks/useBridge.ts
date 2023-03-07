@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Bridge, ResolverList } from '../../utils';
-import { BridgeContext } from '../components/BridgeContextProvider';
+import { BridgeContext } from '../components/bridge/BridgeContextProvider';
 export const useBridge = <SRC extends ResolverList, TGT extends ResolverList>(
   registerKey: string
 ) => {
