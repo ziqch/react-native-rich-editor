@@ -7,11 +7,11 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import type { IFormatProps } from './Format';
-import { Format } from './Format';
+import type { IFormatProps } from './format/Format';
+import { Format } from './format/Format';
 
 interface IRichEditorToolBarProps {
-  formats: IFormatProps[];
+  formats: Array<IFormatProps | JSX.Element>;
   style?: ViewStyle;
 }
 
@@ -42,9 +42,16 @@ const RichEditorToolBar: FC<IRichEditorToolBarProps> = (props) => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={{ ...ToolBarStyles.container, width, ...style }}>
-        {formats.map((formatProps) => (
-          <Format key={formatProps.format} {...formatProps} />
-        ))}
+        {formats.map((format, index) =>
+          React.isValidElement(format) ? (
+            <View key={index}>{format}</View>
+          ) : (
+            <View key={index}>
+              {/*@ts-ignore*/}
+              <Format {...format} />
+            </View>
+          )
+        )}
       </View>
     </KeyboardAvoidingView>
   );

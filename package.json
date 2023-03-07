@@ -59,6 +59,7 @@
     "@evilmartians/lefthook": "^1.2.2",
     "@expo/vector-icons": "^13.0.0",
     "@react-native-community/eslint-config": "^3.0.2",
+    "@react-native-picker/picker": "2.4.8",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
     "@types/quill": "^2.0.10",
@@ -86,6 +87,7 @@
   },
   "peerDependencies": {
     "@expo/vector-icons": "^13.0.0",
+    "@react-native-picker/picker": "2.4.8",
     "expo-asset": "^8.9.0",
     "expo-font": "^11.1.1",
     "expo-modules-core": "^1.2.3",
