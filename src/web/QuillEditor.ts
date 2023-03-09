@@ -63,15 +63,17 @@ export default function init(
     }
 
     private updateViewHeight() {
-      const rect = this.quill.root.getBoundingClientRect();
-      if (this.viewHeight !== rect.height) {
-        this.bridge.call(
-          RNResolverTokenBuiltin.SetReactNativeState,
-          'webViewHeight',
-          JSON.stringify(rect.height)
-        );
-      }
-      this.viewHeight = rect.height;
+      setTimeout(() => {
+        const rect = this.quill.root.getBoundingClientRect();
+        if (this.viewHeight !== rect.height) {
+          this.bridge.call(
+            RNResolverTokenBuiltin.SetReactNativeState,
+            'webViewHeight',
+            JSON.stringify(rect.height)
+          );
+        }
+        this.viewHeight = rect.height;
+      });
     }
 
     private calculateScrollOffsetWhenTextChange() {
@@ -177,11 +179,23 @@ export default function init(
     }
 
     private format(name: string, value: any, source?: Sources) {
-      return this.quill.format(name, value, source).ops;
+      const res = this.quill.format(name, value, source).ops;
+      this.updateViewHeight();
+      return res;
+    }
+
+    private addImage(sources: string[]) {
+      let index = this.quill.getSelection(true).index;
+      sources.forEach((src) => {
+        this.quill.insertEmbed(index++, 'image', src);
+      });
+      this.quill.setSelection({ index, length: 0 });
+      this.updateViewHeight();
     }
 
     private registerResolvers() {
       this.bridge.registerResolvers({
+        [QuillResolverTokenBuiltin.AddImage]: this.addImage.bind(this),
         [QuillResolverTokenBuiltin.Focus]: this.undo.bind(this),
         [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
         [QuillResolverTokenBuiltin.Undo]: this.undo.bind(this),

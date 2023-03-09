@@ -7,11 +7,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import type { IFormatProps } from './format/Format';
-import { Format } from './format/Format';
 
 interface IRichEditorToolBarProps {
-  formats: Array<IFormatProps | JSX.Element>;
+  formats: Array<JSX.Element>;
   style?: ViewStyle;
 }
 
@@ -46,10 +44,7 @@ const RichEditorToolBar: FC<IRichEditorToolBarProps> = (props) => {
           React.isValidElement(format) ? (
             <View key={index}>{format}</View>
           ) : (
-            <View key={index}>
-              {/*@ts-ignore*/}
-              <Format {...format} />
-            </View>
+            <></>
           )
         )}
       </View>

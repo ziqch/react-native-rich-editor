@@ -6,9 +6,11 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import {
+  Formatter,
+  ImageFormatter,
   ReactNativeRichEditor,
   RichEditorToolBar,
-  Size,
+  SizeFormatter,
 } from 'react-native-rich-editor';
 
 export default function App() {
@@ -32,11 +34,12 @@ export default function App() {
       >
         <RichEditorToolBar
           formats={[
-            <Size />,
-            { format: 'bold', icon: 'format-bold' },
-            { format: 'italic', icon: 'format-italic' },
-            { format: 'underline', icon: 'format-underline' },
-            { format: 'strike', icon: 'format-strikethrough' },
+            <SizeFormatter />,
+            <ImageFormatter icon={'image'} />,
+            <Formatter format={'bold'} icon={'format-bold'} />,
+            <Formatter format={'italic'} icon={'format-italic'} />,
+            <Formatter format={'underline'} icon={'format-underline'} />,
+            <Formatter format={'strike'} icon={'format-strikethrough'} />,
           ]}
         />
       </ReactNativeRichEditor>
