@@ -5,6 +5,7 @@ export type ResolverFunctionType<
   T extends keyof RL,
   RL extends ResolverList
 > = RL[T];
+export type PromiseInner<T> = T extends Promise<infer P> ? P : T;
 interface CallbackControl<T> {
   resolve: (data: T) => void;
   reject: (error: any) => void;
@@ -159,7 +160,7 @@ export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
     ...args: Parameters<ResolverFunctionType<K, TGT>>
   ) {
     return Bridge.transceiver.dispatch<
-      ReturnType<ResolverFunctionType<K, TGT>>
+      PromiseInner<ReturnType<ResolverFunctionType<K, TGT>>>
     >({
       actionType: ActionType.CALL,
       token: token as string,

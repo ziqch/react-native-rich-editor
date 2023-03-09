@@ -14,6 +14,7 @@ export enum RNResolverTokenBuiltin {
   ScrollWebView = '@CALL[ScrollWebView]__builtin',
   OnWebViewInit = '@CALL[onWebViewInit]__builtin',
   OnEditorReady = '@CALL[OnEditorReady]__builtin',
+  FocusForAndroid = '@CALL[FocusForAndroid]__builtin',
 }
 
 export enum Direction {
@@ -43,6 +44,7 @@ export type RNResolversBuiltin = {
     source?: Sources
   ) => void;
   [RNResolverTokenBuiltin.UpdateFormat]: (format: StringMap) => void;
+  [RNResolverTokenBuiltin.FocusForAndroid]: () => void;
 };
 
 export interface WebViewInitializeConfig {
@@ -70,7 +72,7 @@ export enum QuillResolverTokenBuiltin {
 
 export type QuillResolversBuiltin = {
   [QuillResolverTokenBuiltin.AddImage]: (sources: string[]) => void;
-  [QuillResolverTokenBuiltin.Focus]: () => void;
+  [QuillResolverTokenBuiltin.Focus]: (index?: number, length?: number) => void;
   [QuillResolverTokenBuiltin.Blur]: () => void;
   [QuillResolverTokenBuiltin.Undo]: () => void;
   [QuillResolverTokenBuiltin.Redo]: () => void;
@@ -86,7 +88,7 @@ export type QuillResolversBuiltin = {
     name: string,
     value: any,
     source?: Sources
-  ) => DeltaOperation[];
+  ) => Promise<DeltaOperation[]>;
 };
 
 export const ReactNativeBridgeToken = '$ReactNativeBridge';

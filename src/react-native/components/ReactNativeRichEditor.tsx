@@ -23,6 +23,7 @@ import BridgeRegister from './bridge/BridgeRegister';
 // @ts-ignore
 import html from '../web.js';
 import { FormatEventChannel } from '../utils';
+import { useFocusForAndroid } from '../hooks/useFocusForAndroid';
 
 interface IRichEditorInnerProps {
   width: number;
@@ -70,6 +71,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     },
   });
   const webViewRef = React.useRef<WebView>(null);
+  const { focus, hackInput } = useFocusForAndroid(webViewRef);
   const bridge__builtin = useBridge<RNResolversBuiltin, QuillResolversBuiltin>(
     BuiltinBridgeKey
   );
@@ -160,6 +162,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     [RNResolverTokenBuiltin.OnSelectionChange]: onSelectionChange,
     [RNResolverTokenBuiltin.UpdateFormat]:
       FormatEventChannel.getInstance().publish,
+    [RNResolverTokenBuiltin.FocusForAndroid]: focus,
   });
 
   const onMessage = React.useCallback(
@@ -183,6 +186,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   return (
     <>
       {renderLoading()}
+      {hackInput}
       <ScrollView
         ref={scrollViewRef}
         style={styles.container}
