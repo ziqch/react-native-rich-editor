@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import Picker from 'react-native-picker-select';
+import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
 import { useFormat } from '../../hooks/useFormat';
 import { useEditorReady } from '../../hooks/useEditorReady';
 
@@ -43,23 +43,17 @@ const Size: FC<ISizeProps> = (props) => {
     [props, setFormatValue]
   );
   const style = StyleSheet.create({
-    container: { width: 150, ...props.style },
+    container: { width: Platform.OS === 'android' ? 150 : 80, ...props.style },
   });
   return (
     <View style={style.container}>
       <Picker
-        selectedValue={formatValue}
+        value={formatValue}
+        placeholder={{}}
         onValueChange={onValueChange}
-        enabled={isEditorReady && !disabled}
-      >
-        {selections.map((selection, index) => (
-          <Picker.Item
-            key={index}
-            label={selection.label}
-            value={selection.value}
-          />
-        ))}
-      </Picker>
+        items={selections}
+        disabled={!isEditorReady || disabled}
+      />
     </View>
   );
 };
