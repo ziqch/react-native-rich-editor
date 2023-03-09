@@ -1,19 +1,12 @@
 import React from 'react';
-import { useBridge } from './useBridge';
-import {
-  BuiltinBridgeKey,
-  QuillResolversBuiltin,
-  QuillResolverTokenBuiltin,
-  RNResolversBuiltin,
-} from '../../utils';
+import { useBuiltinBridge } from './useBridge';
+import { QuillResolverTokenBuiltin } from '../../utils';
 import type { Sources } from 'quill';
 import { FormatEventChannel } from '../utils';
 
 export const useFormat = (format: string, defaultValue: any = false) => {
   const [value, setValue] = React.useState<any | false>(defaultValue);
-  const bridge__builtin = useBridge<RNResolversBuiltin, QuillResolversBuiltin>(
-    BuiltinBridgeKey
-  );
+  const bridge__builtin = useBuiltinBridge();
   const setFormat = React.useCallback(
     (v: any, source?: Sources) => {
       bridge__builtin

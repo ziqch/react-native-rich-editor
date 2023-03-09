@@ -1,6 +1,12 @@
 import React from 'react';
-import type { Bridge, ResolverList } from '../../utils';
-import { BridgeContext } from '../components/bridge/BridgeContextProvider';
+import type {
+  Bridge,
+  QuillResolversBuiltin,
+  ResolverList,
+  RNResolversBuiltin,
+} from '../../utils';
+import { BridgeContext } from '../components/bridge/BridgeContext';
+import { BuiltinBridgeKey } from '../../utils';
 export const useBridge = <SRC extends ResolverList, TGT extends ResolverList>(
   registerKey: string
 ) => {
@@ -8,4 +14,8 @@ export const useBridge = <SRC extends ResolverList, TGT extends ResolverList>(
   return React.useMemo(() => {
     return getBridge(registerKey) as Bridge<SRC, TGT>;
   }, [getBridge, registerKey]);
+};
+
+export const useBuiltinBridge = () => {
+  return useBridge<RNResolversBuiltin, QuillResolversBuiltin>(BuiltinBridgeKey);
 };

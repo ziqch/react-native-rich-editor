@@ -3,8 +3,8 @@ import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerOptions } from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { BuiltinBridgeKey, QuillResolverTokenBuiltin } from '../../../utils';
-import { useBridge } from '../../hooks/useBridge';
+import { QuillResolverTokenBuiltin } from '../../../utils';
+import { useBuiltinBridge } from '../../hooks/useBridge';
 import { useEditorReady } from '../../hooks/useEditorReady';
 
 export interface IImageProps {
@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
 });
 const Image: FC<IImageProps> = (props) => {
   const { icon, style, onValueChange, imagePickerOptions } = props;
-  const bridge__builtin = useBridge(BuiltinBridgeKey);
+  const bridge__builtin = useBuiltinBridge();
   const isEditorReady = useEditorReady();
   const onPress = React.useCallback(async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
