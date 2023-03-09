@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { useFormat } from '../../hooks/useFormat';
+import { useEditorReady } from '../../hooks/useEditorReady';
 
 export interface ISizeProps {
   style?: ViewStyle;
@@ -9,6 +10,7 @@ export interface ISizeProps {
     value: any;
     label: string;
   }>;
+  disabled?: boolean;
   onValueChange?: (itemValue: any, itemIndex: number) => void;
 }
 const defaultSelections = [
@@ -30,8 +32,9 @@ const defaultSelections = [
   },
 ];
 const Size: FC<ISizeProps> = (props) => {
-  const { selections = defaultSelections } = props;
+  const { selections = defaultSelections, disabled } = props;
   const { formatValue, setFormatValue } = useFormat('size', false);
+  const isEditorReady = useEditorReady();
   const onValueChange = React.useCallback(
     (value: any, index: number) => {
       setFormatValue(value);
@@ -44,7 +47,11 @@ const Size: FC<ISizeProps> = (props) => {
   });
   return (
     <View style={style.container}>
-      <Picker selectedValue={formatValue} onValueChange={onValueChange}>
+      <Picker
+        selectedValue={formatValue}
+        onValueChange={onValueChange}
+        enabled={isEditorReady && !disabled}
+      >
         {selections.map((selection, index) => (
           <Picker.Item
             key={index}

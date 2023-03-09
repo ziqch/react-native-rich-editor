@@ -1,25 +1,33 @@
-import React, { FC } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import type { Bridge } from '../../../utils';
 
-interface BridgeContextValue {
+interface IBridgeContextProps {
+  isEditorReady: boolean;
+}
+interface IBridgeContextValue {
   bridges: Map<string, Bridge<any, any>>;
+  isEditorReady: boolean;
   getBridge: (key: string) => Bridge<any, any> | undefined;
 }
-const initialValue: BridgeContextValue = {
+const initialValue: IBridgeContextValue = {
   bridges: new Map<string, Bridge<any, any>>(),
+  isEditorReady: false,
   getBridge: () => undefined,
 };
 export const BridgeContext = React.createContext(initialValue);
-const BridgeContextProvider: FC<{}> = (props) => {
+const BridgeContextProvider: FC<PropsWithChildren<IBridgeContextProps>> = (
+  props
+) => {
   const bridges = React.useRef<Map<string, Bridge<any, any>>>(
     new Map<string, Bridge<any, any>>()
   );
-  const value: BridgeContextValue = React.useMemo(() => {
+  const value: IBridgeContextValue = React.useMemo(() => {
     return {
       bridges: bridges.current,
       getBridge: (key: string) => bridges.current.get(key),
+      isEditorReady: props.isEditorReady,
     };
-  }, []);
+  }, [props.isEditorReady]);
 
   return (
     <BridgeContext.Provider value={value}>

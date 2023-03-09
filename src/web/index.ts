@@ -93,7 +93,7 @@ try {
       await loadScripts([config.quillScript]);
       await loadCss(config.cssList);
       const quill = mountQuill(config.quillOptions);
-      init(quill, reactNativeBridge);
+      init(quill, reactNativeBridge, config.platform);
       loadScripts(config.scriptsList);
       reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
     });

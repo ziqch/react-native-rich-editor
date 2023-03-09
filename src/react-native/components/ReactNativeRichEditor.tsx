@@ -1,5 +1,10 @@
 import React, { FC, PropsWithChildren } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import {
   Bridge,
@@ -19,7 +24,7 @@ import BridgeRegister from './bridge/BridgeRegister';
 import html from '../web.js';
 import { FormatEventChannel } from '../utils';
 
-export interface IRichEditorProps {
+interface IRichEditorInnerProps {
   width: number;
   height: number;
   defaultValue: DeltaOperation[];
@@ -33,6 +38,7 @@ export interface IRichEditorProps {
     source?: Sources
   ) => void;
   renderLoading?: () => JSX.Element;
+  setIsEditorReady?: (isReady: boolean) => void;
 }
 
 interface IRichEditorState {
@@ -40,7 +46,7 @@ interface IRichEditorState {
   loading: boolean;
 }
 
-const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
+const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   const [state, setState] = React.useState<IRichEditorState>({
     webViewHeight: 0,
     loading: true,
@@ -113,11 +119,14 @@ const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
       QuillResolverTokenBuiltin.SetContents,
       props.defaultValue
     );
-  }, [bridge__builtin, props.defaultValue]);
+    props.setIsEditorReady?.(true);
+    webViewRef.current?.requestFocus();
+  }, [bridge__builtin, props]);
 
   const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
     return {
       quillScript: 'https://cdn.quilljs.com/1.3.6/quill.js',
+      platform: Platform.OS,
       scriptsList: props.injectedScriptList ?? [],
       cssList: [
         'https://cdn.quilljs.com/1.3.6/quill.snow.css',
@@ -198,13 +207,15 @@ const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
   );
 };
 
+export type IRichEditorProps = Omit<IRichEditorInnerProps, 'setIsEditorReady'>;
 const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
   props
 ) => {
+  const [isEditorReady, setIsEditorReady] = React.useState(false);
   return (
-    <BridgeContextProvider>
+    <BridgeContextProvider isEditorReady={isEditorReady}>
       <BridgeRegister registerKey={BuiltinBridgeKey} />
-      <$ReactNativeRichEditor {...props} />
+      <$ReactNativeRichEditor {...props} setIsEditorReady={setIsEditorReady} />
       {props.children}
     </BridgeContextProvider>
   );

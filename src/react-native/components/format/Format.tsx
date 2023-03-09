@@ -3,11 +3,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import type { Sources } from 'quill';
 import { useFormat } from '../../hooks/useFormat';
+import { useEditorReady } from '../../hooks/useEditorReady';
 
 export interface IFormatProps {
   format: string;
   icon?: string | (() => JSX.Element);
   style?: ViewStyle;
+  disabled?: boolean;
   onValueChange?: (value: any) => void;
   render?: (
     value: any,
@@ -26,17 +28,29 @@ const styles = StyleSheet.create({
 const Format: FC<IFormatProps> = (props) => {
   const { format, icon, render, style, onValueChange } = props;
   const { formatValue, setFormatValue } = useFormat(format);
-  const isActive = !!formatValue;
+  const isEditorReady = useEditorReady();
 
   const onPress = React.useCallback(() => {
     setFormatValue(!formatValue);
     onValueChange?.(!formatValue);
   }, [setFormatValue, formatValue, onValueChange]);
 
+  const disabled = !isEditorReady || props.disabled;
+  const isActive = !!formatValue;
+  const buttonColor = React.useMemo(() => {
+    if (disabled) return 'gray';
+    else if (isActive) return '#06c';
+    else return 'black';
+  }, [disabled, isActive]);
+
   return render ? (
     render(formatValue, setFormatValue)
   ) : (
-    <TouchableOpacity style={{ ...styles.default, ...style }} onPress={onPress}>
+    <TouchableOpacity
+      style={{ ...styles.default, ...style }}
+      onPress={onPress}
+      disabled={!isEditorReady || disabled}
+    >
       {typeof icon === 'function' ? (
         icon()
       ) : (
@@ -44,7 +58,7 @@ const Format: FC<IFormatProps> = (props) => {
           // @ts-ignore
           name={icon}
           size={24}
-          color={isActive ? '#06c' : 'black'}
+          color={buttonColor}
         />
       )}
     </TouchableOpacity>

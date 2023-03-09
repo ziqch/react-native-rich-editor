@@ -47,6 +47,7 @@ export type RNResolversBuiltin = {
 
 export interface WebViewInitializeConfig {
   quillScript: string;
+  platform: string;
   scriptsList?: string[];
   cssList?: string[];
   quillOptions?: QuillOptionsStatic;
