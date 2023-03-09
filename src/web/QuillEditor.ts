@@ -164,13 +164,8 @@ export default function init(
       this.history.redo();
     }
 
-    private blur() {
-      this.quill.blur();
-    }
-
-    public async focus(index?: number, length?: number) {
-      await bridge.call(RNResolverTokenBuiltin.FocusForAndroid);
-      this.quill.setSelection(index ?? 0, length ?? 0);
+    public setSelection(index: number, length: number, source?: Sources) {
+      this.quill.setSelection(index, length, source);
     }
 
     private getContents(index?: number, length?: number) {
@@ -181,19 +176,13 @@ export default function init(
       return this.quill.setContents(new Delta(delta), source).ops;
     }
 
-    private async format(name: string, value: any, source?: Sources) {
-      if (!this.quill.hasFocus()) {
-        await this.focus(this.quill.getLength(), 0);
-      }
+    private format(name: string, value: any, source?: Sources) {
       const res = this.quill.format(name, value, source).ops;
       this.updateViewHeight();
       return res;
     }
 
-    private async addImage(sources: string[]) {
-      if (!this.quill.hasFocus()) {
-        await this.focus(this.quill.getLength(), 0);
-      }
+    private addImage(sources: string[]) {
       let index = this.quill.getSelection(true).index;
       sources.forEach((src) => {
         this.quill.insertEmbed(index++, 'image', src);
@@ -209,13 +198,12 @@ export default function init(
     private registerResolvers() {
       this.bridge.registerResolvers({
         [QuillResolverTokenBuiltin.AddImage]: this.addImage.bind(this),
-        [QuillResolverTokenBuiltin.Focus]: this.focus.bind(this),
-        [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
         [QuillResolverTokenBuiltin.Undo]: this.undo.bind(this),
         [QuillResolverTokenBuiltin.Redo]: this.redo.bind(this),
         [QuillResolverTokenBuiltin.SetContents]: this.setContents.bind(this),
         [QuillResolverTokenBuiltin.GetContents]: this.getContents.bind(this),
         [QuillResolverTokenBuiltin.Format]: this.format.bind(this),
+        [QuillResolverTokenBuiltin.SetSelection]: this.setSelection.bind(this),
       });
     }
   }

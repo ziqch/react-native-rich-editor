@@ -9,21 +9,21 @@ import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import {
   Bridge,
   BuiltinBridgeKey,
-  QuillResolversBuiltin,
   QuillResolverTokenBuiltin,
-  RNResolversBuiltin,
   RNResolverTokenBuiltin,
   WebViewInitializeConfig,
 } from '../../utils';
 import type { DeltaOperation, RangeStatic, Sources } from 'quill';
-import { useBridge } from '../hooks/useBridge';
+import { useBuiltinBridge } from '../hooks/useBridge';
 import { useEditorScroll } from '../hooks/useEditorScroll';
-import BridgeContextProvider from './bridge/BridgeContextProvider';
-import BridgeRegister from './bridge/BridgeRegister';
+import {
+  BridgeContextProvider,
+  BridgeRegister,
+  IBridgeContextProps,
+} from './bridge/BridgeContext';
 // @ts-ignore
 import html from '../web.js';
 import { FormatEventChannel } from '../utils';
-import { useFocusForAndroid } from '../hooks/useFocusForAndroid';
 
 interface IRichEditorInnerProps {
   width: number;
@@ -39,7 +39,9 @@ interface IRichEditorInnerProps {
     source?: Sources
   ) => void;
   renderLoading?: () => JSX.Element;
-  setIsEditorReady?: (isReady: boolean) => void;
+  setBridgeContextProps: React.Dispatch<
+    React.SetStateAction<IBridgeContextProps>
+  >;
 }
 
 interface IRichEditorState {
@@ -71,10 +73,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     },
   });
   const webViewRef = React.useRef<WebView>(null);
-  const { focus, hackInput } = useFocusForAndroid(webViewRef);
-  const bridge__builtin = useBridge<RNResolversBuiltin, QuillResolversBuiltin>(
-    BuiltinBridgeKey
-  );
+  const bridge__builtin = useBuiltinBridge();
   Bridge.setSender((data) =>
     webViewRef.current?.injectJavaScript(
       `$ReactNativeBridge.on(${JSON.stringify(data)})`
@@ -121,7 +120,11 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
       QuillResolverTokenBuiltin.SetContents,
       props.defaultValue
     );
-    props.setIsEditorReady?.(true);
+    props.setBridgeContextProps((bridgePropsState) => ({
+      ...bridgePropsState,
+      isEditorReady: true,
+      webViewRef,
+    }));
     webViewRef.current?.requestFocus();
   }, [bridge__builtin, props]);
 
@@ -162,7 +165,6 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     [RNResolverTokenBuiltin.OnSelectionChange]: onSelectionChange,
     [RNResolverTokenBuiltin.UpdateFormat]:
       FormatEventChannel.getInstance().publish,
-    [RNResolverTokenBuiltin.FocusForAndroid]: focus,
   });
 
   const onMessage = React.useCallback(
@@ -186,7 +188,6 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   return (
     <>
       {renderLoading()}
-      {hackInput}
       <ScrollView
         ref={scrollViewRef}
         style={styles.container}
@@ -211,15 +212,25 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   );
 };
 
-export type IRichEditorProps = Omit<IRichEditorInnerProps, 'setIsEditorReady'>;
+export type IRichEditorProps = Omit<
+  IRichEditorInnerProps,
+  'setBridgeContextProps'
+>;
 const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
   props
 ) => {
-  const [isEditorReady, setIsEditorReady] = React.useState(false);
+  const [bridgeContextProps, setBridgeContextProps] =
+    React.useState<IBridgeContextProps>({
+      isEditorReady: false,
+      webViewRef: React.createRef(),
+    });
   return (
-    <BridgeContextProvider isEditorReady={isEditorReady}>
+    <BridgeContextProvider {...bridgeContextProps}>
       <BridgeRegister registerKey={BuiltinBridgeKey} />
-      <$ReactNativeRichEditor {...props} setIsEditorReady={setIsEditorReady} />
+      <$ReactNativeRichEditor
+        {...props}
+        setBridgeContextProps={setBridgeContextProps}
+      />
       {props.children}
     </BridgeContextProvider>
   );
