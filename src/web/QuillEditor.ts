@@ -34,7 +34,6 @@ export default function init(
       this.bridge = bridge;
       this.quill = quill;
       this.platform = platform;
-      console.log('linked: ', this.platform);
       this.history = this.quill.getModule('history');
       this.setEvents();
       this.registerResolvers();
@@ -169,10 +168,9 @@ export default function init(
       this.quill.blur();
     }
 
-    public focus() {
-      this.quill.focus();
-      this.quill.root.click();
-      this.quill.root.focus();
+    public async focus(index?: number, length?: number) {
+      await bridge.call(RNResolverTokenBuiltin.FocusForAndroid);
+      this.quill.setSelection(index ?? 0, length ?? 0);
     }
 
     private getContents(index?: number, length?: number) {
@@ -183,21 +181,29 @@ export default function init(
       return this.quill.setContents(new Delta(delta), source).ops;
     }
 
-    private format(name: string, value: any, source?: Sources) {
-      this.focus();
+    private async format(name: string, value: any, source?: Sources) {
+      if (!this.quill.hasFocus()) {
+        await this.focus(this.quill.getLength(), 0);
+      }
       const res = this.quill.format(name, value, source).ops;
       this.updateViewHeight();
       return res;
     }
 
-    private addImage(sources: string[]) {
-      this.focus();
+    private async addImage(sources: string[]) {
+      if (!this.quill.hasFocus()) {
+        await this.focus(this.quill.getLength(), 0);
+      }
       let index = this.quill.getSelection(true).index;
       sources.forEach((src) => {
         this.quill.insertEmbed(index++, 'image', src);
       });
       this.quill.setSelection({ index, length: 0 });
       this.updateViewHeight();
+    }
+
+    public getPlatform() {
+      return this.platform;
     }
 
     private registerResolvers() {
