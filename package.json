@@ -59,7 +59,6 @@
     "@evilmartians/lefthook": "^1.2.2",
     "@expo/vector-icons": "^13.0.0",
     "@react-native-community/eslint-config": "^3.0.2",
-    "@react-native-picker/picker": "2.4.8",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
     "@types/quill": "^2.0.10",
@@ -80,6 +79,7 @@
     "react": "18.2.0",
     "react-native": "0.71.3",
     "react-native-builder-bob": "^0.20.0",
+    "react-native-picker-select": "^8.0.4",
     "release-it": "^15.0.0",
     "typescript": "^4.5.2"
   },
@@ -88,13 +88,13 @@
   },
   "peerDependencies": {
     "@expo/vector-icons": "^13.0.0",
-    "@react-native-picker/picker": "2.4.8",
     "expo-asset": "^8.9.0",
     "expo-font": "^11.1.1",
     "expo-image-picker": "^14.1.1",
     "expo-modules-core": "^1.2.3",
     "react": ">=16.8",
-    "react-native": ">=0.67"
+    "react-native": ">=0.67",
+    "react-native-picker-select": "^8.0.4"
   },
   "engines": {
     "node": ">= 16.0.0"
