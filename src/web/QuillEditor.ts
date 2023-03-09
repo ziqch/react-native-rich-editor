@@ -11,7 +11,8 @@ import {
 
 export default function init(
   quill: Quill,
-  bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>
+  bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>,
+  platform: string
 ) {
   const _Quill = (window as any).Quill as typeof Quill;
   const Delta = _Quill.import('delta');
@@ -23,13 +24,17 @@ export default function init(
     private viewHeight = 0;
     private previousContentLength = 0;
     private previousSectionRange: RangeStatic | null = { index: 0, length: 0 };
+    private readonly platform: string;
 
     constructor(
       quill: Quill,
-      bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>
+      bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>,
+      platform: string
     ) {
       this.bridge = bridge;
       this.quill = quill;
+      this.platform = platform;
+      console.log('linked: ', this.platform);
       this.history = this.quill.getModule('history');
       this.setEvents();
       this.registerResolvers();
@@ -179,12 +184,14 @@ export default function init(
     }
 
     private format(name: string, value: any, source?: Sources) {
+      this.focus();
       const res = this.quill.format(name, value, source).ops;
       this.updateViewHeight();
       return res;
     }
 
     private addImage(sources: string[]) {
+      this.focus();
       let index = this.quill.getSelection(true).index;
       sources.forEach((src) => {
         this.quill.insertEmbed(index++, 'image', src);
@@ -196,7 +203,7 @@ export default function init(
     private registerResolvers() {
       this.bridge.registerResolvers({
         [QuillResolverTokenBuiltin.AddImage]: this.addImage.bind(this),
-        [QuillResolverTokenBuiltin.Focus]: this.undo.bind(this),
+        [QuillResolverTokenBuiltin.Focus]: this.focus.bind(this),
         [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
         [QuillResolverTokenBuiltin.Undo]: this.undo.bind(this),
         [QuillResolverTokenBuiltin.Redo]: this.redo.bind(this),
@@ -206,5 +213,5 @@ export default function init(
       });
     }
   }
-  return new QuillEditor(quill, bridge);
+  return new QuillEditor(quill, bridge, platform);
 }
