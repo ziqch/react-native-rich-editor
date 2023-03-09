@@ -54,7 +54,6 @@ export interface WebViewInitializeConfig {
 
 export enum QuillResolverTokenBuiltin {
   AddImage = '@CALL[AddImage]__builtin',
-  Initialize = '@CALL[Initialize]__builtin',
   Focus = '@CALL[Focus]__builtin',
   Blur = '@CALL[Blur]__builtin',
   Undo = '@CALL[Undo]__builtin',
@@ -69,6 +68,7 @@ export enum QuillResolverTokenBuiltin {
 }
 
 export type QuillResolversBuiltin = {
+  [QuillResolverTokenBuiltin.AddImage]: (sources: string[]) => void;
   [QuillResolverTokenBuiltin.Focus]: () => void;
   [QuillResolverTokenBuiltin.Blur]: () => void;
   [QuillResolverTokenBuiltin.Undo]: () => void;

@@ -23,6 +23,9 @@ export interface IRichEditorProps {
   width: number;
   height: number;
   defaultValue: DeltaOperation[];
+  readOnly?: boolean;
+  injectedScriptList?: string[];
+  injectedCssList?: string[];
   onTextChange?: (delta: DeltaOperation[]) => void;
   onSelectionChange?: (
     range: RangeStatic,
@@ -115,10 +118,15 @@ const $ReactNativeRichEditor: FC<IRichEditorProps> = (props) => {
   const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
     return {
       quillScript: 'https://cdn.quilljs.com/1.3.6/quill.js',
-      cssList: ['https://cdn.quilljs.com/1.3.6/quill.snow.css'],
-      quillOptions: {},
+      scriptsList: props.injectedScriptList ?? [],
+      cssList: [
+        'https://cdn.quilljs.com/1.3.6/quill.snow.css',
+        'img { width: 100%; }',
+        ...(props.injectedCssList ?? []),
+      ],
+      quillOptions: { readOnly: props.readOnly },
     };
-  }, []);
+  }, [props.injectedCssList, props.injectedScriptList, props.readOnly]);
 
   const onTextChange = React.useCallback(async () => {
     const delta = await bridge__builtin.call(

@@ -10,12 +10,21 @@ import {
 import type Quill from 'quill';
 import type { QuillOptionsStatic } from 'quill';
 
+const isURL = (str: string) => {
+  const reg = /^((http|https):\/\/)/;
+  return reg.test(str);
+};
+
 const loadScripts = async (scriptList: string[] = []) => {
   const loadPromise: Promise<void>[] = [];
-  scriptList.forEach((url) => {
+  scriptList.forEach((urlOrText) => {
     const script = document.createElement('script');
     script.setAttribute('type', 'text/javascript');
-    script.setAttribute('src', url);
+    if (isURL(urlOrText)) {
+      script.setAttribute('src', urlOrText);
+    } else {
+      script.innerText = urlOrText;
+    }
     loadPromise.push(
       new Promise<void>((revolve, reject) => {
         script.onload = () => revolve();
@@ -29,17 +38,30 @@ const loadScripts = async (scriptList: string[] = []) => {
 
 const loadCss = async (cssList: string[] = []) => {
   const loadPromise: Promise<void>[] = [];
-  cssList.forEach((url) => {
-    const link = document.createElement('link');
-    link.setAttribute('rel', 'stylesheet');
-    link.setAttribute('href', url);
-    loadPromise.push(
-      new Promise<void>((revolve, reject) => {
-        link.onload = () => revolve();
-        link.onabort = () => reject();
-      })
-    );
-    document.body.append(link);
+  cssList.forEach((urlOrText) => {
+    if (isURL(urlOrText)) {
+      const link = document.createElement('link');
+      link.setAttribute('rel', 'stylesheet');
+      link.setAttribute('href', urlOrText);
+      loadPromise.push(
+        new Promise<void>((revolve, reject) => {
+          link.onload = () => revolve();
+          link.onabort = () => reject();
+        })
+      );
+      document.body.append(link);
+    } else {
+      const style = document.createElement('style');
+      style.setAttribute('type', 'text/css');
+      style.innerText = urlOrText;
+      loadPromise.push(
+        new Promise<void>((revolve, reject) => {
+          style.onload = () => revolve();
+          style.onabort = () => reject();
+        })
+      );
+      document.body.append(style);
+    }
   });
   await Promise.allSettled(loadPromise);
 };

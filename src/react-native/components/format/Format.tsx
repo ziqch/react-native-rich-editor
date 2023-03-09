@@ -8,6 +8,7 @@ export interface IFormatProps {
   format: string;
   icon?: string | (() => JSX.Element);
   style?: ViewStyle;
+  onValueChange?: (value: any) => void;
   render?: (
     value: any,
     setFormat: (v: any, source?: Sources) => void
@@ -22,14 +23,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-export const Format: FC<IFormatProps> = (props) => {
-  const { format, icon, render, style } = props;
+const Format: FC<IFormatProps> = (props) => {
+  const { format, icon, render, style, onValueChange } = props;
   const { formatValue, setFormatValue } = useFormat(format);
   const isActive = !!formatValue;
 
   const onPress = React.useCallback(() => {
     setFormatValue(!formatValue);
-  }, [setFormatValue, formatValue]);
+    onValueChange?.(!formatValue);
+  }, [setFormatValue, formatValue, onValueChange]);
 
   return render ? (
     render(formatValue, setFormatValue)
@@ -48,3 +50,5 @@ export const Format: FC<IFormatProps> = (props) => {
     </TouchableOpacity>
   );
 };
+
+export default Format;
