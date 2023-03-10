@@ -4,7 +4,7 @@ import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
 import { useFormat } from '../../hooks/useFormat';
 import { useFormatterDisabled } from '../../hooks/useFormatterDisabled';
 
-export interface ISizeProps {
+export interface ISizeFormatProps {
   style?: ViewStyle;
   selections?: Array<{
     value: any;
@@ -31,7 +31,7 @@ const defaultSelections = [
     label: 'Huge',
   },
 ];
-const Size: FC<ISizeProps> = (props) => {
+const Size: FC<ISizeFormatProps> = (props) => {
   const { selections = defaultSelections } = props;
   const { formatValue, setFormatValue } = useFormat('size', false);
   const onValueChange = React.useCallback(

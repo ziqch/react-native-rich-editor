@@ -1,20 +1,15 @@
 import React, { FC } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import type { Sources } from 'quill';
 import { useFormat } from '../../hooks/useFormat';
 import { useFormatterDisabled } from '../../hooks/useFormatterDisabled';
 
-export interface IFormatProps {
+export interface IBasicFormatProps {
   format: string;
   icon?: string | (() => JSX.Element);
   style?: ViewStyle;
   disabled?: boolean;
   onValueChange?: (value: any) => void;
-  render?: (
-    value: any,
-    setFormat: (v: any, source?: Sources) => void
-  ) => JSX.Element;
 }
 const styles = StyleSheet.create({
   default: {
@@ -25,8 +20,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-const Format: FC<IFormatProps> = (props) => {
-  const { format, icon, render, style, onValueChange } = props;
+const Basic: FC<IBasicFormatProps> = (props) => {
+  const { format, icon, style, onValueChange } = props;
   const { formatValue, setFormatValue } = useFormat(format);
 
   const onPress = React.useCallback(() => {
@@ -42,9 +37,7 @@ const Format: FC<IFormatProps> = (props) => {
     else return 'black';
   }, [disabled, isActive]);
 
-  return render ? (
-    render(formatValue, setFormatValue)
-  ) : (
+  return (
     <TouchableOpacity
       style={{ ...styles.default, ...style }}
       onPress={onPress}
@@ -64,4 +57,4 @@ const Format: FC<IFormatProps> = (props) => {
   );
 };
 
-export default Format;
+export default Basic;
