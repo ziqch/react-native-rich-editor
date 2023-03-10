@@ -6,6 +6,7 @@ import type { WebView } from 'react-native-webview';
 export interface IBridgeContextProps {
   isEditorReady: boolean;
   webViewRef: React.RefObject<WebView | null>;
+  isInputComposing: boolean;
 }
 interface IBridgeContextValue extends IBridgeContextProps {
   getBridge: (key: string) => Bridge<any, any> | undefined;
@@ -18,6 +19,7 @@ const initialValue: IBridgeContextValue = {
   webViewRef: React.createRef(),
   isEditorReady: false,
   getBridge: () => undefined,
+  isInputComposing: false,
 };
 export const BridgeContext = React.createContext(initialValue);
 const wrapper = () => {

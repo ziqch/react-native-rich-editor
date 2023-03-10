@@ -3,7 +3,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import type { Sources } from 'quill';
 import { useFormat } from '../../hooks/useFormat';
-import { useEditorReady } from '../../hooks/useEditorReady';
+import { useFormatterDisabled } from '../../hooks/useFormatterDisabled';
 
 export interface IFormatProps {
   format: string;
@@ -28,14 +28,13 @@ const styles = StyleSheet.create({
 const Format: FC<IFormatProps> = (props) => {
   const { format, icon, render, style, onValueChange } = props;
   const { formatValue, setFormatValue } = useFormat(format);
-  const isEditorReady = useEditorReady();
 
   const onPress = React.useCallback(() => {
-    setFormatValue(!formatValue);
+    setFormatValue(!formatValue, 'user');
     onValueChange?.(!formatValue);
   }, [setFormatValue, formatValue, onValueChange]);
 
-  const disabled = !isEditorReady || props.disabled;
+  const disabled = useFormatterDisabled(props.disabled);
   const isActive = !!formatValue;
   const buttonColor = React.useMemo(() => {
     if (disabled) return 'gray';
@@ -49,7 +48,7 @@ const Format: FC<IFormatProps> = (props) => {
     <TouchableOpacity
       style={{ ...styles.default, ...style }}
       onPress={onPress}
-      disabled={!isEditorReady || disabled}
+      disabled={disabled}
     >
       {typeof icon === 'function' ? (
         icon()
