@@ -7,7 +7,7 @@ import { QuillResolverTokenBuiltin } from '../../../utils';
 import { useBuiltinBridge } from '../../hooks/useBridge';
 import { useFormatterDisabled } from '../../hooks/useFormatterDisabled';
 
-export interface IImageProps {
+export interface IImageFormatProps {
   style?: ViewStyle;
   icon?: string | (() => JSX.Element);
   disabled?: boolean;
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-const Image: FC<IImageProps> = (props) => {
+const Image: FC<IImageFormatProps> = (props) => {
   const { icon, style, onValueChange, imagePickerOptions } = props;
   const bridge__builtin = useBuiltinBridge();
   const onPress = React.useCallback(async () => {
