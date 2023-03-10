@@ -1,7 +1,7 @@
 # react-native-rich-editor
 
-react native rich editor, still WIP
-```
+react native rich text editor, based on [quill editor](https://quilljs.com/), still in WIP...
+
 
 ## Contributing
 
