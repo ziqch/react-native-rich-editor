@@ -93,11 +93,19 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     (key: string, value: string) => {
       try {
         const v = JSON.parse(value);
-        setState((currentState) => {
-          return Object.assign({}, currentState, {
-            [key]: v,
+        if (key in state) {
+          setState((currentState) => {
+            return Object.assign({}, currentState, {
+              [key]: v,
+            });
           });
-        });
+        } else {
+          props.setBridgeContextProps((bridgePropsState) => {
+            return Object.assign({}, bridgePropsState, {
+              [key]: v,
+            });
+          });
+        }
         if (key === 'webViewHeight') {
           const { scrollTop, h } = viewScrollInfoRef.current;
           if (scrollTop + h > v) {
@@ -108,7 +116,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
         return;
       }
     },
-    [scrollViewRef, viewScrollInfoRef]
+    [props, scrollViewRef, state, viewScrollInfoRef]
   );
 
   const onEditorReady = React.useCallback(() => {
@@ -125,7 +133,6 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
       isEditorReady: true,
       webViewRef,
     }));
-    webViewRef.current?.requestFocus();
   }, [bridge__builtin, props]);
 
   const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
@@ -223,6 +230,7 @@ const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
     React.useState<IBridgeContextProps>({
       isEditorReady: false,
       webViewRef: React.createRef(),
+      isInputComposing: false,
     });
   return (
     <BridgeContextProvider {...bridgeContextProps}>

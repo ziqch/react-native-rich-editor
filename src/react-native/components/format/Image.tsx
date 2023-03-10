@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { QuillResolverTokenBuiltin } from '../../../utils';
 import { useBuiltinBridge } from '../../hooks/useBridge';
-import { useEditorReady } from '../../hooks/useEditorReady';
+import { useFormatterDisabled } from '../../hooks/useFormatterDisabled';
 
 export interface IImageProps {
   style?: ViewStyle;
@@ -26,7 +26,6 @@ const styles = StyleSheet.create({
 const Image: FC<IImageProps> = (props) => {
   const { icon, style, onValueChange, imagePickerOptions } = props;
   const bridge__builtin = useBuiltinBridge();
-  const isEditorReady = useEditorReady();
   const onPress = React.useCallback(async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -45,7 +44,7 @@ const Image: FC<IImageProps> = (props) => {
     }
   }, [bridge__builtin, imagePickerOptions, onValueChange]);
 
-  const disabled = !isEditorReady || props.disabled;
+  const disabled = useFormatterDisabled(props.disabled);
   const buttonColor = React.useMemo(() => {
     if (disabled) return 'gray';
     else return 'black';
@@ -55,7 +54,7 @@ const Image: FC<IImageProps> = (props) => {
     <TouchableOpacity
       style={{ ...styles.default, ...style }}
       onPress={onPress}
-      disabled={!isEditorReady || disabled}
+      disabled={disabled}
     >
       {typeof icon === 'function' ? (
         icon()

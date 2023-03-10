@@ -64,6 +64,20 @@ export default function init(
           this.quill.getFormat()
         );
       });
+      this.quill.root.addEventListener('compositionstart', () => {
+        this.bridge.call(
+          RNResolverTokenBuiltin.SetReactNativeState,
+          'isInputComposing',
+          'true'
+        );
+      });
+      this.quill.root.addEventListener('compositionend', () => {
+        this.bridge.call(
+          RNResolverTokenBuiltin.SetReactNativeState,
+          'isInputComposing',
+          'false'
+        );
+      });
     }
 
     private updateViewHeight() {

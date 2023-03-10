@@ -14,20 +14,19 @@ export const useFocus = () => {
   const bridge__builtin = useBuiltinBridge();
   const { webViewRef } = React.useContext(BridgeContext);
   const hackInputRef = React.useRef<TextInput>(null);
-  const focus = React.useCallback(
+  const requestFocus = React.useCallback(() => {
+    if (Platform.OS === 'android') {
+      hackInputRef.current?.focus();
+      webViewRef.current?.requestFocus();
+    }
+  }, [webViewRef]);
+  const focusWithSelection = React.useCallback(
     (index: number, length: number, source?: Sources) => {
-      if (Platform.OS === 'android') {
-        hackInputRef.current?.focus();
-        webViewRef.current?.requestFocus();
-      }
-      bridge__builtin.call(
-        QuillResolverTokenBuiltin.SetSelection,
-        index,
-        length,
-        source
-      );
+      bridge__builtin
+        .call(QuillResolverTokenBuiltin.SetSelection, index, length, source)
+        .then(() => requestFocus());
     },
-    [bridge__builtin, webViewRef]
+    [bridge__builtin, requestFocus]
   );
   const hackInput = React.useMemo(() => {
     return Platform.OS === 'android' ? (
@@ -38,6 +37,7 @@ export const useFocus = () => {
   }, []);
   return {
     hackInput,
-    focus,
+    requestFocus,
+    focusWithSelection,
   };
 };
