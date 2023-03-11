@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { QuillResolverTokenBuiltin } from '../../../utils';
 import { useBuiltinBridge } from '../../hooks/useBridge';
-import { useFormatterDisabled } from '../../hooks/useFormatterDisabled';
+import { useFormatDisabled } from '../../hooks/useFormatDisabled';
 
 export interface IImageFormatProps {
   style?: ViewStyle;
@@ -44,7 +44,7 @@ const Image: FC<IImageFormatProps> = (props) => {
     }
   }, [bridge__builtin, imagePickerOptions, onValueChange]);
 
-  const disabled = useFormatterDisabled(props.disabled);
+  const disabled = useFormatDisabled(props.disabled);
   const buttonColor = React.useMemo(() => {
     if (disabled) return 'gray';
     else return 'black';

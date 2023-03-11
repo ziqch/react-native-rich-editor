@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useFormat } from '../../hooks/useFormat';
-import { useFormatterDisabled } from '../../hooks/useFormatterDisabled';
+import { useFormatDisabled } from '../../hooks/useFormatDisabled';
 
 export interface IBasicFormatProps {
   format: string;
@@ -29,7 +29,7 @@ const Basic: FC<IBasicFormatProps> = (props) => {
     onValueChange?.(!formatValue);
   }, [setFormatValue, formatValue, onValueChange]);
 
-  const disabled = useFormatterDisabled(props.disabled);
+  const disabled = useFormatDisabled(props.disabled);
   const isActive = !!formatValue;
   const buttonColor = React.useMemo(() => {
     if (disabled) return 'gray';
