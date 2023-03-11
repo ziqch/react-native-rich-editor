@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import Picker from 'react-native-picker-select';
 import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
 import { useFormat } from '../../hooks/useFormat';
-import { useFormatterDisabled } from '../../hooks/useFormatterDisabled';
+import { useFormatDisabled } from '../../hooks/useFormatDisabled';
 
 export interface ISizeFormatProps {
   style?: ViewStyle;
@@ -41,7 +41,7 @@ const Size: FC<ISizeFormatProps> = (props) => {
     },
     [props, setFormatValue]
   );
-  const disabled = useFormatterDisabled(props.disabled);
+  const disabled = useFormatDisabled(props.disabled);
   const style = StyleSheet.create({
     container: { width: Platform.OS === 'android' ? 150 : 80, ...props.style },
   });
