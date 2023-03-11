@@ -1,10 +1,4 @@
-import type {
-  DeltaOperation,
-  QuillOptionsStatic,
-  RangeStatic,
-  Sources,
-  StringMap,
-} from 'quill';
+import type { DeltaOperation, RangeStatic, Sources, StringMap } from 'quill';
 
 export enum RNResolverTokenBuiltin {
   OnTextChange = '@CALL[OnTextChange]__builtin',
@@ -45,12 +39,18 @@ export type RNResolversBuiltin = {
   [RNResolverTokenBuiltin.UpdateFormat]: (format: StringMap) => void;
 };
 
+export interface QuillEditorOptions {
+  placeholder?: string;
+  scrollOffsetBuffer?: number;
+  platform?: string;
+  readOnly?: boolean;
+}
+
 export interface WebViewInitializeConfig {
   quillScript: string;
-  platform: string;
   scriptsList?: string[];
   cssList?: string[];
-  quillOptions?: QuillOptionsStatic;
+  quillOptions?: QuillEditorOptions;
 }
 
 export enum QuillResolverTokenBuiltin {
@@ -92,5 +92,6 @@ export type QuillResolversBuiltin = {
 };
 
 export const ReactNativeBridgeToken = '$ReactNativeBridge';
-export const QuillInstanceToken = '$QuillInstance';
+export const QuillEditorToken = '$QuillEditorToken';
+export const OriginalQuillInstance = '$OriginalQuillInstance';
 export const BuiltinBridgeKey = 'Bridge__builtin';

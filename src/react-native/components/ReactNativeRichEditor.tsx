@@ -28,8 +28,10 @@ import { FormatEventChannel } from '../utils';
 interface IRichEditorInnerProps {
   width: number;
   height: number;
-  defaultValue: DeltaOperation[];
+  defaultValue?: DeltaOperation[];
+  scrollOffsetBuffer?: number;
   readOnly?: boolean;
+  placeholder?: string;
   injectedScriptList?: string[];
   injectedCssList?: string[];
   onTextChange?: (delta: DeltaOperation[]) => void;
@@ -126,7 +128,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     }));
     bridge__builtin.call(
       QuillResolverTokenBuiltin.SetContents,
-      props.defaultValue
+      props.defaultValue ?? []
     );
     props.setBridgeContextProps((bridgePropsState) => ({
       ...bridgePropsState,
@@ -138,16 +140,26 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
     return {
       quillScript: 'https://cdn.quilljs.com/1.3.6/quill.js',
-      platform: Platform.OS,
       scriptsList: props.injectedScriptList ?? [],
       cssList: [
         'https://cdn.quilljs.com/1.3.6/quill.snow.css',
         'img { width: 100%; }',
         ...(props.injectedCssList ?? []),
       ],
-      quillOptions: { readOnly: props.readOnly },
+      quillOptions: {
+        platform: Platform.OS,
+        readOnly: props.readOnly,
+        placeholder: props.placeholder,
+        scrollOffsetBuffer: props.scrollOffsetBuffer,
+      },
     };
-  }, [props.injectedCssList, props.injectedScriptList, props.readOnly]);
+  }, [
+    props.injectedCssList,
+    props.injectedScriptList,
+    props.placeholder,
+    props.readOnly,
+    props.scrollOffsetBuffer,
+  ]);
 
   const onTextChange = React.useCallback(async () => {
     const delta = await bridge__builtin.call(

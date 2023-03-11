@@ -1,43 +1,59 @@
 import type Quill from 'quill';
 import type { DeltaOperation, RangeStatic, Sources } from 'quill';
-import type { Bridge } from '../utils';
+import type { Bridge, QuillEditorOptions } from '../utils';
 import {
   Direction,
+  OriginalQuillInstance,
+  QuillEditorToken,
   QuillResolversBuiltin,
   QuillResolverTokenBuiltin,
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
 } from '../utils';
+import type { QuillOptionsStatic } from 'quill';
 
+const DefaultScrollOffsetBuffer = 50;
 export default function init(
-  quill: Quill,
   bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>,
-  platform: string
+  options?: QuillEditorOptions
 ) {
   const _Quill = (window as any).Quill as typeof Quill;
   const Delta = _Quill.import('delta');
   class QuillEditor {
-    static ScrollOffsetBuffer = 20;
+    private readonly scrollOffsetBuffer: number = DefaultScrollOffsetBuffer;
     private readonly quill: Quill;
     private readonly history: any;
     private readonly bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>;
     private viewHeight = 0;
     private previousContentLength = 0;
     private previousSectionRange: RangeStatic | null = { index: 0, length: 0 };
-    private readonly platform: string;
+    private readonly platform?: string;
 
     constructor(
-      quill: Quill,
       bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>,
-      platform: string
+      options?: QuillEditorOptions
     ) {
       this.bridge = bridge;
-      this.quill = quill;
-      this.platform = platform;
+      this.quill = this.mountQuill({
+        placeholder: options?.placeholder,
+        readOnly: options?.readOnly,
+      });
+      this.platform = options?.platform;
       this.history = this.quill.getModule('history');
+      this.scrollOffsetBuffer =
+        options?.scrollOffsetBuffer ?? DefaultScrollOffsetBuffer;
       this.setEvents();
       this.registerResolvers();
       this.updateViewHeight();
+    }
+
+    private mountQuill(options?: QuillOptionsStatic) {
+      const el = document.createElement('div');
+      el.id = '$editor';
+      window.document.body.append(el);
+      const quill = new _Quill(el, options);
+      (window as any)[OriginalQuillInstance] = quill;
+      return quill;
     }
 
     private setEvents() {
@@ -107,8 +123,8 @@ export default function init(
         );
         const offset =
           direction === Direction.DOWN
-            ? curBound.bottom
-            : curBound.top - QuillEditor.ScrollOffsetBuffer;
+            ? curBound.bottom + this.scrollOffsetBuffer
+            : curBound.top - this.scrollOffsetBuffer;
         if (offset !== -1) {
           this.bridge.call(
             RNResolverTokenBuiltin.ScrollWebView,
@@ -129,10 +145,10 @@ export default function init(
       let offset = -1,
         direction = Direction.DOWN;
       if (!range.length) {
-        offset = curBound.bottom + QuillEditor.ScrollOffsetBuffer;
+        offset = curBound.bottom + this.scrollOffsetBuffer;
       } else {
         if (!this.previousSectionRange || !this.previousSectionRange.length) {
-          offset = curBound.bottom + QuillEditor.ScrollOffsetBuffer;
+          offset = curBound.bottom + this.scrollOffsetBuffer;
         } else if (this.previousSectionRange.length) {
           const prevBound = this.quill.getBounds(
             this.previousSectionRange.index,
@@ -141,7 +157,7 @@ export default function init(
           const isBottomEqual = prevBound.bottom === curBound.bottom;
           const isTopEqual = prevBound.top === curBound.top;
           if (!isTopEqual && !isBottomEqual) {
-            offset = curBound.bottom + QuillEditor.ScrollOffsetBuffer;
+            offset = curBound.bottom + this.scrollOffsetBuffer;
           } else if (!isBottomEqual) {
             direction =
               curBound.bottom > prevBound.bottom
@@ -149,15 +165,13 @@ export default function init(
                 : Direction.UP;
             offset =
               curBound.bottom +
-              QuillEditor.ScrollOffsetBuffer *
-                (direction === Direction.DOWN ? 1 : -1);
+              this.scrollOffsetBuffer * (direction === Direction.DOWN ? 1 : -1);
           } else if (!isTopEqual) {
             direction =
               curBound.top > prevBound.top ? Direction.DOWN : Direction.UP;
             offset =
               curBound.top +
-              QuillEditor.ScrollOffsetBuffer *
-                (direction === Direction.DOWN ? 1 : -1);
+              this.scrollOffsetBuffer * (direction === Direction.DOWN ? 1 : -1);
           }
         }
       }
@@ -221,5 +235,7 @@ export default function init(
       });
     }
   }
-  return new QuillEditor(quill, bridge, platform);
+  const quillEditor = new QuillEditor(bridge, options);
+  (window as any)[QuillEditorToken] = quillEditor;
+  return quillEditor;
 }
