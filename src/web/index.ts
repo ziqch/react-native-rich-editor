@@ -1,14 +1,11 @@
 import init from './QuillEditor';
 import {
   Bridge,
-  QuillInstanceToken,
   QuillResolversBuiltin,
   ReactNativeBridgeToken,
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
 } from '../utils';
-import type Quill from 'quill';
-import type { QuillOptionsStatic } from 'quill';
 
 const isURL = (str: string) => {
   const reg = /^((http|https):\/\/)/;
@@ -66,16 +63,6 @@ const loadCss = async (cssList: string[] = []) => {
   await Promise.allSettled(loadPromise);
 };
 
-const mountQuill = (options?: QuillOptionsStatic) => {
-  const el = document.createElement('div');
-  el.id = '$editor';
-  window.document.body.append(el);
-  const _Quill = (window as any).Quill as typeof Quill;
-  const quill = new _Quill(el, options);
-  (window as any)[QuillInstanceToken] = quill;
-  return quill;
-};
-
 try {
   Bridge.setSender((data) =>
     (window as any).ReactNativeWebView.postMessage(data)
@@ -92,8 +79,7 @@ try {
     .then(async (config) => {
       await loadScripts([config.quillScript]);
       await loadCss(config.cssList);
-      const quill = mountQuill(config.quillOptions);
-      init(quill, reactNativeBridge, config.platform);
+      init(reactNativeBridge, config.quillOptions);
       loadScripts(config.scriptsList);
       reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
     });
