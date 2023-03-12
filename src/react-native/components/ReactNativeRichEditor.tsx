@@ -1,50 +1,26 @@
 import React, { FC, PropsWithChildren } from 'react';
-import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import {
   Bridge,
   BuiltinBridgeKey,
   QuillResolverTokenBuiltin,
   RNResolverTokenBuiltin,
-  WebViewInitializeConfig,
 } from '../../utils';
-import type { DeltaOperation, RangeStatic, Sources } from 'quill';
-import { useBuiltinBridge } from '../hooks/useBridge';
-import { useEditorScroll } from '../hooks/useEditorScroll';
+import type { RangeStatic, Sources } from 'quill';
+import { useBuiltinBridge, useEditorScroll } from '../hooks';
 import {
-  BridgeContextProvider,
+  IRichEditorInnerProps,
+  useEditorConfig,
+} from '../hooks/useEditorConfig';
+import {
   BridgeRegister,
-  IBridgeContextProps,
-} from './bridge/BridgeContext';
+  EditorContextProvider,
+  IEditorContextProps,
+} from './context/EditorContext';
 // @ts-ignore
 import html from '../web.js';
 import { FormatEventChannel } from '../utils';
-
-interface IRichEditorInnerProps {
-  width: number;
-  height: number;
-  defaultValue?: DeltaOperation[];
-  scrollOffsetBuffer?: number;
-  readOnly?: boolean;
-  placeholder?: string;
-  injectedScriptList?: string[];
-  injectedCssList?: string[];
-  onTextChange?: (delta: DeltaOperation[]) => void;
-  onSelectionChange?: (
-    range: RangeStatic,
-    oldRange: RangeStatic,
-    source?: Sources
-  ) => void;
-  renderLoading?: () => JSX.Element;
-  setBridgeContextProps: React.Dispatch<
-    React.SetStateAction<IBridgeContextProps>
-  >;
-}
 
 interface IRichEditorState {
   webViewHeight: number;
@@ -102,7 +78,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
             });
           });
         } else {
-          props.setBridgeContextProps((bridgePropsState) => {
+          props.setEditorContextProps((bridgePropsState) => {
             return Object.assign({}, bridgePropsState, {
               [key]: v,
             });
@@ -130,36 +106,15 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
       QuillResolverTokenBuiltin.SetContents,
       props.defaultValue ?? []
     );
-    props.setBridgeContextProps((bridgePropsState) => ({
+    props.setEditorContextProps((bridgePropsState) => ({
       ...bridgePropsState,
       isEditorReady: true,
       webViewRef,
     }));
   }, [bridge__builtin, props]);
 
-  const onWebViewInit = React.useCallback((): WebViewInitializeConfig => {
-    return {
-      quillScript: 'https://cdn.quilljs.com/1.3.6/quill.js',
-      scriptsList: props.injectedScriptList ?? [],
-      cssList: [
-        'https://cdn.quilljs.com/1.3.6/quill.snow.css',
-        'img { width: 100%; }',
-        ...(props.injectedCssList ?? []),
-      ],
-      quillOptions: {
-        platform: Platform.OS,
-        readOnly: props.readOnly,
-        placeholder: props.placeholder,
-        scrollOffsetBuffer: props.scrollOffsetBuffer,
-      },
-    };
-  }, [
-    props.injectedCssList,
-    props.injectedScriptList,
-    props.placeholder,
-    props.readOnly,
-    props.scrollOffsetBuffer,
-  ]);
+  const config = useEditorConfig(props);
+  const onWebViewInit = React.useCallback(() => config, [config]);
 
   const onTextChange = React.useCallback(async () => {
     const delta = await bridge__builtin.call(
@@ -233,26 +188,26 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
 
 export type IRichEditorProps = Omit<
   IRichEditorInnerProps,
-  'setBridgeContextProps'
+  'setEditorContextProps'
 >;
 const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
   props
 ) => {
-  const [bridgeContextProps, setBridgeContextProps] =
-    React.useState<IBridgeContextProps>({
+  const [editorContextProps, setEditorContextProps] =
+    React.useState<IEditorContextProps>({
       isEditorReady: false,
       webViewRef: React.createRef(),
       isInputComposing: false,
     });
   return (
-    <BridgeContextProvider {...bridgeContextProps}>
+    <EditorContextProvider {...editorContextProps}>
       <BridgeRegister registerKey={BuiltinBridgeKey} />
       <$ReactNativeRichEditor
         {...props}
-        setBridgeContextProps={setBridgeContextProps}
+        setEditorContextProps={setEditorContextProps}
       />
       {props.children}
-    </BridgeContextProvider>
+    </EditorContextProvider>
   );
 };
 

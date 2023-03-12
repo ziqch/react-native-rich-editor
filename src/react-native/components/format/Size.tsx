@@ -43,7 +43,13 @@ const Size: FC<ISizeFormatProps> = (props) => {
   );
   const disabled = useFormatDisabled(props.disabled);
   const style = StyleSheet.create({
-    container: { width: Platform.OS === 'android' ? 150 : 80, ...props.style },
+    container: {
+      width: Platform.OS === 'android' ? 150 : 80,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...props.style,
+    },
   });
   return (
     <View style={style.container}>

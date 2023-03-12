@@ -1,9 +1,9 @@
 import React from 'react';
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import { useBuiltinBridge } from './useBridge';
-import { BridgeContext } from '../components/bridge/BridgeContext';
 import { QuillResolverTokenBuiltin } from '../../utils';
 import type { Sources } from 'quill';
+import { useEditorContext } from './useEditorContext';
 
 const styles = StyleSheet.create({
   hidden: {
@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
 });
 export const useFocus = () => {
   const bridge__builtin = useBuiltinBridge();
-  const { webViewRef } = React.useContext(BridgeContext);
+  const { webViewRef } = useEditorContext();
   const hackInputRef = React.useRef<TextInput>(null);
   const requestFocus = React.useCallback(() => {
     if (Platform.OS === 'android') {

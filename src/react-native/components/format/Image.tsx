@@ -62,7 +62,7 @@ const Image: FC<IImageFormatProps> = (props) => {
         <MaterialIcons
           // @ts-ignore
           name={icon}
-          size={24}
+          size={20}
           color={buttonColor}
         />
       )}

@@ -2,7 +2,8 @@ export { default as ReactNativeRichEditor } from './components/ReactNativeRichEd
 export { default as RichEditorToolBar } from './components/RichEditorToolBar';
 export {
   BridgeRegister,
-  BridgeContext,
-} from './components/bridge/BridgeContext';
+  EditorContext,
+} from './components/context/EditorContext';
 export { default as Format } from './components/format';
+export * from './hooks';
 export * from '../utils';

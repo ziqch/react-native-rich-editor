@@ -5,6 +5,8 @@ import {
   ReactNativeBridgeToken,
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
+  WebViewResolversBuiltin,
+  WebViewResolverTokenBuiltin,
 } from '../utils';
 
 const isURL = (str: string) => {
@@ -30,7 +32,7 @@ const loadScripts = async (scriptList: string[] = []) => {
     );
     document.body.append(script);
   });
-  await Promise.allSettled(loadPromise);
+  return Promise.allSettled(loadPromise).then(() => console.log('all set!'));
 };
 
 const loadCss = async (cssList: string[] = []) => {
@@ -60,7 +62,7 @@ const loadCss = async (cssList: string[] = []) => {
       document.body.append(style);
     }
   });
-  await Promise.allSettled(loadPromise);
+  return Promise.allSettled(loadPromise);
 };
 
 try {
@@ -69,14 +71,26 @@ try {
   );
 
   const reactNativeBridge = new Bridge<
-    QuillResolversBuiltin,
+    QuillResolversBuiltin & WebViewResolversBuiltin,
     RNResolversBuiltin
   >();
   (window as any)[ReactNativeBridgeToken] = reactNativeBridge;
+  reactNativeBridge.registerResolvers({
+    [WebViewResolverTokenBuiltin.InjectScript]: (script: string) => {
+      return Promise.allSettled([loadScripts([script])]);
+    },
+    [WebViewResolverTokenBuiltin.LoadAssets]: ({ scriptList, cssList }) => {
+      return Promise.allSettled([loadScripts(scriptList), loadCss(cssList)]);
+    },
+  });
 
   reactNativeBridge
     .call(RNResolverTokenBuiltin.OnWebViewInit)
     .then(async (config) => {
+      if (config.quillOptions?.syntax && config.quillOptions?.syntaxAssets) {
+        await loadScripts([config.quillOptions.syntaxAssets?.script]);
+        await loadCss([config.quillOptions.syntaxAssets?.css]);
+      }
       await loadScripts([config.quillScript]);
       await loadCss(config.cssList);
       init(reactNativeBridge, config.quillOptions);
