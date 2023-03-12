@@ -44,6 +44,11 @@ export interface QuillEditorOptions {
   scrollOffsetBuffer?: number;
   platform?: string;
   readOnly?: boolean;
+  syntax?: boolean;
+  syntaxAssets?: {
+    script: string;
+    css: string;
+  };
 }
 
 export interface WebViewInitializeConfig {
@@ -89,6 +94,19 @@ export type QuillResolversBuiltin = {
     length: number,
     source?: Sources
   ) => void;
+};
+
+export enum WebViewResolverTokenBuiltin {
+  InjectScript = '@CALL[InjectScript]__builtin',
+  LoadAssets = '@CALL[LoadAssets]__builtin',
+}
+
+export type WebViewResolversBuiltin = {
+  [WebViewResolverTokenBuiltin.InjectScript]: (script: string) => void;
+  [WebViewResolverTokenBuiltin.LoadAssets]: (assets: {
+    scriptList?: string[];
+    cssList?: string[];
+  }) => void;
 };
 
 export const ReactNativeBridgeToken = '$ReactNativeBridge';

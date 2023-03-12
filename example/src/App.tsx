@@ -29,6 +29,7 @@ export default function App() {
           { insert: 'World!', attributes: { bold: true } },
           { insert: '\n' },
         ]}
+        syntax={true}
       >
         <RichEditorToolBar
           formats={[
@@ -38,6 +39,11 @@ export default function App() {
             <Format.Basic format={'italic'} icon={'format-italic'} />,
             <Format.Basic format={'underline'} icon={'format-underline'} />,
             <Format.Basic format={'strike'} icon={'format-strikethrough'} />,
+            <Format.CodeBlock languages={['typescript', 'javascript']} />,
+            <Format.List type={'ordered'} />,
+            <Format.List type={'bullet'} />,
+            <Format.Script type={'super'} />,
+            <Format.Script type={'sub'} />,
           ]}
         />
       </ReactNativeRichEditor>

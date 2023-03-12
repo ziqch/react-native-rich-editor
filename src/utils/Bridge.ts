@@ -13,6 +13,7 @@ interface CallbackControl<T> {
 export enum ActionType {
   CALL,
   CALLBACK,
+  Promise,
 }
 interface Action {
   actionType: ActionType;
@@ -37,7 +38,7 @@ const uuid = () => {
 };
 class Transceiver {
   private readonly queue: Action[] = [];
-  private readonly callbackPool = new Map<string, CallbackControl<any>>();
+  public readonly callbackPool = new Map<string, CallbackControl<any>>();
   private sender: (data: string) => void = noop;
 
   private constructor() {}
@@ -57,6 +58,26 @@ class Transceiver {
 
   public isConnected() {
     return this.sender !== noop;
+  }
+
+  public createPromise() {
+    const id = uuid();
+    const promise = new Promise<void>((resolve, reject) => {
+      this.callbackPool.set(id, { resolve, reject });
+    });
+    return {
+      promise,
+      id,
+    };
+  }
+
+  public resolvePromise(id: string) {
+    this.dispatch<void>({
+      actionType: ActionType.Promise,
+      token: 'PROMISE',
+      payload: JSON.stringify({}),
+      id,
+    });
   }
 
   private async callResolver(
@@ -88,6 +109,7 @@ class Transceiver {
     resolvers: Map<string, Resolver<any, any>>
   ) {
     switch (action.actionType) {
+      case ActionType.Promise:
       case ActionType.CALLBACK:
         const control = this.callbackPool.get(action.id);
         if (control) {
@@ -107,11 +129,15 @@ class Transceiver {
           payload: JSON.stringify(res),
         };
         this.dispatch(callbackAction);
+        break;
+      default:
+        return;
     }
   }
 
   async dispatch<T>(action: Action): Promise<T> {
     switch (action.actionType) {
+      case ActionType.Promise:
       case ActionType.CALLBACK:
         this.sender(JSON.stringify(action));
         return Promise.resolve({} as T);
@@ -143,6 +169,14 @@ export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
 
   constructor(resolvers?: SRC) {
     this.registerResolvers(resolvers);
+  }
+
+  public createPromise() {
+    return Bridge.transceiver.createPromise();
+  }
+
+  public resolvePromise(id: string) {
+    return Bridge.transceiver.resolvePromise(id);
   }
 
   public registerResolvers(resolvers: Partial<SRC> = {} as any) {

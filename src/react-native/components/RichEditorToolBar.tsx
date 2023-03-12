@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -14,15 +15,17 @@ interface IRichEditorToolBarProps {
 }
 
 const ToolBarStyles = StyleSheet.create({
+  scrollView: {
+    zIndex: 999,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0,0,0,0.2)',
+  },
   container: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 6,
-    zIndex: 999,
     height: 48,
-    borderTopWidth: 0.5,
-    borderTopColor: 'rgba(0,0,0,0.2)',
   },
   button: {
     width: 20,
@@ -39,7 +42,13 @@ const RichEditorToolBar: FC<IRichEditorToolBarProps> = (props) => {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={{ ...ToolBarStyles.container, width, ...style }}>
+      <ScrollView
+        horizontal={true}
+        style={{ ...ToolBarStyles.scrollView, width }}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ ...ToolBarStyles.container, ...style }}
+      >
         {formats.map((format, index) =>
           React.isValidElement(format) ? (
             <View key={index}>{format}</View>
@@ -47,7 +56,7 @@ const RichEditorToolBar: FC<IRichEditorToolBarProps> = (props) => {
             <></>
           )
         )}
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };

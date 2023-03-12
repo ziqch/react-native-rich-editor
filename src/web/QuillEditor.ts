@@ -1,6 +1,10 @@
 import type Quill from 'quill';
 import type { DeltaOperation, RangeStatic, Sources } from 'quill';
-import type { Bridge, QuillEditorOptions } from '../utils';
+import type {
+  Bridge,
+  QuillEditorOptions,
+  WebViewResolversBuiltin,
+} from '../utils';
 import {
   Direction,
   OriginalQuillInstance,
@@ -14,7 +18,10 @@ import type { QuillOptionsStatic } from 'quill';
 
 const DefaultScrollOffsetBuffer = 50;
 export default function init(
-  bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>,
+  bridge: Bridge<
+    QuillResolversBuiltin & WebViewResolversBuiltin,
+    RNResolversBuiltin
+  >,
   options?: QuillEditorOptions
 ) {
   const _Quill = (window as any).Quill as typeof Quill;
@@ -23,20 +30,30 @@ export default function init(
     private readonly scrollOffsetBuffer: number = DefaultScrollOffsetBuffer;
     private readonly quill: Quill;
     private readonly history: any;
-    private readonly bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>;
+    private readonly bridge: Bridge<
+      QuillResolversBuiltin & WebViewResolversBuiltin,
+      RNResolversBuiltin
+    >;
     private viewHeight = 0;
     private previousContentLength = 0;
     private previousSectionRange: RangeStatic | null = { index: 0, length: 0 };
     private readonly platform?: string;
 
     constructor(
-      bridge: Bridge<QuillResolversBuiltin, RNResolversBuiltin>,
+      bridge: Bridge<
+        QuillResolversBuiltin & WebViewResolversBuiltin,
+        RNResolversBuiltin
+      >,
       options?: QuillEditorOptions
     ) {
       this.bridge = bridge;
       this.quill = this.mountQuill({
         placeholder: options?.placeholder,
         readOnly: options?.readOnly,
+        modules: {
+          syntax: options?.syntax,
+        },
+        theme: 'bubble',
       });
       this.platform = options?.platform;
       this.history = this.quill.getModule('history');
@@ -57,6 +74,12 @@ export default function init(
     }
 
     private setEvents() {
+      this.quill.on('editor-change', () => {
+        this.bridge.call(
+          RNResolverTokenBuiltin.UpdateFormat,
+          this.quill.getFormat()
+        );
+      });
       this.quill.on('text-change', (delta, oldDelta, source) => {
         this.updateViewHeight();
         this.calculateScrollOffsetWhenTextChange();
@@ -74,10 +97,6 @@ export default function init(
           range,
           oldRange,
           source
-        );
-        this.bridge.call(
-          RNResolverTokenBuiltin.UpdateFormat,
-          this.quill.getFormat()
         );
       });
       this.quill.root.addEventListener('compositionstart', () => {
