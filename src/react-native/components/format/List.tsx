@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import type { IBasicFormatProps } from './Basic';
 import Basic from './Basic';
 
-interface IListFormatProps
+export interface IListFormatProps
   extends Omit<IBasicFormatProps, 'customValue' | 'format'> {
   type: 'ordered' | 'bullet';
 }
