@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
 });
 const colorActive = 'rgba(0,102,204,1)';
 const colorDisabled = 'rgba(158,158,158, 1)';
-const colorActiveDisbaled = 'rgba(0,102,204,0.4)';
+const colorActiveDisabled = 'rgba(0,102,204,0.4)';
 const Basic: FC<IBasicFormatProps> = (props) => {
   const { format, icon, style, onValueChange, customValue, customActive } =
     props;
@@ -39,7 +39,7 @@ const Basic: FC<IBasicFormatProps> = (props) => {
   const disabled = useFormatDisabled(props.disabled);
   const isActive = customActive ? customActive(formatValue) : !!formatValue;
   const buttonColor = React.useMemo(() => {
-    if (disabled && isActive) return colorActiveDisbaled;
+    if (disabled && isActive) return colorActiveDisabled;
     else if (disabled) return colorDisabled;
     else if (isActive) return colorActive;
     else return 'black';
