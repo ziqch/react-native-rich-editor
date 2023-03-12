@@ -38,7 +38,7 @@ const uuid = () => {
 };
 class Transceiver {
   private readonly queue: Action[] = [];
-  public readonly callbackPool = new Map<string, CallbackControl<any>>();
+  private readonly callbackPool = new Map<string, CallbackControl<any>>();
   private sender: (data: string) => void = noop;
 
   private constructor() {}

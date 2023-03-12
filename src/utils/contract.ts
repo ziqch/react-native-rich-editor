@@ -97,12 +97,10 @@ export type QuillResolversBuiltin = {
 };
 
 export enum WebViewResolverTokenBuiltin {
-  InjectScript = '@CALL[InjectScript]__builtin',
   LoadAssets = '@CALL[LoadAssets]__builtin',
 }
 
 export type WebViewResolversBuiltin = {
-  [WebViewResolverTokenBuiltin.InjectScript]: (script: string) => void;
   [WebViewResolverTokenBuiltin.LoadAssets]: (assets: {
     scriptList?: string[];
     cssList?: string[];

@@ -21,16 +21,18 @@ const loadScripts = async (scriptList: string[] = []) => {
     script.setAttribute('type', 'text/javascript');
     if (isURL(urlOrText)) {
       script.setAttribute('src', urlOrText);
+      loadPromise.push(
+        new Promise<void>((revolve, reject) => {
+          script.onload = () => revolve();
+          script.onabort = () => reject();
+        })
+      );
+      document.body.append(script);
     } else {
       script.innerText = urlOrText;
+      document.body.append(script);
+      loadPromise.push(Promise.resolve());
     }
-    loadPromise.push(
-      new Promise<void>((revolve, reject) => {
-        script.onload = () => revolve();
-        script.onabort = () => reject();
-      })
-    );
-    document.body.append(script);
   });
   return Promise.allSettled(loadPromise).then(() => console.log('all set!'));
 };
@@ -53,13 +55,8 @@ const loadCss = async (cssList: string[] = []) => {
       const style = document.createElement('style');
       style.setAttribute('type', 'text/css');
       style.innerText = urlOrText;
-      loadPromise.push(
-        new Promise<void>((revolve, reject) => {
-          style.onload = () => revolve();
-          style.onabort = () => reject();
-        })
-      );
       document.body.append(style);
+      loadPromise.push(Promise.resolve());
     }
   });
   return Promise.allSettled(loadPromise);
@@ -76,9 +73,6 @@ try {
   >();
   (window as any)[ReactNativeBridgeToken] = reactNativeBridge;
   reactNativeBridge.registerResolvers({
-    [WebViewResolverTokenBuiltin.InjectScript]: (script: string) => {
-      return Promise.allSettled([loadScripts([script])]);
-    },
     [WebViewResolverTokenBuiltin.LoadAssets]: ({ scriptList, cssList }) => {
       return Promise.allSettled([loadScripts(scriptList), loadCss(cssList)]);
     },
