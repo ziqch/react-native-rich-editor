@@ -1,0 +1,13 @@
+name: main
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    uses: ./.github/workflows/check.yml

@@ -1,11 +1,6 @@
-name: CI
+name: Check
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_call
 
 jobs:
   lint:
@@ -35,6 +30,23 @@ jobs:
       - name: Run unit tests
         run: yarn test --maxWorkers=2 --coverage
 
+  verify-web-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build web
+        run: yarn build-web
+
+      - name: Verify
+        run: bash ./scripts/verify_build
+        shell: bash
+
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -43,6 +55,9 @@ jobs:
 
       - name: Setup
         uses: ./.github/actions/setup
+
+      - name: Build web
+        run: yarn build-web
 
       - name: Build package
         run: yarn prepack
