@@ -92,6 +92,7 @@ try {
       reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
     });
 } catch (e: any) {
+  console.log('test build');
   const error = document.createElement('div');
   error.innerText = e.message;
   document.body.append(error);
