@@ -4,7 +4,7 @@ import Basic from './Basic';
 import { useBuiltinBridge } from '../../hooks/useBridge';
 import { useEditorContext } from '../../hooks/';
 
-interface ICodeBlockFormatProps
+export interface ICodeBlockFormatProps
   extends Omit<IBasicFormatProps, 'customValue' | 'format'> {
   languages: string[];
   scriptList?: string[];

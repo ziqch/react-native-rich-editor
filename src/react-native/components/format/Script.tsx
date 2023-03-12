@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import type { IBasicFormatProps } from './Basic';
 import Basic from './Basic';
 
-interface IScriptFormatProps
+export interface IScriptFormatProps
   extends Omit<IBasicFormatProps, 'customValue' | 'format'> {
   type: 'super' | 'sub';
 }

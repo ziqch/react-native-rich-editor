@@ -12,7 +12,7 @@ export interface IEditorContextProps {
   webViewRef: React.RefObject<WebView | null>;
   isInputComposing: boolean;
 }
-interface IEditorContextValue extends IEditorContextProps {
+export interface IEditorContextValue extends IEditorContextProps {
   getBridge: (key: string) => Bridge<any, any> | undefined;
   injectJavaScript: (script: string) => Promise<void>;
 }
