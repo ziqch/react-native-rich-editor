@@ -43,7 +43,7 @@ jobs:
         run: yarn build-web
 
       - name: Verify
-        run: bash ./scripts/verify_build
+        run: bash ./scripts/verify_build.sh
         shell: bash
 
 
