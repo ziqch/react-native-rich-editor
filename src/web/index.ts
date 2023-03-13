@@ -34,7 +34,7 @@ const loadScripts = async (scriptList: string[] = []) => {
       loadPromise.push(Promise.resolve());
     }
   });
-  return Promise.allSettled(loadPromise).then(() => console.log('all set!'));
+  return Promise.allSettled(loadPromise);
 };
 
 const loadCss = async (cssList: string[] = []) => {
