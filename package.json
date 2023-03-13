@@ -6,9 +6,7 @@
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
   "react-native": "src/index",
-  "source": "src/index",
   "files": [
-    "src",
     "lib",
     "android",
     "ios",
@@ -45,7 +43,7 @@
     "android"
   ],
   "repository": "https://github.com/ziqch/react-native-rich-editor",
-  "author": "senn <dawnever.czq@gmail.com> (https://github.com/ziqch)",
+  "author": "Senn <ziqch.dev@outlook.com> (https://github.com/ziqch)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ziqch/react-native-rich-editor/issues"
