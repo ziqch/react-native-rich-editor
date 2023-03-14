@@ -1,5 +1,5 @@
 {
-  "name": "react-native-rich-editor",
+  "name": "@ziqch/react-native-rich-editor",
   "version": "0.1.0",
   "description": "test",
   "main": "lib/commonjs/index",
@@ -115,9 +115,6 @@
     "git": {
       "commitMessage": "chore: release ${version}",
       "tagName": "v${version}"
-    },
-    "npm": {
-      "publish": true
     },
     "github": {
       "release": true
