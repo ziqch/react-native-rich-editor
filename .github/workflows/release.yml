@@ -20,7 +20,7 @@ jobs:
 
       - name: pre-publish
         if: github.event.action == 'prereleased'
-        uses: JS-DevTools/npm-publish@v1
+        uses: JS-DevTools/npm-publish@v1.4.3
         with:
           token: ${{ secrets.NPM_TOKEN }}
           tag: beta
@@ -28,7 +28,7 @@ jobs:
 
       - name: stable-publish
         if: github.event.action == 'released'
-        uses: JS-DevTools/npm-publish@v1
+        uses: JS-DevTools/npm-publish@v1.4.3
         with:
           token: ${{ secrets.NPM_TOKEN }}
           greater-version-only: true
