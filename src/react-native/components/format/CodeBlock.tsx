@@ -1,8 +1,7 @@
 import React, { FC } from 'react';
 import type { IBasicFormatProps } from './Basic';
 import Basic from './Basic';
-import { useBuiltinBridge } from '../../hooks/useBridge';
-import { useEditorContext } from '../../hooks/';
+import { useBuiltinBridge, useEditorContext } from '../../hooks/';
 
 export interface ICodeBlockFormatProps
   extends Omit<IBasicFormatProps, 'customValue' | 'format'> {

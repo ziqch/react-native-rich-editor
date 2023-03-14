@@ -1,11 +1,9 @@
 import React, { FC } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerOptions } from 'expo-image-picker';
-import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { QuillResolverTokenBuiltin } from '../../utils';
-import { useBuiltinBridge } from '../../hooks/useBridge';
-import { useFormatDisabled } from '../../hooks/useFormatDisabled';
+import { useBuiltinBridge, useFormatDisabled } from '../../hooks';
 
 export interface IImageFormatProps {
   style?: ViewStyle;
@@ -50,22 +48,23 @@ const Image: FC<IImageFormatProps> = (props) => {
     else return 'black';
   }, [disabled]);
 
+  const renderIcon = React.useCallback(() => {
+    if (typeof icon === 'function') {
+      return icon();
+    } else {
+      const MaterialIcons =
+        require('react-native-vector-icons/MaterialIcons').default;
+      return <MaterialIcons name={icon} size={20} color={buttonColor} />;
+    }
+  }, [buttonColor, icon]);
+
   return (
     <TouchableOpacity
       style={{ ...styles.default, ...style }}
       onPress={onPress}
       disabled={disabled}
     >
-      {typeof icon === 'function' ? (
-        icon()
-      ) : (
-        <MaterialIcons
-          // @ts-ignore
-          name={icon}
-          size={20}
-          color={buttonColor}
-        />
-      )}
+      {renderIcon()}
     </TouchableOpacity>
   );
 };

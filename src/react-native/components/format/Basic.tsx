@@ -1,8 +1,7 @@
 import React, { FC } from 'react';
-import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useFormat } from '../../hooks/useFormat';
-import { useFormatDisabled } from '../../hooks/useFormatDisabled';
+import { useFormatDisabled } from '../../hooks';
 
 export interface IBasicFormatProps {
   format: string;
@@ -45,22 +44,23 @@ const Basic: FC<IBasicFormatProps> = (props) => {
     else return 'black';
   }, [disabled, isActive]);
 
+  const renderIcon = React.useCallback(() => {
+    if (typeof icon === 'function') {
+      return icon();
+    } else {
+      const MaterialIcons =
+        require('react-native-vector-icons/MaterialIcons').default;
+      return <MaterialIcons name={icon} size={20} color={buttonColor} />;
+    }
+  }, [buttonColor, icon]);
+
   return (
     <TouchableOpacity
       style={{ ...styles.default, ...style }}
       onPress={onPress}
       disabled={disabled}
     >
-      {typeof icon === 'function' ? (
-        icon()
-      ) : (
-        <MaterialIcons
-          // @ts-ignore
-          name={icon}
-          size={20}
-          color={buttonColor}
-        />
-      )}
+      {renderIcon()}
     </TouchableOpacity>
   );
 };

@@ -9,7 +9,7 @@ import {
   Format,
   ReactNativeRichEditor,
   RichEditorToolBar,
-} from 'react-native-rich-editor';
+} from '@ziqch/react-native-rich-editor';
 
 export default function App() {
   const { height, width } = useWindowDimensions();

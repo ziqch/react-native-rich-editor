@@ -1,8 +1,7 @@
 import React, { FC } from 'react';
 import Picker from 'react-native-picker-select';
 import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
-import { useFormat } from '../../hooks/useFormat';
-import { useFormatDisabled } from '../../hooks/useFormatDisabled';
+import { useFormat, useFormatDisabled } from '../../hooks';
 
 export interface ISizeFormatProps {
   style?: ViewStyle;
