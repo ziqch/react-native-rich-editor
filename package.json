@@ -1,6 +1,6 @@
 {
   "name": "@ziqch/react-native-rich-editor",
-  "version": "0.2.0-beta.0",
+  "version": "0.1.0-beta.0",
   "description": "test",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -11,6 +11,7 @@
     "android",
     "ios",
     "cpp",
+    "docs",
     "*.podspec",
     "!lib/typescript/example",
     "!ios/build",
@@ -51,7 +52,7 @@
   "homepage": "https://github.com/ziqch/react-native-rich-editor#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
-    "publishConfig": {"access": "public"}
+    "access": "public"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",

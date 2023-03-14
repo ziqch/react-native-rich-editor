@@ -1,17 +1,8 @@
-# React Native Rich Editor - an Easy-to-use Rich Text Editor for React Native App
+# React Native Rich Editor Getting Started Guide
 
-## Platforms Supported
+This guide will help you get started quickly.
 
-- [x] iOS
-- [x] Android
-- [x] Expo (Android, iOS)
-
-## Getting Started
-
-Read our [Getting Started Guide](docs/Getting-Started.md). If any step seems unclear, please create a detailed issue.
-
-
-## Install
+## 1. Add `@ziqch/react-native-rich-editor` to your dependencies
 
 ```
 $ yarn add @ziqch/react-native-rich-editor@beta
@@ -25,16 +16,10 @@ For npm use
 $ npm install --save @ziqch/react-native-rich-editor@beta
 ```
 
-## Usage
-
-Import the `ReactNativeRichEditor` component from `@ziqch/react-native-rich-editor` and use it like so:
+## 2. Import the `ReactNativeRichEditor` into your component
 
 ```jsx
-import {
-  Format,
-  ReactNativeRichEditor,
-  RichEditorToolBar,
-} from '@ziqch/react-native-rich-editor';
+import { ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
 
 // ...
 const MyComponent = () => {
@@ -48,6 +33,22 @@ const MyComponent = () => {
         { insert: '\n' },
       ]}
     >
+    </ReactNativeRichEditor>
+  );
+};
+```
+
+You can use our default toolbar and preset format.
+
+```jsx
+import { ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
+
+// ...
+const MyComponent = () => {
+  return (
+    <ReactNativeRichEditor
+      // ...
+    >
       <RichEditorToolBar
         formats={[
           <Format.Basic format={'bold'} icon={'format-bold'} />,
@@ -57,18 +58,9 @@ const MyComponent = () => {
         ]}
       />
     </ReactNativeRichEditor>
-  )
-}
+  );
+};
 ```
 
-## Contributing
-
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
-
-## License
-
-MIT
-
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+Next, check out the [Basic Guide](./Guide.md) or [API Reference](./API-Reference.md).
+If you want to learn more about customization, please go to [Advanced Guide](./Advanced-Guide.md).

@@ -1,21 +1,13 @@
 name: release
 
 on:
-  push:
-    branches:
-      - release
-
-permissions:
-  contents: write
+  release:
+    types: [prereleased, released]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     environment: production
-    outputs:
-      name: ${{ env.PACKAGE_NAME }}
-      version: ${{ env.PACKAGE_VERSION }}
-      filename: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}.tgz
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -26,48 +18,18 @@ jobs:
       - name: Build web
         run: yarn build-web
 
-      - name: Build package
-        run: yarn prepack
-
-      - name: Read Package Info
-        uses: rexdefuror/read-package-json@v1.0.5
-
-      - name: Compress
-        uses: a7ul/tar-action@v1.1.0
+      - name: pre-publish
+        if: github.event.action == 'prereleased'
+        uses: JS-DevTools/npm-publish@v1
         with:
-          command: c
-          files: |
-            ./lib
-            ./package.json
-            ./README.md
-            ./LICENSE
-          outPath: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}.tgz
+          token: ${{ secrets.NPM_TOKEN }}
+          tag: beta
+          greater-version-only: true
 
-      - name: Upload
-        uses: actions/upload-artifact@v3
+      - name: stable-publish
+        if: github.event.action == 'released'
+        uses: JS-DevTools/npm-publish@v1
         with:
-          name: build
-          path: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}.tgz
-          if-no-files-found: error
-
-  pre-release:
-    runs-on: ubuntu-latest
-    environment: production
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Download
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-
-      - name: Pre-Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: Release v${{ needs.build.outputs.version }}
-          tag_name: v${{ needs.build.outputs.version }}
-          prerelease: true
-          files: ${{ needs.build.outputs.filename }}
+          token: ${{ secrets.NPM_TOKEN }}
+          greater-version-only: true
 
