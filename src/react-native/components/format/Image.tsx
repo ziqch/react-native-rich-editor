@@ -1,18 +1,14 @@
 import React, { FC } from 'react';
-import * as ImagePicker from 'expo-image-picker';
-import type { ImagePickerOptions } from 'expo-image-picker';
-import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
 import { QuillResolverTokenBuiltin } from '../../utils';
 import { useBuiltinBridge } from '../../hooks/useBridge';
-import { useFormatDisabled } from '../../hooks/useFormatDisabled';
+import { useFormat } from '../../hooks';
 
 export interface IImageFormatProps {
   style?: ViewStyle;
-  icon?: string | (() => JSX.Element);
+  icon?: (isActive: boolean, isDisabled: boolean) => JSX.Element;
   disabled?: boolean;
-  imagePickerOptions?: ImagePickerOptions;
-  onValueChange?: (value: any) => void;
+  onPress?: (updater: (sourceList: string[]) => void) => void;
 }
 const styles = StyleSheet.create({
   default: {
@@ -24,48 +20,28 @@ const styles = StyleSheet.create({
   },
 });
 const Image: FC<IImageFormatProps> = (props) => {
-  const { icon, style, onValueChange, imagePickerOptions } = props;
+  const { icon, style, disabled } = props;
   const bridge__builtin = useBuiltinBridge();
-  const onPress = React.useCallback(async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      aspect: [4, 3],
-      quality: 1,
-      base64: true,
-      allowsMultipleSelection: true,
-      ...imagePickerOptions,
-    });
-    if (!result.canceled) {
-      const sources = result.assets.map(
-        (asset) => `data:image/jpeg;base64,${asset.base64}`
-      );
-      bridge__builtin.call(QuillResolverTokenBuiltin.AddImage, sources);
-      onValueChange?.(result.assets);
-    }
-  }, [bridge__builtin, imagePickerOptions, onValueChange]);
+  const updater = React.useCallback(
+    (sourceList: string[]) => {
+      bridge__builtin.call(QuillResolverTokenBuiltin.AddImage, sourceList);
+    },
+    [bridge__builtin]
+  );
+  const onPress = React.useCallback(() => {
+    props.onPress?.(updater);
+  }, [props, updater]);
 
-  const disabled = useFormatDisabled(props.disabled);
-  const buttonColor = React.useMemo(() => {
-    if (disabled) return 'gray';
-    else return 'black';
-  }, [disabled]);
+  const { internalDisabled } = useFormat('image');
+  const isDisabled = Boolean(internalDisabled || disabled);
 
   return (
     <TouchableOpacity
       style={{ ...styles.default, ...style }}
       onPress={onPress}
-      disabled={disabled}
+      disabled={isDisabled}
     >
-      {typeof icon === 'function' ? (
-        icon()
-      ) : (
-        <MaterialIcons
-          // @ts-ignore
-          name={icon}
-          size={20}
-          color={buttonColor}
-        />
-      )}
+      {icon?.(false, isDisabled) ?? <Text>?</Text>}
     </TouchableOpacity>
   );
 };

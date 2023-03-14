@@ -36,9 +36,8 @@ const CodeBlock: FC<ICodeBlockFormatProps> = (props) => {
   return (
     <Basic
       format={'code-block'}
-      icon={'code'}
       {...props}
-      disabled={isLoading}
+      disabled={isLoading || props.disabled}
     />
   );
 };

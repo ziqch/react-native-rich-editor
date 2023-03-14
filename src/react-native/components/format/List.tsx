@@ -8,10 +8,10 @@ export interface IListFormatProps
 }
 
 const List: FC<IListFormatProps> = (props) => {
-  const customValue = (currentType: string) => {
+  const getValue = (currentType: string) => {
     return currentType === props.type ? false : props.type;
   };
-  const customActive = (currentType: string) => {
+  const getActive = (currentType: string) => {
     return currentType === props.type;
   };
   switch (props.type) {
@@ -19,9 +19,8 @@ const List: FC<IListFormatProps> = (props) => {
       return (
         <Basic
           format={'list'}
-          customValue={customValue}
-          customActive={customActive}
-          icon={'format-list-numbered'}
+          getValue={getValue}
+          getActive={getActive}
           {...props}
         />
       );
@@ -29,9 +28,8 @@ const List: FC<IListFormatProps> = (props) => {
       return (
         <Basic
           format={'list'}
-          customValue={customValue}
-          customActive={customActive}
-          icon={'format-list-bulleted'}
+          getValue={getValue}
+          getActive={getActive}
           {...props}
         />
       );

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ImagePicker from 'expo-image-picker';
 import {
   SafeAreaView,
   StatusBar,
@@ -9,7 +10,9 @@ import {
   Format,
   ReactNativeRichEditor,
   RichEditorToolBar,
-} from 'react-native-rich-editor';
+} from '@ziqch/react-native-rich-editor';
+import FormatIcons from './FormatIcons';
+import CustomizeFormatSize from './CustomizeFormatSize';
 
 export default function App() {
   const { height, width } = useWindowDimensions();
@@ -19,6 +22,26 @@ export default function App() {
       paddingTop: StatusBar.currentHeight,
     },
   });
+
+  const onPressAddImage = React.useCallback(
+    async (updater: (sources: string[]) => void) => {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        aspect: [4, 3],
+        quality: 1,
+        base64: true,
+        allowsMultipleSelection: true,
+      });
+      if (!result.canceled) {
+        const sources = result.assets.map(
+          (asset) => `data:image/jpeg;base64,${asset.base64}`
+        );
+        updater(sources);
+      }
+    },
+    []
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <ReactNativeRichEditor
@@ -33,17 +56,20 @@ export default function App() {
       >
         <RichEditorToolBar
           formats={[
-            <Format.Size />,
-            <Format.Image icon={'image'} />,
-            <Format.Basic format={'bold'} icon={'format-bold'} />,
-            <Format.Basic format={'italic'} icon={'format-italic'} />,
-            <Format.Basic format={'underline'} icon={'format-underline'} />,
-            <Format.Basic format={'strike'} icon={'format-strikethrough'} />,
-            <Format.CodeBlock languages={['typescript', 'javascript']} />,
-            <Format.List type={'ordered'} />,
-            <Format.List type={'bullet'} />,
-            <Format.Script type={'super'} />,
-            <Format.Script type={'sub'} />,
+            <CustomizeFormatSize />,
+            <Format.Image icon={FormatIcons.Image} onPress={onPressAddImage} />,
+            <Format.Basic format={'bold'} icon={FormatIcons.Bold} />,
+            <Format.Basic format={'italic'} icon={FormatIcons.Italic} />,
+            <Format.Basic format={'underline'} icon={FormatIcons.Underline} />,
+            <Format.Basic format={'strike'} icon={FormatIcons.Strike} />,
+            <Format.CodeBlock
+              languages={['typescript', 'javascript']}
+              icon={FormatIcons.Code}
+            />,
+            <Format.List type={'ordered'} icon={FormatIcons.ListOrdered} />,
+            <Format.List type={'bullet'} icon={FormatIcons.ListBullet} />,
+            <Format.Script type={'super'} icon={FormatIcons.ScriptSuper} />,
+            <Format.Script type={'sub'} icon={FormatIcons.ScriptSub} />,
           ]}
         />
       </ReactNativeRichEditor>

@@ -2,7 +2,7 @@ import type { DeltaOperation, RangeStatic, Sources } from 'quill';
 import React from 'react';
 import type { IEditorContextProps } from '../components/context/EditorContext';
 import { Platform } from 'react-native';
-import type { WebViewInitializeConfig } from 'react-native-rich-editor';
+import type { WebViewInitializeConfig } from '../utils';
 
 export interface IRichEditorInnerProps {
   width: number;

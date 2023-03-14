@@ -8,10 +8,10 @@ export interface IScriptFormatProps
 }
 
 const Script: FC<IScriptFormatProps> = (props) => {
-  const customValue = (currentType: string) => {
+  const getValue = (currentType: string) => {
     return currentType === props.type ? false : props.type;
   };
-  const customActive = (currentType: string) => {
+  const getActive = (currentType: string) => {
     return currentType === props.type;
   };
   switch (props.type) {
@@ -19,9 +19,8 @@ const Script: FC<IScriptFormatProps> = (props) => {
       return (
         <Basic
           format={'script'}
-          customValue={customValue}
-          customActive={customActive}
-          icon={'superscript'}
+          getValue={getValue}
+          getActive={getActive}
           {...props}
         />
       );
@@ -29,9 +28,8 @@ const Script: FC<IScriptFormatProps> = (props) => {
       return (
         <Basic
           format={'script'}
-          customValue={customValue}
-          customActive={customActive}
-          icon={'subscript'}
+          getValue={getValue}
+          getActive={getActive}
           {...props}
         />
       );

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "react-native-rich-editor": ["./src/index"],
+      "@ziqch/react-native-rich-editor": ["./src/index"],
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
