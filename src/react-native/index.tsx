@@ -6,4 +6,4 @@ export {
 } from './components/context/EditorContext';
 export { default as Format } from './components/format';
 export * from './hooks';
-export * from '../utils';
+export * from './utils';

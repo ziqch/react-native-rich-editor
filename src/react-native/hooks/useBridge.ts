@@ -5,8 +5,8 @@ import type {
   ResolverList,
   RNResolversBuiltin,
   WebViewResolversBuiltin,
-} from '../../utils';
-import { BuiltinBridgeKey } from '../../utils';
+} from '../utils';
+import { BuiltinBridgeKey } from '../utils';
 import { useEditorContext } from './useEditorContext';
 export const useBridge = <SRC extends ResolverList, TGT extends ResolverList>(
   registerKey: string

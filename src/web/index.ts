@@ -7,7 +7,7 @@ import {
   RNResolverTokenBuiltin,
   WebViewResolversBuiltin,
   WebViewResolverTokenBuiltin,
-} from '../utils';
+} from '../react-native/utils';
 
 const isURL = (str: string) => {
   const reg = /^((http|https):\/\/)/;

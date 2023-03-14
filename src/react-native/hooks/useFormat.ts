@@ -1,8 +1,7 @@
 import React from 'react';
 import { useBuiltinBridge } from './useBridge';
-import { QuillResolverTokenBuiltin } from '../../utils';
+import { FormatEventChannel, QuillResolverTokenBuiltin } from '../utils';
 import type { Sources } from 'quill';
-import { FormatEventChannel } from '../utils';
 
 export const useFormat = (format: string, defaultValue: any = false) => {
   const [value, setValue] = React.useState<any | false>(defaultValue);

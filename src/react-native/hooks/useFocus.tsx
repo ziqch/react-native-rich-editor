@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import { useBuiltinBridge } from './useBridge';
-import { QuillResolverTokenBuiltin } from '../../utils';
+import { QuillResolverTokenBuiltin } from '../utils';
 import type { Sources } from 'quill';
 import { useEditorContext } from './useEditorContext';
 

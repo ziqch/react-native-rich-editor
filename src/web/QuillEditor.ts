@@ -4,7 +4,7 @@ import type {
   Bridge,
   QuillEditorOptions,
   WebViewResolversBuiltin,
-} from '../utils';
+} from '../react-native/utils';
 import {
   Direction,
   OriginalQuillInstance,
@@ -13,7 +13,7 @@ import {
   QuillResolverTokenBuiltin,
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
-} from '../utils';
+} from '../react-native/utils';
 import type { QuillOptionsStatic } from 'quill';
 
 const DefaultScrollOffsetBuffer = 50;

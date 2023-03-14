@@ -5,7 +5,7 @@ This guide will help you get started quickly.
 ## 1. Add `@ziqch/react-native-rich-editor` to your dependencies
 
 ```
-$ yarn add @ziqch/react-native-rich-editor@beta
+$ yarn add @ziqch/react-native-rich-editor
 ```
 
 (or)
@@ -13,7 +13,7 @@ $ yarn add @ziqch/react-native-rich-editor@beta
 For npm use
 
 ```
-$ npm install --save @ziqch/react-native-rich-editor@beta
+$ npm install --save @ziqch/react-native-rich-editor
 ```
 
 ## 2. Import the `ReactNativeRichEditor` into your component

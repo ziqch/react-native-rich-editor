@@ -1,6 +1,6 @@
 {
   "name": "@ziqch/react-native-rich-editor",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0",
   "description": "test",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

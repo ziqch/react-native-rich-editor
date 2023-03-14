@@ -3,7 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerOptions } from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { QuillResolverTokenBuiltin } from '../../../utils';
+import { QuillResolverTokenBuiltin } from '../../utils';
 import { useBuiltinBridge } from '../../hooks/useBridge';
 import { useFormatDisabled } from '../../hooks/useFormatDisabled';
 

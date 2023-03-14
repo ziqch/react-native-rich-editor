@@ -14,7 +14,7 @@ Read our [Getting Started Guide](docs/Getting-Started.md). If any step seems unc
 ## Install
 
 ```
-$ yarn add @ziqch/react-native-rich-editor@beta
+$ yarn add @ziqch/react-native-rich-editor
 ```
 
 (or)
@@ -22,7 +22,7 @@ $ yarn add @ziqch/react-native-rich-editor@beta
 For npm use
 
 ```
-$ npm install --save @ziqch/react-native-rich-editor@beta
+$ npm install --save @ziqch/react-native-rich-editor
 ```
 
 ## Usage

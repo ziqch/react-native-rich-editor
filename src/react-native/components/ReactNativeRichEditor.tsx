@@ -4,9 +4,10 @@ import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import {
   Bridge,
   BuiltinBridgeKey,
+  FormatEventChannel,
   QuillResolverTokenBuiltin,
   RNResolverTokenBuiltin,
-} from '../../utils';
+} from '../utils';
 import type { RangeStatic, Sources } from 'quill';
 import { useBuiltinBridge, useEditorScroll } from '../hooks';
 import {
@@ -20,7 +21,6 @@ import {
 } from './context/EditorContext';
 // @ts-ignore
 import html from '../web.js';
-import { FormatEventChannel } from '../utils';
 
 interface IRichEditorState {
   webViewHeight: number;

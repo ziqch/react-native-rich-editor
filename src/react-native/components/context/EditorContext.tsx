@@ -1,10 +1,6 @@
-import {
-  Bridge,
-  BuiltinBridgeKey,
-  ReactNativeBridgeToken,
-} from '../../../utils';
+import { Bridge, BuiltinBridgeKey, ReactNativeBridgeToken } from '../../utils';
 import React, { FC, PropsWithChildren } from 'react';
-import type { ResolverList } from '../../../utils';
+import type { ResolverList } from '../../utils';
 import type { WebView } from 'react-native-webview';
 
 export interface IEditorContextProps {
