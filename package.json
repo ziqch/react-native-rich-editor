@@ -50,7 +50,8 @@
   },
   "homepage": "https://github.com/ziqch/react-native-rich-editor#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "publishConfig": {"access": "public"}
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
@@ -118,6 +119,9 @@
     },
     "github": {
       "release": true
+    },
+    "npm": {
+      "release": false
     },
     "plugins": {
       "@release-it/conventional-changelog": {
