@@ -18,7 +18,7 @@ on:
 
 jobs:
   publish:
-    if: ${{ inputs.publish }} == true
+    if: inputs.publish == true
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -38,7 +38,7 @@ jobs:
           greater-version-only: true
 
   deploy:
-    if: ${{ inputs.deploy }} == true
+    if: inputs.deploy == true
     uses: ./.github/workflows/deploy.yml
     with:
       update-args: --branch release --message ${{ inputs.deploy-tag }}
