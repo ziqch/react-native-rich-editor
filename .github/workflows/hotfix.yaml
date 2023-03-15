@@ -32,14 +32,13 @@ jobs:
         run: yarn build-web
 
       - name: stable-publish
-        if: github.event.action == 'released'
         uses: JS-DevTools/npm-publish@v1.4.3
         with:
           token: ${{ secrets.NPM_TOKEN }}
           greater-version-only: true
 
   deploy:
-    if: ${{ inputs.publish }} == true
+    if: ${{ inputs.deploy }} == true
     uses: ./.github/workflows/deploy.yml
     with:
       update-args: --branch release --message ${{ inputs.deploy-tag }}

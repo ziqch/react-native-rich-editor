@@ -37,7 +37,7 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Publish update=
+      - name: Publish update
         run: |
           cd example
           eas update ${{ inputs.update-args }}
