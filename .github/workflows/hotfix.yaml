@@ -1,11 +1,24 @@
-name: release
+name: hotfix
 
 on:
-  release:
-    types: [prereleased, released]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'should publish npm package'
+        required: true
+        type: boolean
+      deploy:
+        description: 'should deploy to Expo'
+        required: true
+        type: boolean
+      deploy-tag:
+        description: 'deploy tag(like v1.0.0-hotfix.1)'
+        required: true
+        type: string
 
 jobs:
   publish:
+    if: ${{ inputs.publish }} == true
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -18,14 +31,6 @@ jobs:
       - name: Build web
         run: yarn build-web
 
-      - name: pre-publish
-        if: github.event.action == 'prereleased'
-        uses: JS-DevTools/npm-publish@v1.4.3
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
-          tag: beta
-          greater-version-only: true
-
       - name: stable-publish
         if: github.event.action == 'released'
         uses: JS-DevTools/npm-publish@v1.4.3
@@ -34,9 +39,9 @@ jobs:
           greater-version-only: true
 
   deploy:
-    if: github.event.action == 'released'
+    if: ${{ inputs.publish }} == true
     uses: ./.github/workflows/deploy.yml
     with:
-      update-args: --branch release --message ${{ github.ref }}
+      update-args: --branch release --message ${{ inputs.deploy-tag }}
       environment: production
     secrets: inherit
