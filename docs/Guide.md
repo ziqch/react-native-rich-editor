@@ -147,10 +147,10 @@ Insert image to editor. Use `onPress` to insert your image source list.
 Support source are: `http`, `https`, `data`.
 
 ```tsx
-const onPress = (insertImage: (sourceList: string[]) => void) => {
+const onPress = (insertImages: (sourceList: string[]) => void) => {
   const sourceList = [];
   // push some image source
-  insertImage(sourceList);
+  insertImages(sourceList);
 }
 <Format.Image onPress={onPress}/>
 ```
@@ -159,7 +159,7 @@ const onPress = (insertImage: (sourceList: string[]) => void) => {
 
 Support ordered list and bullet list format.
 
-```jsx
+```tsx
 <Format.List type={'ordered'} icon={iconRender} />
 <Format.List type={'bullet'} icon={iconRender} />
 ```
@@ -168,7 +168,7 @@ Support ordered list and bullet list format.
 
 Support super-script and sub-script.
 
-```jsx
+```tsx
 <Format.Script type={'super'} icon={iconRender} />
 <Format.Script type={'sub'} icon={iconRender} />
 ```

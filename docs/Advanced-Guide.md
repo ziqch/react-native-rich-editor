@@ -14,6 +14,8 @@ This guide will introduce you to some advanced usage so that you can highly cust
 There are already some preset format you can find You can find in [Format](../src/react-native/components/format/index.ts).
 But sometimes it doesn't meet your needs. Here is an example for a `SizeFormat` to control the font size.
 
+Note that this hook only can be used in child component of `ReactNativeRichEditor`
+
 Example:
 ```tsx
 import { useFormat } from '@ziqch/react-native-rich-editor';
@@ -51,6 +53,20 @@ const CustomizeFormatSize = () => {
         disabled={isDisabled}
       />
     </View>
+  );
+};
+// then use it in editor
+const MyComponent = () => {
+  return (
+    <ReactNativeRichEditor
+      // ...
+    >
+      <RichEditorToolBar
+        formats={[
+          <CustomizeFormatSize />,
+        ]}
+      />
+    </ReactNativeRichEditor>
   );
 };
 ```
@@ -91,6 +107,7 @@ const bridge__builtin = useBuiltinBridge();
 
 You can call methods that in webview side, like: `GetContents`, `SetContents`
 `birdge.call()` will always return a `Promise` will be resolved with return value.
+
 ```ts
 import { useBuiltinBridge, QuillResolverTokenBuiltin } from '@ziqch/react-native-rich-editor';
 const bridge__builtin = useBuiltinBridge();
