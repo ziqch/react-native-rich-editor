@@ -7,7 +7,6 @@ This guide will help you learn more about the common use cases for React Native 
 - [Handle change events](Guide.md#handle-change-events)
 - [Usage with format](Guide.md#handle-change-events)
   - [Format.Basic](Guide.md#formatbasic)
-  - [Format.Size](Guide.md#formatsize)
   - [Format.Image](Guide.md#formatimage)
   - [Format.List](Guide.md#formatlist)
   - [Format.Script](Guide.md#formatscript)
@@ -25,7 +24,7 @@ In this example, the content will be "Hollow **World!**"(the "**World!**" is bol
 Don't forget the `width` and `height`, the Editor need known the size of its container, so it can handle scroll.
 
 
-```js
+```tsx
 import { ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
 const MyComponent = () => {
   return (
@@ -82,25 +81,32 @@ You can press the button to change the current format or current selection forma
 
 The `Format` component must be child of `ReactNativeRichEditor`.
 
-The customized icon is supported, you can pass an `IconName`([for all MaterialIcons icons in [@expo/vector-icons](https://icons.expo.fyi/)) or `Function` to icon props.
+The customized icon is supported, you can pass a render function to icon props.
+Then render function will have two arguments: `isActive` and `isDisabled`, you can control icon style by these.
 
 You can find all format presets in [Format](../src/react-native/components/format/index.ts).
 
-```jsx
+```tsx
 import { ReactNativeRichEditor, Format } from '@ziqch/react-native-rich-editor';
 
 // ...
 const MyComponent = () => {
+  const mappingIcon = (iconName: string) => {
+    return (isActive: boolean, isDisabled: boolean) => {
+      // ... some differnt style here.
+      return <YourIcon />
+    }
+  }
   return (
     <ReactNativeRichEditor
       // ...
     >
       <RichEditorToolBar
         formats={[
-          <Format.Basic format={'bold'} icon={'format-bold'} />,
-          <Format.Basic format={'italic'} icon={'format-italic'} />,
-          <Format.Basic format={'underline'} icon={'format-underline'} />,
-          <Format.Basic format={'strike'} icon={() => <YourIcon />} />,
+          <Format.Basic format={'bold'} icon={mappingIcon('format-bold')} />,
+          <Format.Basic format={'italic'} icon={mappingIcon('format-italic')} />,
+          <Format.Basic format={'underline'} icon={mappingIcon('format-underline')} />,
+          <Format.Basic format={'strike'} icon={mappingIcon('format-strike')} />,
         ]}
       />
     </ReactNativeRichEditor>
@@ -110,55 +116,52 @@ const MyComponent = () => {
 
 #### Format.Basic
 
-A basic formatter for all common format which value is boolean.
+A basic formatter for all common format which interaction is an icon button.
 like:
  - `bold`
  - `italic`
  - `underline`
  - `strike`
 
+Specifies a format to handle the change in editor.
+The default behavior is to switch the value between `ture` and `false`.
+You can get the changed value by `onValueChange`.
+
 ```jsx
-<Format.Basic format={'bold'} icon={'format-bold'} />
+<Format.Basic format={'bold'} onValueChange={onValueChange}/>
 ```
 
-#### Format.Size
-
-A selector component to select font size, we support three size by default:
-
-dependency: [`react-native-picker-select`](https://www.npmjs.com/package/react-native-picker-select)
-
-- `Small`
-- `Normal`
-- `Large`
-- `Huge`
-
-```jsx
-<Format.Size />
-```
-
-Customized selection is supported, but you need confirm the set of format value is also supported in Quilljs or your customized quill editor.
-
-```jsx
-<Format.Size selections={[{ label: 'Label', value: 'value' }]}/>
+Customized value and active is supported, `getValue` will be called when pressing the button.
+```tsx
+<Format.Basic
+  format={'bold'}
+  getValue={currentValue => newValue}
+  getActive={currentValue => isActive}
+/>
 ```
 
 #### Format.Image
 
-Image picker and insert image to editor.
+Insert image to editor. Use `onPress` to insert your image source list.
 
-dependency: [`expo-image-picker`](https://www.npmjs.com/package/expo-image-picker)
+Support source are: `http`, `https`, `data`.
 
-```jsx
-<Format.Image icon={'image'} imagePickerOptions={YourOptions} />
+```tsx
+const onPress = (insertImage: (sourceList: string[]) => void) => {
+  const sourceList = [];
+  // push some image source
+  insertImage(sourceList);
+}
+<Format.Image onPress={onPress}/>
 ```
 
 #### Format.List
 
-Support ordered list and bullet list format
+Support ordered list and bullet list format.
 
 ```jsx
-<Format.List type={'ordered'} />
-<Format.List type={'bullet'} />
+<Format.List type={'ordered'} icon={iconRender} />
+<Format.List type={'bullet'} icon={iconRender} />
 ```
 
 #### Format.Script
@@ -166,16 +169,22 @@ Support ordered list and bullet list format
 Support super-script and sub-script.
 
 ```jsx
-<Format.Script type={'super'} />
-<Format.Script type={'sub'} />
+<Format.Script type={'super'} icon={iconRender} />
+<Format.Script type={'sub'} icon={iconRender} />
 ```
 
 #### Format.CodeBlock
 
-Support code syntax highlight. `syntax` is required in `ReactNativeRichEditor`.
+Support code syntax highlight. Make sure the `syntax` is enabled in `ReactNativeRichEditor`.
+
+It is based on [highlightjs](https://highlightjs.org/), default version `11.7.0` and style `monokai-sublime`.
+If you want to use different the version and style, you can set assets link with `syntaxAssets`.
 
 ```jsx
-<ReactNativeRichEditor syntax={true}>
+<ReactNativeRichEditor
+  syntaxAssets={{ script, css }}
+  syntax={true}
+>
   <RichEditorToolBar
     formats={[
       <Format.CodeBlock languages={['typescript', 'javascript']} />
@@ -183,4 +192,6 @@ Support code syntax highlight. `syntax` is required in `ReactNativeRichEditor`.
   />
 </ReactNativeRichEditor>
 ```
+
+Next, if you want to learn more about customization, please go to [Advanced Guide](./Advanced-Guide.md) and [API Reference](./API-Reference.md).
 

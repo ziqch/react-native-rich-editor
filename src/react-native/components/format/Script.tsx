@@ -3,7 +3,7 @@ import type { IBasicFormatProps } from './Basic';
 import Basic from './Basic';
 
 export interface IScriptFormatProps
-  extends Omit<IBasicFormatProps, 'customValue' | 'format'> {
+  extends Omit<IBasicFormatProps, 'getValue' | 'format' | 'getActive'> {
   type: 'super' | 'sub';
 }
 

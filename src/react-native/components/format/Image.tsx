@@ -8,7 +8,7 @@ export interface IImageFormatProps {
   style?: ViewStyle;
   icon?: (isActive: boolean, isDisabled: boolean) => JSX.Element;
   disabled?: boolean;
-  onPress?: (updater: (sourceList: string[]) => void) => void;
+  onPress?: (insertImages: (sourceList: string[]) => void) => void;
 }
 const styles = StyleSheet.create({
   default: {
@@ -22,15 +22,15 @@ const styles = StyleSheet.create({
 const Image: FC<IImageFormatProps> = (props) => {
   const { icon, style, disabled } = props;
   const bridge__builtin = useBuiltinBridge();
-  const updater = React.useCallback(
+  const insertImages = React.useCallback(
     (sourceList: string[]) => {
       bridge__builtin.call(QuillResolverTokenBuiltin.AddImage, sourceList);
     },
     [bridge__builtin]
   );
   const onPress = React.useCallback(() => {
-    props.onPress?.(updater);
-  }, [props, updater]);
+    props.onPress?.(insertImages);
+  }, [props, insertImages]);
 
   const { internalDisabled } = useFormat('image');
   const isDisabled = Boolean(internalDisabled || disabled);

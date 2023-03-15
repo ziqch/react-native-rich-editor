@@ -38,23 +38,24 @@ const MyComponent = () => {
 };
 ```
 
-You can use our default toolbar and preset format.
+You can use our default toolbar and preset formats.
 
-```jsx
-import { ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
+```tsx
+import { Format, ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
 
 // ...
 const MyComponent = () => {
+  const renderIcon = (isActive: boolean, isDisabled: boolean) => {
+    //...
+    return <YourIcon />;
+  }
   return (
     <ReactNativeRichEditor
       // ...
     >
       <RichEditorToolBar
         formats={[
-          <Format.Basic format={'bold'} icon={'format-bold'} />,
-          <Format.Basic format={'italic'} icon={'format-italic'} />,
-          <Format.Basic format={'underline'} icon={'format-underline'} />,
-          <Format.Basic format={'strike'} icon={'format-strikethrough'} />,
+          <Format.Basic format={'bold'} icon={renderIcon} />,
         ]}
       />
     </ReactNativeRichEditor>
