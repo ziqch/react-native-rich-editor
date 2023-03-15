@@ -50,10 +50,7 @@ const MyComponent = () => {
     >
       <RichEditorToolBar
         formats={[
-          <Format.Basic format={'bold'} icon={'format-bold'} />,
-          <Format.Basic format={'italic'} icon={'format-italic'} />,
-          <Format.Basic format={'underline'} icon={'format-underline'} />,
-          <Format.Basic format={'strike'} icon={'format-strikethrough'} />,
+          <Format.Basic format={'bold'} icon={() => <YourIcon/>} />,
         ]}
       />
     </ReactNativeRichEditor>

@@ -53,7 +53,6 @@ export default function init(
         modules: {
           syntax: options?.syntax,
         },
-        theme: 'bubble',
       });
       this.platform = options?.platform;
       this.history = this.quill.getModule('history');

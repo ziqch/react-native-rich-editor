@@ -40,7 +40,7 @@ export const useEditorConfig = (
         props.quillScript ?? 'https://cdn.quilljs.com/1.3.6/quill.js',
       scriptsList: props.injectedScriptList ?? [],
       cssList: [
-        'https://cdn.quilljs.com/1.3.6/quill.bubble.css',
+        'https://cdn.quilljs.com/1.3.6/quill.core.css',
         'img { width: 100%; }',
         ...(props.injectedCssList ?? []),
       ],

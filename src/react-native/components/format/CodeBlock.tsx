@@ -7,8 +7,6 @@ import { useEditorContext } from '../../hooks/';
 export interface ICodeBlockFormatProps
   extends Omit<IBasicFormatProps, 'customValue' | 'format'> {
   languages: string[];
-  scriptList?: string[];
-  cssList?: string[];
 }
 
 const CodeBlock: FC<ICodeBlockFormatProps> = (props) => {
@@ -25,14 +23,7 @@ const CodeBlock: FC<ICodeBlockFormatProps> = (props) => {
     if (isEditorReady) {
       load();
     }
-  }, [
-    bridge__builtin,
-    injectJavaScript,
-    isEditorReady,
-    props.cssList,
-    props.languages,
-    props.scriptList,
-  ]);
+  }, [bridge__builtin, injectJavaScript, isEditorReady, props.languages]);
   return (
     <Basic
       format={'code-block'}
