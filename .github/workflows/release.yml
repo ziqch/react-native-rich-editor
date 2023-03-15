@@ -36,8 +36,8 @@ jobs:
   deploy:
     if: github.event.action == 'released'
     needs: [ publish ]
-    runs-on: ubuntu-latest
-    environment: development
     uses: ./.github/workflows/deploy.yml
     with:
       update-args: --branch release --message ${{ github.ref }}
+      environment: production
+    secrets: inherit

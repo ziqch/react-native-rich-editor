@@ -2,13 +2,20 @@ name: deploy
 on:
   workflow_call:
     inputs:
+      environment:
+        required: true
+        type: string
       update-args:
         required: true
         type: string
+    secrets:
+      EXPO_TOKEN:
+        required: true
 
 jobs:
-  update:
+  deploy-to-expo:
     name: EAS Update Deploy
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Check for EXPO_TOKEN
@@ -25,12 +32,12 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Setup EAS
-        working-directory: ./example
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Publish update
-        working-directory: ./example
-        run: eas update ${{ inputs.update-args }}
+      - name: Publish update=
+        run: |
+          cd example
+          eas update ${{ inputs.update-args }}
