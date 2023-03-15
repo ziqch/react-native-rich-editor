@@ -6,6 +6,16 @@
 - [x] Android
 - [x] Expo (Android, iOS)
 
+## Try It Now!
+
+Try it now in [Expo Go](https://expo.dev/client) !
+
+Open the camera app on your device and scan the code below:
+
+[Preview Build](https://expo.dev/%40ziqch/ReactNativeRichEditorDemo?serviceType=eas&distribution=expo-go&scheme=exp%2BReactNativeRichEditorDemo&channel=main&sdkVersion=48.0.0)
+
+[Release Build](https://expo.dev/%40ziqch/ReactNativeRichEditorDemo?serviceType=eas&distribution=expo-go&scheme=exp%2BReactNativeRichEditorDemo&channel=main&sdkVersion=48.0.0)
+
 ## Getting Started
 
 Read our [Getting Started Guide](docs/Getting-Started.md). If any step seems unclear, please create a detailed issue.
