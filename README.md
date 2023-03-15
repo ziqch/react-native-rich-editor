@@ -1,6 +1,6 @@
 # React Native Rich Editor - an Easy-to-use Rich Text Editor for React Native App
 
-> **The project is still in the development phase and there may be some issues affecting the use.**
+> **⚠️<font color=#ffe58f>The project is still in the development phase and there may be some issues affecting the normal use.</font>**
 
 ## Platforms Supported
 
