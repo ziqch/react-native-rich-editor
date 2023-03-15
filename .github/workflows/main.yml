@@ -69,3 +69,13 @@ jobs:
 
       - name: Build package
         run: yarn prepack
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    environment: development
+    uses: ./.github/workflows/deploy.yml
+    with:
+      update-args: --auto
+
