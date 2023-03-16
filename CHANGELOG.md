@@ -1,3 +1,16 @@
+# 0.1.2
+### Fix
+
+- Fix format update error in example.
+- Fix focus when setting format.
+- Fix bridge connect after a bridge registered.
+- Fix some style bugs.
+
+### Features
+
+- Add dismiss keyboard action in example.
+- Enhanced image module in Quilljs.
+
 # 0.1.1
 
 ### Features
