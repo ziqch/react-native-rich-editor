@@ -62,7 +62,7 @@ const MyComponent = () => {
       // ...
     >
       <RichEditorToolBar
-        formats={[
+        tools={[
           <CustomizeFormatSize />,
         ]}
       />

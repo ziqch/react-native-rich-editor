@@ -54,7 +54,7 @@ const MyComponent = () => {
       // ...
     >
       <RichEditorToolBar
-        formats={[
+        tools={[
           <Format.Basic format={'bold'} icon={renderIcon} />,
         ]}
       />

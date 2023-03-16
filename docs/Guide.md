@@ -102,7 +102,7 @@ const MyComponent = () => {
       // ...
     >
       <RichEditorToolBar
-        formats={[
+        tools={[
           <Format.Basic format={'bold'} icon={mappingIcon('format-bold')} />,
           <Format.Basic format={'italic'} icon={mappingIcon('format-italic')} />,
           <Format.Basic format={'underline'} icon={mappingIcon('format-underline')} />,
@@ -186,7 +186,7 @@ If you want to use different the version and style, you can set assets link with
   syntax={true}
 >
   <RichEditorToolBar
-    formats={[
+    tools={[
       <Format.CodeBlock languages={['typescript', 'javascript']} />
     ]}
   />
