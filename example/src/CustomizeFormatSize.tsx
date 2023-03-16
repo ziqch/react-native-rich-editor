@@ -26,11 +26,17 @@ const CustomizeFormatSize = () => {
     'size',
     false
   );
+  const value = React.useMemo(() => {
+    return Array.isArray(formatValue) ? false : formatValue;
+  }, [formatValue]);
   const onValueChange = React.useCallback(
-    (value: any) => {
-      setFormatValue(value);
+    (newValue: any) => {
+      if (newValue !== value) {
+        console.log('??? set value', value, newValue);
+        setFormatValue(newValue);
+      }
     },
-    [setFormatValue]
+    [setFormatValue, value]
   );
   const style = StyleSheet.create({
     container: {
@@ -44,7 +50,8 @@ const CustomizeFormatSize = () => {
   return (
     <View style={style.container}>
       <Picker
-        value={formatValue}
+        style={{ inputIOS: { alignSelf: 'center' } }}
+        value={value}
         placeholder={{}}
         onValueChange={onValueChange}
         items={selections}

@@ -69,6 +69,7 @@ export enum QuillResolverTokenBuiltin {
   SetText = '@CALL[SetText]__builtin',
   Format = '@CALL[Format]__builtin',
   SetSelection = '@CALL[SetSelection]__builtin',
+  Blur = '@CALL[Blur]__builtin',
   QuillAPI = '@CALL[QuillAPI]__builtin',
 }
 
@@ -94,6 +95,7 @@ export type QuillResolversBuiltin = {
     length: number,
     source?: Sources
   ) => void;
+  [QuillResolverTokenBuiltin.Blur]: () => void;
 };
 
 export enum WebViewResolverTokenBuiltin {

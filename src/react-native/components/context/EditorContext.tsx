@@ -9,6 +9,7 @@ export interface IEditorContextProps {
   isInputComposing: boolean;
 }
 export interface IEditorContextValue extends IEditorContextProps {
+  bridges: Map<string, Bridge<any, any>>;
   getBridge: (key: string) => Bridge<any, any> | undefined;
   injectJavaScript: (script: string) => Promise<void>;
 }
@@ -20,6 +21,7 @@ const initialValue: IEditorContextValue = {
   webViewRef: React.createRef(),
   isEditorReady: false,
   isInputComposing: false,
+  bridges: new Map(),
   getBridge: () => undefined,
   injectJavaScript: () => Promise.resolve(),
 };
@@ -44,6 +46,7 @@ const wrapper = () => {
     );
     const value: IEditorContextValue = React.useMemo(() => {
       return {
+        bridges,
         getBridge: (key: string) => bridges.get(key),
         injectJavaScript,
         ...props,

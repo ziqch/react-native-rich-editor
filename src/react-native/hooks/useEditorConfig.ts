@@ -34,14 +34,25 @@ export interface IRichEditorInnerProps {
 export const useEditorConfig = (
   props: IRichEditorInnerProps
 ): WebViewInitializeConfig => {
+  const overrideCss = `
+    img {
+      width: 100% !important;
+    }
+    .ql-toolbar {
+      display: none;
+    }
+    .ql-container {
+      border: none !important;
+    }
+  `;
   return React.useMemo(() => {
     return {
       quillScript:
         props.quillScript ?? 'https://cdn.quilljs.com/1.3.6/quill.js',
       scriptsList: props.injectedScriptList ?? [],
       cssList: [
-        'https://cdn.quilljs.com/1.3.6/quill.core.css',
-        'img { width: 100%; }',
+        'https://cdn.quilljs.com/1.3.6/quill.snow.css',
+        overrideCss,
         ...(props.injectedCssList ?? []),
       ],
       quillOptions: {
@@ -58,6 +69,7 @@ export const useEditorConfig = (
       },
     };
   }, [
+    overrideCss,
     props.injectedCssList,
     props.injectedScriptList,
     props.placeholder,

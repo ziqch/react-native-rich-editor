@@ -9,7 +9,7 @@ import {
   RNResolverTokenBuiltin,
 } from '../utils';
 import type { RangeStatic, Sources } from 'quill';
-import { useBuiltinBridge, useEditorScroll } from '../hooks';
+import { useBuiltinBridge, useEditorContext, useEditorScroll } from '../hooks';
 import {
   IRichEditorInnerProps,
   useEditorConfig,
@@ -51,6 +51,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     },
   });
   const webViewRef = React.useRef<WebView>(null);
+  const { bridges } = useEditorContext();
   const bridge__builtin = useBuiltinBridge();
   Bridge.setSender((data) =>
     webViewRef.current?.injectJavaScript(
@@ -143,9 +144,11 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
 
   const onMessage = React.useCallback(
     (e: WebViewMessageEvent) => {
-      bridge__builtin.on(e.nativeEvent.data);
+      bridges.forEach((bride) => {
+        bride.on(e.nativeEvent.data);
+      });
     },
-    [bridge__builtin]
+    [bridges]
   );
 
   const renderLoading = React.useCallback(() => {
@@ -180,6 +183,8 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
           startInLoadingState={true}
           onMessage={onMessage}
           overScrollMode={'never'}
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
         />
       </ScrollView>
     </>

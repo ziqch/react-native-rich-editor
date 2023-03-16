@@ -34,7 +34,7 @@ const loadScripts = async (scriptList: string[] = []) => {
       loadPromise.push(Promise.resolve());
     }
   });
-  return Promise.allSettled(loadPromise).then(() => console.log('all set!'));
+  return Promise.allSettled(loadPromise);
 };
 
 const loadCss = async (cssList: string[] = []) => {
@@ -87,7 +87,10 @@ try {
       }
       await loadScripts([config.quillScript]);
       await loadCss(config.cssList);
-      init(reactNativeBridge, config.quillOptions);
+      init({
+        bridge: reactNativeBridge,
+        options: config.quillOptions,
+      });
       loadScripts(config.scriptsList);
       reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
     });

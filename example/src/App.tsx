@@ -6,13 +6,14 @@ import {
   StyleSheet,
   useWindowDimensions,
 } from 'react-native';
+import FormatIcons from './FormatIcons';
+import DismissKeyboard from './DissmissKeyboard';
+import CustomizeFormatSize from './CustomizeFormatSize';
 import {
   Format,
   ReactNativeRichEditor,
   RichEditorToolBar,
 } from '@ziqch/react-native-rich-editor';
-import FormatIcons from './FormatIcons';
-import CustomizeFormatSize from './CustomizeFormatSize';
 
 export default function App() {
   const { height, width } = useWindowDimensions();
@@ -55,7 +56,8 @@ export default function App() {
         syntax={true}
       >
         <RichEditorToolBar
-          formats={[
+          fixedRight={<DismissKeyboard />}
+          tools={[
             <CustomizeFormatSize />,
             <Format.Image icon={FormatIcons.Image} onPress={onPressAddImage} />,
             <Format.Basic format={'bold'} icon={FormatIcons.Bold} />,

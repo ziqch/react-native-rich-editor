@@ -15,17 +15,21 @@ import {
   RNResolverTokenBuiltin,
 } from '../react-native/utils';
 import type { QuillOptionsStatic } from 'quill';
+import createEnhancedImage from './EnhancedImage';
 
-const DefaultScrollOffsetBuffer = 50;
-export default function init(
+interface QuillEditorProps {
   bridge: Bridge<
     QuillResolversBuiltin & WebViewResolversBuiltin,
     RNResolversBuiltin
-  >,
-  options?: QuillEditorOptions
-) {
+  >;
+  options?: QuillEditorOptions;
+}
+
+const DefaultScrollOffsetBuffer = 50;
+export default function init(initProps: QuillEditorProps) {
   const _Quill = (window as any).Quill as typeof Quill;
   const Delta = _Quill.import('delta');
+  const EnhancedImage = createEnhancedImage();
   class QuillEditor {
     private readonly scrollOffsetBuffer: number = DefaultScrollOffsetBuffer;
     private readonly quill: Quill;
@@ -39,20 +43,19 @@ export default function init(
     private previousSectionRange: RangeStatic | null = { index: 0, length: 0 };
     private readonly platform?: string;
 
-    constructor(
-      bridge: Bridge<
-        QuillResolversBuiltin & WebViewResolversBuiltin,
-        RNResolversBuiltin
-      >,
-      options?: QuillEditorOptions
-    ) {
+    constructor(props: QuillEditorProps) {
+      const { bridge, options } = props;
       this.bridge = bridge;
+      EnhancedImage.onclick = this.onImageClick.bind(this);
+      EnhancedImage.onload = this.onImageLoaded.bind(this);
+      _Quill.register(EnhancedImage, true);
       this.quill = this.mountQuill({
         placeholder: options?.placeholder,
         readOnly: options?.readOnly,
         modules: {
           syntax: options?.syntax,
         },
+        theme: 'snow',
       });
       this.platform = options?.platform;
       this.history = this.quill.getModule('history');
@@ -74,10 +77,13 @@ export default function init(
 
     private setEvents() {
       this.quill.on('editor-change', () => {
-        this.bridge.call(
-          RNResolverTokenBuiltin.UpdateFormat,
-          this.quill.getFormat()
-        );
+        const currentSelection = this.quill.getSelection();
+        if (currentSelection) {
+          this.bridge.call(
+            RNResolverTokenBuiltin.UpdateFormat,
+            this.quill.getFormat(currentSelection)
+          );
+        }
       });
       this.quill.on('text-change', (delta, oldDelta, source) => {
         this.updateViewHeight();
@@ -202,6 +208,19 @@ export default function init(
         );
       }
     }
+
+    private onImageClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      const blot = _Quill.find(target);
+      const offset = this.quill.getIndex(blot);
+      this.quill.setSelection(offset, 1);
+    }
+
+    private onImageLoaded() {
+      this.updateViewHeight();
+      this.calculateScrollOffsetWhenTextChange();
+    }
+
     private undo() {
       this.history.undo();
     }
@@ -231,10 +250,13 @@ export default function init(
     private addImage(sources: string[]) {
       let index = this.quill.getSelection(true).index;
       sources.forEach((src) => {
-        this.quill.insertEmbed(index++, 'image', src);
+        this.quill.insertEmbed(index++, EnhancedImage.blotName, src);
       });
-      this.quill.setSelection({ index, length: 0 });
-      this.updateViewHeight();
+      this.quill.setSelection(index, 0, _Quill.sources.USER);
+    }
+
+    private blur() {
+      this.quill.blur();
     }
 
     public getPlatform() {
@@ -250,10 +272,11 @@ export default function init(
         [QuillResolverTokenBuiltin.GetContents]: this.getContents.bind(this),
         [QuillResolverTokenBuiltin.Format]: this.format.bind(this),
         [QuillResolverTokenBuiltin.SetSelection]: this.setSelection.bind(this),
+        [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
       });
     }
   }
-  const quillEditor = new QuillEditor(bridge, options);
+  const quillEditor = new QuillEditor(initProps);
   (window as any)[QuillEditorToken] = quillEditor;
   return quillEditor;
 }
