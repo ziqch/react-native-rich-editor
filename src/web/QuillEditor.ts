@@ -250,7 +250,7 @@ export default function init(initProps: QuillEditorProps) {
     private addImage(sources: string[]) {
       let index = this.quill.getSelection(true).index;
       sources.forEach((src) => {
-        this.quill.insertEmbed(index++, EnhancedImage.blotName, src);
+        this.quill.insertEmbed(index++, EnhancedImage.blotName, { src });
       });
       this.quill.setSelection(index, 0, _Quill.sources.USER);
     }
