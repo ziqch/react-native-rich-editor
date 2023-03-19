@@ -1,3 +1,10 @@
+# 0.1.3
+
+### Features
+
+- Support customize bridge.
+- refactor the bridge register.
+
 # 0.1.2
 ### Fix
 

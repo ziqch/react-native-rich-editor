@@ -15,7 +15,8 @@ export enum ActionType {
   CALLBACK,
   Promise,
 }
-interface Action {
+export interface Action {
+  key: string;
   actionType: ActionType;
   token: string;
   id: string;
@@ -71,8 +72,9 @@ class Transceiver {
     };
   }
 
-  public resolvePromise(id: string) {
+  public resolvePromise(key: string, id: string) {
     this.dispatch<void>({
+      key,
       actionType: ActionType.Promise,
       token: 'PROMISE',
       payload: JSON.stringify({}),
@@ -123,6 +125,7 @@ class Transceiver {
         const args = action.payload ? JSON.parse(action.payload) : [];
         const res = await this.callResolver(action.token, resolvers, args);
         const callbackAction: Action = {
+          key: action.key,
           actionType: ActionType.CALLBACK,
           token: action.token,
           id: action.id,
@@ -161,13 +164,16 @@ export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
   private static readonly transceiver = Transceiver.getInstance();
   private readonly resolvers = new Map<string, Resolver<any, any>>();
 
+  private readonly key: string;
+
   public static setSender(sender: (data: string) => void) {
     if (!Bridge.transceiver.isConnected()) {
       Bridge.transceiver.setSender(sender);
     }
   }
 
-  constructor(resolvers?: SRC) {
+  constructor(key: string, resolvers?: SRC) {
+    this.key = key;
     this.registerResolvers(resolvers);
   }
 
@@ -176,7 +182,7 @@ export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
   }
 
   public resolvePromise(id: string) {
-    return Bridge.transceiver.resolvePromise(id);
+    return Bridge.transceiver.resolvePromise(this.key, id);
   }
 
   public registerResolvers(resolvers: Partial<SRC> = {} as any) {
@@ -196,6 +202,7 @@ export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
     return Bridge.transceiver.dispatch<
       PromiseInner<ReturnType<ResolverFunctionType<K, TGT>>>
     >({
+      key: this.key,
       actionType: ActionType.CALL,
       token: token as string,
       payload: JSON.stringify(args),

@@ -7,12 +7,13 @@ import type {
 } from '../react-native/utils';
 import {
   Direction,
-  OriginalQuillInstance,
-  QuillEditorToken,
+  OriginalQuillKey,
+  QuillEditorKey,
   QuillResolversBuiltin,
   QuillResolverTokenBuiltin,
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
+  WebViewBridgeSDK,
 } from '../react-native/utils';
 import type { QuillOptionsStatic } from 'quill';
 import createEnhancedImage from './EnhancedImage';
@@ -71,7 +72,8 @@ export default function init(initProps: QuillEditorProps) {
       el.id = '$editor';
       window.document.body.append(el);
       const quill = new _Quill(el, options);
-      (window as any)[OriginalQuillInstance] = quill;
+
+      (window as any)[WebViewBridgeSDK][OriginalQuillKey] = quill;
       return quill;
     }
 
@@ -277,6 +279,6 @@ export default function init(initProps: QuillEditorProps) {
     }
   }
   const quillEditor = new QuillEditor(initProps);
-  (window as any)[QuillEditorToken] = quillEditor;
+  (window as any)[WebViewBridgeSDK][QuillEditorKey] = quillEditor;
   return quillEditor;
 }

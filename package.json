@@ -1,6 +1,6 @@
 {
   "name": "@ziqch/react-native-rich-editor",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "React Native Rich Editor - an Easy-to-use Rich Text Editor for React Native App",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

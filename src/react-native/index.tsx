@@ -1,9 +1,20 @@
 export { default as ReactNativeRichEditor } from './components/ReactNativeRichEditor';
 export { default as RichEditorToolBar } from './components/RichEditorToolBar';
-export {
-  BridgeRegister,
-  EditorContext,
-} from './components/context/EditorContext';
 export { default as Format } from './components/format';
-export * from './hooks';
-export * from './utils';
+export {
+  useBridge,
+  useEditorContext,
+  useBuiltinBridge,
+  useBridgeRegisterWithTarget,
+  useBridgeRegisterWithoutTarget,
+  useFormat,
+} from './hooks';
+export {
+  BridgeRegistryKey,
+  BuiltinBridgeKey,
+  QuillEditorKey,
+  OriginalQuillKey,
+  WebViewBridgeSDK,
+  RNResolverTokenBuiltin,
+  QuillResolverTokenBuiltin,
+} from './utils';

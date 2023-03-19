@@ -1,13 +1,16 @@
 import init from './QuillEditor';
 import {
   Bridge,
+  BridgeRegistryKey,
+  BuiltinBridgeKey,
   QuillResolversBuiltin,
-  ReactNativeBridgeToken,
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
+  WebViewBridgeSDK,
   WebViewResolversBuiltin,
   WebViewResolverTokenBuiltin,
 } from '../react-native/utils';
+import { BridgeRegistry } from './BridgeRegistry';
 
 const isURL = (str: string) => {
   const reg = /^((http|https):\/\/)/;
@@ -63,37 +66,46 @@ const loadCss = async (cssList: string[] = []) => {
 };
 
 try {
-  Bridge.setSender((data) =>
-    (window as any).ReactNativeWebView.postMessage(data)
-  );
+  (() => {
+    (window as any)[WebViewBridgeSDK] = {};
 
-  const reactNativeBridge = new Bridge<
-    QuillResolversBuiltin & WebViewResolversBuiltin,
-    RNResolversBuiltin
-  >();
-  (window as any)[ReactNativeBridgeToken] = reactNativeBridge;
-  reactNativeBridge.registerResolvers({
-    [WebViewResolverTokenBuiltin.LoadAssets]: ({ scriptList, cssList }) => {
-      return Promise.allSettled([loadScripts(scriptList), loadCss(cssList)]);
-    },
-  });
+    Bridge.setSender((data) =>
+      (window as any).ReactNativeWebView.postMessage(data)
+    );
 
-  reactNativeBridge
-    .call(RNResolverTokenBuiltin.OnWebViewInit)
-    .then(async (config) => {
-      if (config.quillOptions?.syntax && config.quillOptions?.syntaxAssets) {
-        await loadScripts([config.quillOptions.syntaxAssets?.script]);
-        await loadCss([config.quillOptions.syntaxAssets?.css]);
-      }
-      await loadScripts([config.quillScript]);
-      await loadCss(config.cssList);
-      init({
-        bridge: reactNativeBridge,
-        options: config.quillOptions,
-      });
-      loadScripts(config.scriptsList);
-      reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
+    const bridgeRegistry = new BridgeRegistry();
+    (window as any)[WebViewBridgeSDK][BridgeRegistryKey] = bridgeRegistry;
+
+    bridgeRegistry.register(BuiltinBridgeKey);
+
+    const reactNativeBridge = bridgeRegistry.get(BuiltinBridgeKey) as Bridge<
+      QuillResolversBuiltin & WebViewResolversBuiltin,
+      RNResolversBuiltin
+    >;
+
+    reactNativeBridge.registerResolvers({
+      [WebViewResolverTokenBuiltin.LoadAssets]: ({ scriptList, cssList }) => {
+        return Promise.allSettled([loadScripts(scriptList), loadCss(cssList)]);
+      },
     });
+
+    reactNativeBridge
+      .call(RNResolverTokenBuiltin.OnWebViewInit)
+      .then(async (config) => {
+        if (config.quillOptions?.syntax && config.quillOptions?.syntaxAssets) {
+          await loadScripts([config.quillOptions.syntaxAssets?.script]);
+          await loadCss([config.quillOptions.syntaxAssets?.css]);
+        }
+        await loadScripts([config.quillScript]);
+        await loadCss(config.cssList);
+        init({
+          bridge: reactNativeBridge,
+          options: config.quillOptions,
+        });
+        loadScripts(config.scriptsList);
+        reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
+      });
+  })();
 } catch (e: any) {
   const error = document.createElement('div');
   error.innerText = e.message;

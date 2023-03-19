@@ -109,7 +109,9 @@ export type WebViewResolversBuiltin = {
   }) => void;
 };
 
-export const ReactNativeBridgeToken = '$ReactNativeBridge';
-export const QuillEditorToken = '$QuillEditorToken';
-export const OriginalQuillInstance = '$OriginalQuillInstance';
-export const BuiltinBridgeKey = 'Bridge__builtin';
+export const QuillEditorKey = '$QuillEditorKey';
+export const OriginalQuillKey = '$OriginalQuillKey';
+export const BuiltinBridgeKey = '$Bridge__builtin';
+export const BridgeRegistryKey = '$BridgeRegistryKey';
+
+export const WebViewBridgeSDK = '$WebViewBridgeSDK';

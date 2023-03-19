@@ -32,7 +32,6 @@ const CustomizeFormatSize = () => {
   const onValueChange = React.useCallback(
     (newValue: any) => {
       if (newValue !== value) {
-        console.log('??? set value', value, newValue);
         setFormatValue(newValue);
       }
     },

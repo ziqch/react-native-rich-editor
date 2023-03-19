@@ -21,7 +21,7 @@ Since the Editor is based on `Quilljs`, the `defaultValue` should be [DeltaOps](
 
 In this example, the content will be "Hollow **World!**"(the "**World!**" is bold).
 
-Don't forget the `width` and `height`, the Editor need known the size of its container, so it can handle scroll.
+Don't forget the `width` and `height`, the Editor need know the size of its container, so it can handle scroll.
 
 
 ```tsx

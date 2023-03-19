@@ -2,20 +2,28 @@ import React, { FC, PropsWithChildren } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import {
+  Action,
   Bridge,
+  BridgeRegistryKey,
   BuiltinBridgeKey,
   FormatEventChannel,
+  QuillResolversBuiltin,
   QuillResolverTokenBuiltin,
+  RNResolversBuiltin,
   RNResolverTokenBuiltin,
+  WebViewBridgeSDK,
 } from '../utils';
 import type { RangeStatic, Sources } from 'quill';
-import { useBuiltinBridge, useEditorContext, useEditorScroll } from '../hooks';
+import {
+  useBridgeRegisterWithoutTarget,
+  useEditorContext,
+  useEditorScroll,
+} from '../hooks';
 import {
   IRichEditorInnerProps,
   useEditorConfig,
 } from '../hooks/useEditorConfig';
 import {
-  BridgeRegister,
   EditorContextProvider,
   IEditorContextProps,
 } from './context/EditorContext';
@@ -51,13 +59,16 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     },
   });
   const webViewRef = React.useRef<WebView>(null);
-  const { bridges } = useEditorContext();
-  const bridge__builtin = useBuiltinBridge();
   Bridge.setSender((data) =>
     webViewRef.current?.injectJavaScript(
-      `$ReactNativeBridge.on(${JSON.stringify(data)})`
+      `${WebViewBridgeSDK}.${BridgeRegistryKey}.on(${JSON.stringify(data)})`
     )
   );
+  const { bridges } = useEditorContext();
+  const bridge__builtin = useBridgeRegisterWithoutTarget<
+    RNResolversBuiltin,
+    QuillResolversBuiltin
+  >(BuiltinBridgeKey);
   const {
     scrollWebView,
     scrollViewRef,
@@ -144,9 +155,10 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
 
   const onMessage = React.useCallback(
     (e: WebViewMessageEvent) => {
-      bridges.forEach((bride) => {
-        bride.on(e.nativeEvent.data);
-      });
+      const message = e.nativeEvent.data;
+      const payload = JSON.parse(message) as Action;
+      const target = bridges.get(payload.key);
+      target?.on(message);
     },
     [bridges]
   );
@@ -206,7 +218,6 @@ const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
     });
   return (
     <EditorContextProvider {...editorContextProps}>
-      <BridgeRegister registerKey={BuiltinBridgeKey} />
       <$ReactNativeRichEditor
         {...props}
         setEditorContextProps={setEditorContextProps}
