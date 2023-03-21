@@ -1,4 +1,5 @@
 import type { DeltaOperation, RangeStatic, Sources, StringMap } from 'quill';
+import type { Bridge } from './Bridge';
 
 export enum RNResolverTokenBuiltin {
   OnTextChange = '@CALL[OnTextChange]__builtin',
@@ -71,6 +72,7 @@ export enum QuillResolverTokenBuiltin {
   SetSelection = '@CALL[SetSelection]__builtin',
   Blur = '@CALL[Blur]__builtin',
   QuillAPI = '@CALL[QuillAPI]__builtin',
+  Layout = '@CALL[Layout]__builtin',
 }
 
 export type QuillResolversBuiltin = {
@@ -96,6 +98,7 @@ export type QuillResolversBuiltin = {
     source?: Sources
   ) => void;
   [QuillResolverTokenBuiltin.Blur]: () => void;
+  [QuillResolverTokenBuiltin.Layout]: () => void;
 };
 
 export enum WebViewResolverTokenBuiltin {
@@ -108,6 +111,16 @@ export type WebViewResolversBuiltin = {
     cssList?: string[];
   }) => void;
 };
+
+export type BuiltinBridgeRN = Bridge<
+  RNResolversBuiltin,
+  WebViewResolversBuiltin & QuillResolversBuiltin
+>;
+
+export type BuiltinBridgeWebView = Bridge<
+  WebViewResolversBuiltin & QuillResolversBuiltin,
+  RNResolversBuiltin
+>;
 
 export const QuillEditorKey = '$QuillEditorKey';
 export const OriginalQuillKey = '$OriginalQuillKey';

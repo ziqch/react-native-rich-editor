@@ -6,7 +6,11 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { Direction } from '../utils';
+import {
+  BuiltinBridgeRN,
+  Direction,
+  QuillResolverTokenBuiltin,
+} from '../utils';
 
 interface ViewScrollInfo {
   h: number;
@@ -15,9 +19,10 @@ interface ViewScrollInfo {
 
 interface IUseEditorScroll {
   webViewHeight: number;
+  bridge: BuiltinBridgeRN;
 }
 export const useEditorScroll = (props: IUseEditorScroll) => {
-  const { webViewHeight } = props;
+  const { webViewHeight, bridge } = props;
   const scrollViewRef = React.useRef<ScrollView>(null);
   const viewScrollInfoRef = React.useRef<ViewScrollInfo>({
     h: 0,
@@ -49,8 +54,9 @@ export const useEditorScroll = (props: IUseEditorScroll) => {
         viewScrollInfoRef.current.scrollTop = webViewHeight - curHeight;
       }
       viewScrollInfoRef.current.h = curHeight;
+      bridge.call(QuillResolverTokenBuiltin.Layout);
     },
-    [webViewHeight]
+    [bridge, webViewHeight]
   );
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {

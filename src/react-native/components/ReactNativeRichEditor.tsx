@@ -12,6 +12,7 @@ import {
   RNResolversBuiltin,
   RNResolverTokenBuiltin,
   WebViewBridgeSDK,
+  WebViewResolversBuiltin,
 } from '../utils';
 import type { RangeStatic, Sources } from 'quill';
 import {
@@ -61,13 +62,15 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   const webViewRef = React.useRef<WebView>(null);
   Bridge.setSender((data) =>
     webViewRef.current?.injectJavaScript(
-      `${WebViewBridgeSDK}.${BridgeRegistryKey}.on(${JSON.stringify(data)})`
+      `try{${WebViewBridgeSDK}.${BridgeRegistryKey}.on(${JSON.stringify(
+        data
+      )})}catch(e){}`
     )
   );
   const { bridges } = useEditorContext();
   const bridge__builtin = useBridgeRegisterWithoutTarget<
     RNResolversBuiltin,
-    QuillResolversBuiltin
+    WebViewResolversBuiltin & QuillResolversBuiltin
   >(BuiltinBridgeKey);
   const {
     scrollWebView,
@@ -77,6 +80,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     viewScrollInfoRef,
   } = useEditorScroll({
     webViewHeight: state.webViewHeight,
+    bridge: bridge__builtin,
   });
 
   const setReactNativeState = React.useCallback(

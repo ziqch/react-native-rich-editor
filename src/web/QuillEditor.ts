@@ -1,5 +1,10 @@
 import type Quill from 'quill';
-import type { DeltaOperation, RangeStatic, Sources } from 'quill';
+import type {
+  DeltaOperation,
+  QuillOptionsStatic,
+  RangeStatic,
+  Sources,
+} from 'quill';
 import type {
   Bridge,
   QuillEditorOptions,
@@ -15,7 +20,6 @@ import {
   RNResolverTokenBuiltin,
   WebViewBridgeSDK,
 } from '../react-native/utils';
-import type { QuillOptionsStatic } from 'quill';
 import createEnhancedImage from './EnhancedImage';
 
 interface QuillEditorProps {
@@ -275,6 +279,8 @@ export default function init(initProps: QuillEditorProps) {
         [QuillResolverTokenBuiltin.Format]: this.format.bind(this),
         [QuillResolverTokenBuiltin.SetSelection]: this.setSelection.bind(this),
         [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
+        [QuillResolverTokenBuiltin.Layout]:
+          this.calculateScrollOffsetWhenTextChange.bind(this),
       });
     }
   }
