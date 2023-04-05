@@ -250,10 +250,14 @@ const ReactNativeRichEditor: FC<
 > = (props) => {
   if (props.editorContextValues) {
     return (
-      <$ReactNativeRichEditor
-        {...props}
-        setEditorContextProps={props.editorContextValues[1]}
-      />
+      <>
+        <$ReactNativeRichEditor
+          {...props}
+          setEditorContextProps={props.editorContextValues[1]}
+        />
+
+        {props.children}
+      </>
     );
   }
 
