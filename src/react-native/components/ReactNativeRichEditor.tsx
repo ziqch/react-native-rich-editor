@@ -215,7 +215,9 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   );
 };
 
-function ContextProvidingEditor(props: PropsWithChildren<IRichEditorProps>) {
+function ContextProvidingEditor(
+  props: PropsWithChildren<ReactNativeRichEditorProps>
+) {
   const [editorContextProps, setEditorContextProps] =
     React.useState<IEditorContextProps>({
       isEditorReady: false,
@@ -234,7 +236,7 @@ function ContextProvidingEditor(props: PropsWithChildren<IRichEditorProps>) {
   );
 }
 
-export type IRichEditorProps = Omit<
+export type ReactNativeRichEditorProps = Omit<
   IRichEditorInnerProps,
   'setEditorContextProps'
 > & {
@@ -243,9 +245,9 @@ export type IRichEditorProps = Omit<
     React.Dispatch<React.SetStateAction<IEditorContextProps>>
   ];
 };
-const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
-  props
-) => {
+const ReactNativeRichEditor: FC<
+  PropsWithChildren<ReactNativeRichEditorProps>
+> = (props) => {
   if (props.editorContextValues) {
     return (
       <$ReactNativeRichEditor
