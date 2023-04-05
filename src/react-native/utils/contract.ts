@@ -9,6 +9,8 @@ export enum RNResolverTokenBuiltin {
   ScrollWebView = '@CALL[ScrollWebView]__builtin',
   OnWebViewInit = '@CALL[onWebViewInit]__builtin',
   OnEditorReady = '@CALL[OnEditorReady]__builtin',
+  OnMentionsOpen = '@CALL[OnMentionsOpen]__builtin',
+  OnMentionsClose = '@CALL[OnMentionsClose]__builtin',
 }
 
 export enum Direction {
@@ -38,6 +40,11 @@ export type RNResolversBuiltin = {
     source?: Sources
   ) => void;
   [RNResolverTokenBuiltin.UpdateFormat]: (format: StringMap) => void;
+  [RNResolverTokenBuiltin.OnMentionsOpen]: (e: {
+    searchTerm: string;
+    mentionChar: string;
+  }) => void;
+  [RNResolverTokenBuiltin.OnMentionsClose]: () => void;
 };
 
 export interface QuillEditorOptions {
@@ -71,6 +78,7 @@ export enum QuillResolverTokenBuiltin {
   Format = '@CALL[Format]__builtin',
   SetSelection = '@CALL[SetSelection]__builtin',
   Blur = '@CALL[Blur]__builtin',
+  Focus = '@CALL[Focus]__builtin',
   QuillAPI = '@CALL[QuillAPI]__builtin',
   Layout = '@CALL[Layout]__builtin',
 }
@@ -98,6 +106,7 @@ export type QuillResolversBuiltin = {
     source?: Sources
   ) => void;
   [QuillResolverTokenBuiltin.Blur]: () => void;
+  [QuillResolverTokenBuiltin.Focus]: () => void;
   [QuillResolverTokenBuiltin.Layout]: () => void;
 };
 

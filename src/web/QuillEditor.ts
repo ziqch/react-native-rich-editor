@@ -1,4 +1,7 @@
-import type Quill from 'quill';
+// @ts-ignore
+import mention from 'quill-mention';
+
+import Quill from 'quill';
 import type {
   DeltaOperation,
   QuillOptionsStatic,
@@ -21,6 +24,7 @@ import {
   WebViewBridgeSDK,
 } from '../react-native/utils';
 import createEnhancedImage from './EnhancedImage';
+import { createHrBlot, QuillMarkdownShortcuts } from 'quill-md-shortcuts';
 
 interface QuillEditorProps {
   bridge: Bridge<
@@ -54,11 +58,46 @@ export default function init(initProps: QuillEditorProps) {
       EnhancedImage.onclick = this.onImageClick.bind(this);
       EnhancedImage.onload = this.onImageLoaded.bind(this);
       _Quill.register(EnhancedImage, true);
+      _Quill.register('formats/horizontal', createHrBlot(_Quill));
+      _Quill.register('modules/mention', mention);
+      _Quill.register('modules/markdownShortcuts', QuillMarkdownShortcuts);
       this.quill = this.mountQuill({
         placeholder: options?.placeholder,
         readOnly: options?.readOnly,
         modules: {
           syntax: options?.syntax,
+          markdownShortcuts: {},
+          mention: {
+            allowedChars: /^\w+/,
+            selectKeys: [13],
+            mentionDenotationChars: ['@', '#'],
+            onClose: () => {
+              this.bridge.call(RNResolverTokenBuiltin.OnMentionsClose);
+            },
+            disableRenderList: true,
+            source: (
+              searchTerm: string,
+              renderList: Function,
+              mentionChar: string
+            ) => {
+              if (
+                !searchTerm ||
+                searchTerm.includes(' ') ||
+                searchTerm.includes('\n')
+              ) {
+                renderList(undefined, searchTerm);
+
+                return;
+              }
+
+              this.bridge.call(RNResolverTokenBuiltin.OnMentionsOpen, {
+                searchTerm,
+                mentionChar,
+              });
+
+              renderList([{ value: '', id: 1, disabled: true }], searchTerm);
+            },
+          },
         },
         theme: 'snow',
       });
@@ -279,6 +318,10 @@ export default function init(initProps: QuillEditorProps) {
         [QuillResolverTokenBuiltin.Format]: this.format.bind(this),
         [QuillResolverTokenBuiltin.SetSelection]: this.setSelection.bind(this),
         [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
+        [QuillResolverTokenBuiltin.Focus]: () => {
+          this.quill.focus();
+          this.quill.setSelection(this.quill.getLength(), 0);
+        },
         [QuillResolverTokenBuiltin.Layout]:
           this.calculateScrollOffsetWhenTextChange.bind(this),
       });

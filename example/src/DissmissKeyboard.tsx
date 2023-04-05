@@ -2,10 +2,10 @@ import {
   QuillResolverTokenBuiltin,
   useBuiltinBridge,
 } from '@ziqch/react-native-rich-editor';
-import { Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const DismissKeyboard = () => {
   const bridge__builtin = useBuiltinBridge();
@@ -27,8 +27,8 @@ const DismissKeyboard = () => {
     },
   });
   const onPress = () => {
-    Keyboard.dismiss();
-    bridge__builtin.call(QuillResolverTokenBuiltin.Blur);
+    // Keyboard.dismiss();
+    bridge__builtin.call(QuillResolverTokenBuiltin.Focus);
   };
   return (
     <LinearGradient

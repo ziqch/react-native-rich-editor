@@ -167,9 +167,7 @@ export class Bridge<SRC extends ResolverList, TGT extends ResolverList> {
   private readonly key: string;
 
   public static setSender(sender: (data: string) => void) {
-    if (!Bridge.transceiver.isConnected()) {
-      Bridge.transceiver.setSender(sender);
-    }
+    Bridge.transceiver.setSender(sender);
   }
 
   constructor(key: string, resolvers?: SRC) {

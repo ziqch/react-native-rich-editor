@@ -130,7 +130,9 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   }, [bridge__builtin, props]);
 
   const config = useEditorConfig(props);
-  const onWebViewInit = React.useCallback(() => config, [config]);
+  const onWebViewInit = React.useCallback(() => {
+    return config;
+  }, [config]);
 
   const onTextChange = React.useCallback(async () => {
     const delta = await bridge__builtin.call(
@@ -155,6 +157,8 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     [RNResolverTokenBuiltin.OnSelectionChange]: onSelectionChange,
     [RNResolverTokenBuiltin.UpdateFormat]:
       FormatEventChannel.getInstance().publish,
+    [RNResolverTokenBuiltin.OnMentionsOpen]: console.log,
+    [RNResolverTokenBuiltin.OnMentionsClose]: console.log,
   });
 
   const onMessage = React.useCallback(
@@ -187,6 +191,9 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
         scrollEventThrottle={16}
         onLayout={onLayout}
         onScroll={onScroll}
+        onTouchStart={() => {
+          bridge__builtin.call(QuillResolverTokenBuiltin.Focus);
+        }}
       >
         <WebView
           ref={webViewRef}
@@ -220,6 +227,7 @@ const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
       webViewRef: React.createRef(),
       isInputComposing: false,
     });
+
   return (
     <EditorContextProvider {...editorContextProps}>
       <$ReactNativeRichEditor
