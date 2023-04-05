@@ -19,10 +19,7 @@ interface IRichEditorToolBarProps {
 
 const ToolBarStyles = StyleSheet.create({
   container: {
-    height: 48,
     zIndex: 999,
-    borderTopWidth: 0.5,
-    borderTopColor: 'rgba(0,0,0,0.2)',
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -31,13 +28,6 @@ const ToolBarStyles = StyleSheet.create({
     paddingHorizontal: 6,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  button: {
-    width: 20,
-    height: 20,
-    marginHorizontal: 6,
-    justifyContent: 'center',
     alignItems: 'center',
   },
   fixedLeft: {
