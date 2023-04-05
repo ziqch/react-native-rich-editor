@@ -199,7 +199,8 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
           ref={webViewRef}
           scrollEnabled={false}
           nestedScrollEnabled={false}
-          source={{ html }}
+          source={{ html, baseUrl: '' }}
+          originWhitelist={['*']}
           style={styles.webView}
           keyboardDisplayRequiresUserAction={false}
           hideKeyboardAccessoryView={true}
