@@ -1,6 +1,16 @@
-import React, { FC, PropsWithChildren } from 'react';
+import type { RangeStatic, Sources } from 'quill';
+import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
+import {
+  useBridgeRegisterWithoutTarget,
+  useEditorContext,
+  useEditorScroll,
+} from '../hooks';
+import {
+  IRichEditorInnerProps,
+  useEditorConfig,
+} from '../hooks/useEditorConfig';
 import {
   Action,
   Bridge,
@@ -14,16 +24,6 @@ import {
   WebViewBridgeSDK,
   WebViewResolversBuiltin,
 } from '../utils';
-import type { RangeStatic, Sources } from 'quill';
-import {
-  useBridgeRegisterWithoutTarget,
-  useEditorContext,
-  useEditorScroll,
-} from '../hooks';
-import {
-  IRichEditorInnerProps,
-  useEditorConfig,
-} from '../hooks/useEditorConfig';
 import {
   EditorContextProvider,
   IEditorContextProps,
@@ -36,7 +36,10 @@ interface IRichEditorState {
   loading: boolean;
 }
 
-const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
+const $ReactNativeRichEditor = React.forwardRef<
+  ReactNativeRichEditor,
+  IRichEditorInnerProps
+>((props, forwardedRef) => {
   const [state, setState] = React.useState<IRichEditorState>({
     webViewHeight: 0,
     loading: true,
@@ -82,6 +85,30 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     webViewHeight: state.webViewHeight,
     bridge: bridge__builtin,
   });
+
+  const bridgeBuiltInRef = React.useRef(bridge__builtin);
+
+  bridgeBuiltInRef.current = bridge__builtin;
+
+  React.useImperativeHandle(
+    forwardedRef,
+    () => ({
+      blur() {
+        bridgeBuiltInRef.current.call(QuillResolverTokenBuiltin.Blur);
+      },
+      focus() {
+        bridgeBuiltInRef.current.call(QuillResolverTokenBuiltin.Focus);
+      },
+      async getMarkdown() {
+        const markdown = await bridgeBuiltInRef.current.call(
+          QuillResolverTokenBuiltin.GetMarkdown
+        );
+
+        return markdown;
+      },
+    }),
+    []
+  );
 
   const setReactNativeState = React.useCallback(
     (key: string, value: string) => {
@@ -213,10 +240,21 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
       </ScrollView>
     </>
   );
+});
+
+export type ReactNativeRichEditorProps = Omit<
+  IRichEditorInnerProps,
+  'setEditorContextProps'
+> & {
+  children: React.ReactNode;
 };
 
-function ContextProvidingEditor(
-  props: PropsWithChildren<ReactNativeRichEditorProps>
+const ReactNativeRichEditor = React.forwardRef<
+  ReactNativeRichEditor,
+  ReactNativeRichEditorProps
+>(function ReactNativeRichEditor(
+  props: ReactNativeRichEditorProps,
+  forwardedRef
 ) {
   const [editorContextProps, setEditorContextProps] =
     React.useState<IEditorContextProps>({
@@ -229,39 +267,18 @@ function ContextProvidingEditor(
     <EditorContextProvider {...editorContextProps}>
       <$ReactNativeRichEditor
         {...props}
+        ref={forwardedRef}
         setEditorContextProps={setEditorContextProps}
       />
       {props.children}
     </EditorContextProvider>
   );
-}
+});
 
-export type ReactNativeRichEditorProps = Omit<
-  IRichEditorInnerProps,
-  'setEditorContextProps'
-> & {
-  editorContextValues?: [
-    IEditorContextProps,
-    React.Dispatch<React.SetStateAction<IEditorContextProps>>
-  ];
-};
-const ReactNativeRichEditor: FC<
-  PropsWithChildren<ReactNativeRichEditorProps>
-> = (props) => {
-  if (props.editorContextValues) {
-    return (
-      <>
-        <$ReactNativeRichEditor
-          {...props}
-          setEditorContextProps={props.editorContextValues[1]}
-        />
-
-        {props.children}
-      </>
-    );
-  }
-
-  return <ContextProvidingEditor {...props} />;
+declare type ReactNativeRichEditor = {
+  getMarkdown(): Promise<string>;
+  focus(): void;
+  blur(): void;
 };
 
 export default ReactNativeRichEditor;
