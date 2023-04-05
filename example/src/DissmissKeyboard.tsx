@@ -28,7 +28,9 @@ const DismissKeyboard = () => {
   });
   const onPress = () => {
     // Keyboard.dismiss();
-    bridge__builtin.call(QuillResolverTokenBuiltin.Focus);
+    bridge__builtin
+      .call(QuillResolverTokenBuiltin.GetMarkdown)
+      .then(console.log);
   };
   return (
     <LinearGradient

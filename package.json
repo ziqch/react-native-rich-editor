@@ -1,6 +1,6 @@
 {
   "name": "@bean-app/react-native-rich-editor",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "React Native Rich Editor - an Easy-to-use Rich Text Editor for React Native App",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -183,6 +183,7 @@
     ]
   },
   "dependencies": {
+    "quill-delta-to-markdown": "^0.6.0",
     "react-native-webview": "^11.26.1"
   }
 }

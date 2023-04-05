@@ -71,6 +71,7 @@ export enum QuillResolverTokenBuiltin {
   Undo = '@CALL[Undo]__builtin',
   Redo = '@CALL[Redo]__builtin',
   GetContents = '@CALL[GetContents]__builtin',
+  GetMarkdown = '@CALL[GetMarkdown]__builtin',
   GetLength = '@CALL[GetLength]__builtin',
   GetText = '@CALL[GetText]__builtin',
   SetContents = '@CALL[SetContents]__builtin',
@@ -95,6 +96,7 @@ export type QuillResolversBuiltin = {
     index?: number,
     length?: number
   ) => DeltaOperation[];
+  [QuillResolverTokenBuiltin.GetMarkdown]: () => string;
   [QuillResolverTokenBuiltin.Format]: (
     name: string,
     value: any,

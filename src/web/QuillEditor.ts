@@ -1,6 +1,7 @@
 // @ts-ignore
 import mention from 'quill-mention';
-
+// @ts-ignore
+import { deltaToMarkdown } from 'quill-delta-to-markdown';
 import type Quill from 'quill';
 import type {
   DeltaOperation,
@@ -324,6 +325,9 @@ export default function init(initProps: QuillEditorProps) {
         },
         [QuillResolverTokenBuiltin.Layout]:
           this.calculateScrollOffsetWhenTextChange.bind(this),
+        [QuillResolverTokenBuiltin.GetMarkdown]: () => {
+          return deltaToMarkdown(this.quill.getContents().ops);
+        },
       });
     }
   }
