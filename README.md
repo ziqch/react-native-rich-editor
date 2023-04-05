@@ -26,11 +26,10 @@ Release Build
 
 Read our [Getting Started Guide](docs/Getting-Started.md). If any step seems unclear, please create a detailed issue.
 
-
 ## Install
 
 ```
-$ yarn add @ziqch/react-native-rich-editor
+$ yarn add @bean-app/react-native-rich-editor
 ```
 
 (or)
@@ -38,19 +37,19 @@ $ yarn add @ziqch/react-native-rich-editor
 For npm use
 
 ```
-$ npm install --save @ziqch/react-native-rich-editor
+$ npm install --save @bean-app/react-native-rich-editor
 ```
 
 ## Usage
 
-Import the `ReactNativeRichEditor` component from `@ziqch/react-native-rich-editor` and use it like so:
+Import the `ReactNativeRichEditor` component from `@bean-app/react-native-rich-editor` and use it like so:
 
 ```jsx
 import {
   Format,
   ReactNativeRichEditor,
   RichEditorToolBar,
-} from '@ziqch/react-native-rich-editor';
+} from '@bean-app/react-native-rich-editor';
 
 // ...
 const MyComponent = () => {
@@ -65,13 +64,11 @@ const MyComponent = () => {
       ]}
     >
       <RichEditorToolBar
-        tools={[
-          <Format.Basic format={'bold'} icon={() => <YourIcon/>} />,
-        ]}
+        tools={[<Format.Basic format={'bold'} icon={() => <YourIcon />} />]}
       />
     </ReactNativeRichEditor>
-  )
-}
+  );
+};
 ```
 
 ## Contributing

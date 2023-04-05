@@ -1,7 +1,7 @@
 import React from 'react';
 import Picker from 'react-native-picker-select';
 import { Platform, StyleSheet, View } from 'react-native';
-import { useFormat } from '@ziqch/react-native-rich-editor';
+import { useFormat } from '@bean-app/react-native-rich-editor';
 
 const selections = [
   {

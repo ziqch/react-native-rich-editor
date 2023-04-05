@@ -10,16 +10,17 @@ This guide will introduce you to some advanced usage so that you can highly cust
   - [How to use it?](Advanced-Guide.md#how-to-use-it)
   - [How to register a new bridge](Advanced-Guide.md#how-to-register-a-new-bridge)
 
-
 ### Customized Format
+
 There are already some preset format you can find You can find in [Format](../src/react-native/components/format/index.ts).
 But sometimes it doesn't meet your needs. Here is an example for a `SizeFormat` to control the font size.
 
 You can use hook `useFormat` to help you creat a new format component, Note that this hook only can be used in child component of `ReactNativeRichEditor`
 
 Example:
+
 ```tsx
-import { useFormat } from '@ziqch/react-native-rich-editor';
+import { useFormat } from '@bean-app/react-native-rich-editor';
 
 const CustomizeFormatSize = () => {
   // you can get value and setter from hook: useFormat.
@@ -49,7 +50,7 @@ const CustomizeFormatSize = () => {
           { value: 'small', label: 'Small' },
           { value: false, label: 'Normal' },
           { value: 'large', label: 'Large' },
-          { value: 'huge', label: 'Huge' }
+          { value: 'huge', label: 'Huge' },
         ]}
         disabled={isDisabled}
       />
@@ -60,13 +61,9 @@ const CustomizeFormatSize = () => {
 const MyComponent = () => {
   return (
     <ReactNativeRichEditor
-      // ...
+    // ...
     >
-      <RichEditorToolBar
-        tools={[
-          <CustomizeFormatSize />,
-        ]}
-      />
+      <RichEditorToolBar tools={[<CustomizeFormatSize />]} />
     </ReactNativeRichEditor>
   );
 };
@@ -102,7 +99,7 @@ There is already builtin bridge, you can get it from hook `useBuiltinBridge`
 Note that this hook only can be used in child component of `ReactNativeRichEditor`
 
 ```ts
-import { useBuiltinBridge } from '@ziqch/react-native-rich-editor';
+import { useBuiltinBridge } from '@bean-app/react-native-rich-editor';
 const bridge__builtin = useBuiltinBridge();
 ```
 
@@ -112,9 +109,14 @@ You can call methods that implemented in webview side, like: `GetContents`, `Set
 All builtin methods defined in `QuillResolverTokenBuiltin` and `RNResolverTokenBuiltin`.
 
 ```ts
-import { useBuiltinBridge, QuillResolverTokenBuiltin } from '@ziqch/react-native-rich-editor';
+import {
+  useBuiltinBridge,
+  QuillResolverTokenBuiltin,
+} from '@bean-app/react-native-rich-editor';
 const bridge__builtin = useBuiltinBridge();
-const content = await bridge__builtin.call(QuillResolverTokenBuiltin.GetContents);
+const content = await bridge__builtin.call(
+  QuillResolverTokenBuiltin.GetContents
+);
 bridge__builtin.call(QuillResolverTokenBuiltin.SetContents, newContent);
 ```
 
@@ -156,9 +158,7 @@ Note that it only can be used as a child component of `ReactNativeRichEditor`.
 `useBridgeRegisterWithoutTarget` will not, it always returns a bridge.
 
 ```tsx
-import {
-  useBridgeRegisterWithTarget
-} from '@ziqch/react-native-rich-editor';
+import { useBridgeRegisterWithTarget } from '@bean-app/react-native-rich-editor';
 const MyBridge = 'MyBridge';
 export const CustomizeBridge = () => {
   // we suggest provide your resolver list type, so you can get a better type hint.
@@ -175,7 +175,7 @@ export const CustomizeBridge = () => {
 const MyComponent = () => {
   return (
     <ReactNativeRichEditor
-      // ...
+    // ...
     >
       {/* put your component inside ReactNativeRichEditor */}
       <CustomizeBridge />
@@ -195,7 +195,7 @@ import {
   BridgeRegistryKey,
   useEditorContext,
   WebViewBridgeSDK,
-} from '@ziqch/react-native-rich-editor';
+} from '@bean-app/react-native-rich-editor';
 
 //...
 
@@ -210,6 +210,7 @@ await injectJavaScript(`
     });
   `);
 ```
+
 ##### Step4. Call method and get a result
 
 The full example like this:
@@ -251,5 +252,3 @@ export const CustomizeBridge = () => {
   return <Text>Info is: {info}</Text>;
 };
 ```
-
-

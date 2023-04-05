@@ -3,6 +3,7 @@
 This guide will help you learn more about the common use cases for React Native Rich Editor.
 
 ## Guide Index
+
 - [Basic usage with default value](Guide.md#basic-usage-with-default-value)
 - [Handle change events](Guide.md#handle-change-events)
 - [Usage with format](Guide.md#handle-change-events)
@@ -23,9 +24,8 @@ In this example, the content will be "Hollow **World!**"(the "**World!**" is bol
 
 Don't forget the `width` and `height`, the Editor need know the size of its container, so it can handle scroll.
 
-
 ```tsx
-import { ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
+import { ReactNativeRichEditor } from '@bean-app/react-native-rich-editor';
 const MyComponent = () => {
   return (
     <ReactNativeRichEditor
@@ -36,8 +36,7 @@ const MyComponent = () => {
         { insert: 'World!', attributes: { bold: true } },
         { insert: '\n' },
       ]}
-    >
-    </ReactNativeRichEditor>
+    ></ReactNativeRichEditor>
   );
 };
 ```
@@ -48,7 +47,7 @@ Sometimes you want to get changes when user typing some content or changing the 
 Here's some example code on how you might use the `onTextChange` or `onSelectionChange`.
 
 ```tsx
-import { ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
+import { ReactNativeRichEditor } from '@bean-app/react-native-rich-editor';
 const MyComponent = () => {
   const onTextChange = (delta: DeltaOperation[]) => {
     // do someting with the new delta content.
@@ -58,7 +57,9 @@ const MyComponent = () => {
   };
   const onSelectionChange = (range: RangeStatic, oldRange: RangeStatic) => {
     // do someting with the selection.
-    console.log(`Selection start from ${range.index}, length is ${range.length}`);
+    console.log(
+      `Selection start from ${range.index}, length is ${range.length}`
+    );
   };
   return (
     <ReactNativeRichEditor
@@ -66,8 +67,7 @@ const MyComponent = () => {
       width={width}
       onTextChange={onTextChange}
       onSelectionChange={onSelectionChange}
-    >
-    </ReactNativeRichEditor>
+    ></ReactNativeRichEditor>
   );
 };
 ```
@@ -87,26 +87,38 @@ Then render function will have two arguments: `isActive` and `isDisabled`, you c
 You can find all format presets in [Format](../src/react-native/components/format/index.ts).
 
 ```tsx
-import { ReactNativeRichEditor, Format } from '@ziqch/react-native-rich-editor';
+import {
+  ReactNativeRichEditor,
+  Format,
+} from '@bean-app/react-native-rich-editor';
 
 // ...
 const MyComponent = () => {
   const mappingIcon = (iconName: string) => {
     return (isActive: boolean, isDisabled: boolean) => {
       // ... some differnt style here.
-      return <YourIcon />
-    }
-  }
+      return <YourIcon />;
+    };
+  };
   return (
     <ReactNativeRichEditor
-      // ...
+    // ...
     >
       <RichEditorToolBar
         tools={[
           <Format.Basic format={'bold'} icon={mappingIcon('format-bold')} />,
-          <Format.Basic format={'italic'} icon={mappingIcon('format-italic')} />,
-          <Format.Basic format={'underline'} icon={mappingIcon('format-underline')} />,
-          <Format.Basic format={'strike'} icon={mappingIcon('format-strike')} />,
+          <Format.Basic
+            format={'italic'}
+            icon={mappingIcon('format-italic')}
+          />,
+          <Format.Basic
+            format={'underline'}
+            icon={mappingIcon('format-underline')}
+          />,
+          <Format.Basic
+            format={'strike'}
+            icon={mappingIcon('format-strike')}
+          />,
         ]}
       />
     </ReactNativeRichEditor>
@@ -118,25 +130,27 @@ const MyComponent = () => {
 
 A basic formatter for all common format which interaction is an icon button.
 like:
- - `bold`
- - `italic`
- - `underline`
- - `strike`
+
+- `bold`
+- `italic`
+- `underline`
+- `strike`
 
 Specifies a format to handle the change in editor.
 The default behavior is to switch the value between `ture` and `false`.
 You can get the changed value by `onValueChange`.
 
 ```jsx
-<Format.Basic format={'bold'} onValueChange={onValueChange}/>
+<Format.Basic format={'bold'} onValueChange={onValueChange} />
 ```
 
 Customized value and active is supported, `getValue` will be called when pressing the button.
+
 ```tsx
 <Format.Basic
   format={'bold'}
-  getValue={currentValue => newValue}
-  getActive={currentValue => isActive}
+  getValue={(currentValue) => newValue}
+  getActive={(currentValue) => isActive}
 />
 ```
 
@@ -151,8 +165,8 @@ const onPress = (insertImages: (sourceList: string[]) => void) => {
   const sourceList = [];
   // push some image source
   insertImages(sourceList);
-}
-<Format.Image onPress={onPress}/>
+};
+<Format.Image onPress={onPress} />;
 ```
 
 #### Format.List
@@ -181,17 +195,11 @@ It is based on [highlightjs](https://highlightjs.org/), default version `11.7.0`
 If you want to use different the version and style, you can set assets link with `syntaxAssets`.
 
 ```jsx
-<ReactNativeRichEditor
-  syntaxAssets={{ script, css }}
-  syntax={true}
->
+<ReactNativeRichEditor syntaxAssets={{ script, css }} syntax={true}>
   <RichEditorToolBar
-    tools={[
-      <Format.CodeBlock languages={['typescript', 'javascript']} />
-    ]}
+    tools={[<Format.CodeBlock languages={['typescript', 'javascript']} />]}
   />
 </ReactNativeRichEditor>
 ```
 
 Next, if you want to learn more about customization, please go to [Advanced Guide](./Advanced-Guide.md) and [API Reference](./API-Reference.md).
-

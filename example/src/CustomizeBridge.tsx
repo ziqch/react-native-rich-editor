@@ -4,7 +4,7 @@ import {
   useBridgeRegisterWithTarget,
   useEditorContext,
   WebViewBridgeSDK,
-} from '@ziqch/react-native-rich-editor';
+} from '@bean-app/react-native-rich-editor';
 import { Platform, Text } from 'react-native';
 
 enum WebViewMethodTokens {

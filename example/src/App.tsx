@@ -13,7 +13,7 @@ import {
   Format,
   ReactNativeRichEditor,
   RichEditorToolBar,
-} from '@ziqch/react-native-rich-editor';
+} from '@bean-app/react-native-rich-editor';
 
 export default function App() {
   const { height, width } = useWindowDimensions();
@@ -50,7 +50,7 @@ export default function App() {
         width={width}
         defaultValue={[
           { insert: 'Hello ' },
-          { insert: 'World!', attributes: { bold: true } },
+          { insert: 'World!!!!', attributes: { bold: true } },
           { insert: '\n' },
         ]}
         syntax={true}

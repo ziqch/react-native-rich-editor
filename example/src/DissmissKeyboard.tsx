@@ -1,7 +1,7 @@
 import {
   QuillResolverTokenBuiltin,
   useBuiltinBridge,
-} from '@ziqch/react-native-rich-editor';
+} from '@bean-app/react-native-rich-editor';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';

@@ -2,10 +2,10 @@
 
 This guide will help you get started quickly.
 
-## 1. Add `@ziqch/react-native-rich-editor` to your dependencies
+## 1. Add `@bean-app/react-native-rich-editor` to your dependencies
 
 ```
-$ yarn add @ziqch/react-native-rich-editor
+$ yarn add @bean-app/react-native-rich-editor
 ```
 
 (or)
@@ -13,13 +13,13 @@ $ yarn add @ziqch/react-native-rich-editor
 For npm use
 
 ```
-$ npm install --save @ziqch/react-native-rich-editor
+$ npm install --save @bean-app/react-native-rich-editor
 ```
 
 ## 2. Import the `ReactNativeRichEditor` into your component
 
 ```jsx
-import { ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
+import { ReactNativeRichEditor } from '@bean-app/react-native-rich-editor';
 
 // ...
 const MyComponent = () => {
@@ -32,8 +32,7 @@ const MyComponent = () => {
         { insert: 'World!', attributes: { bold: true } },
         { insert: '\n' },
       ]}
-    >
-    </ReactNativeRichEditor>
+    ></ReactNativeRichEditor>
   );
 };
 ```
@@ -41,22 +40,23 @@ const MyComponent = () => {
 You can use our default toolbar and preset formats.
 
 ```tsx
-import { Format, ReactNativeRichEditor } from '@ziqch/react-native-rich-editor';
+import {
+  Format,
+  ReactNativeRichEditor,
+} from '@bean-app/react-native-rich-editor';
 
 // ...
 const MyComponent = () => {
   const renderIcon = (isActive: boolean, isDisabled: boolean) => {
     //...
     return <YourIcon />;
-  }
+  };
   return (
     <ReactNativeRichEditor
-      // ...
+    // ...
     >
       <RichEditorToolBar
-        tools={[
-          <Format.Basic format={'bold'} icon={renderIcon} />,
-        ]}
+        tools={[<Format.Basic format={'bold'} icon={renderIcon} />]}
       />
     </ReactNativeRichEditor>
   );
