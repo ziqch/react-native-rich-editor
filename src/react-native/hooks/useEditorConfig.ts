@@ -29,6 +29,8 @@ export interface IRichEditorInnerProps {
   setEditorContextProps: React.Dispatch<
     React.SetStateAction<IEditorContextProps>
   >;
+  onMentionsOpen?: (e: { searchTerm: string; mentionChar: string }) => void;
+  onMentionsClose?: () => void;
 }
 
 export const useEditorConfig = (

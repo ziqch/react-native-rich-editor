@@ -1,7 +1,7 @@
 // @ts-ignore
 import mention from 'quill-mention';
 
-import Quill from 'quill';
+import type Quill from 'quill';
 import type {
   DeltaOperation,
   QuillOptionsStatic,

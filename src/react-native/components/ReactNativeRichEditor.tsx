@@ -157,8 +157,8 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
     [RNResolverTokenBuiltin.OnSelectionChange]: onSelectionChange,
     [RNResolverTokenBuiltin.UpdateFormat]:
       FormatEventChannel.getInstance().publish,
-    [RNResolverTokenBuiltin.OnMentionsOpen]: console.log,
-    [RNResolverTokenBuiltin.OnMentionsClose]: console.log,
+    [RNResolverTokenBuiltin.OnMentionsOpen]: props.onMentionsOpen,
+    [RNResolverTokenBuiltin.OnMentionsClose]: props.onMentionsClose,
   });
 
   const onMessage = React.useCallback(
@@ -215,13 +215,7 @@ const $ReactNativeRichEditor: FC<IRichEditorInnerProps> = (props) => {
   );
 };
 
-export type IRichEditorProps = Omit<
-  IRichEditorInnerProps,
-  'setEditorContextProps'
->;
-const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
-  props
-) => {
+function ContextProvidingEditor(props: PropsWithChildren<IRichEditorProps>) {
   const [editorContextProps, setEditorContextProps] =
     React.useState<IEditorContextProps>({
       isEditorReady: false,
@@ -238,6 +232,30 @@ const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
       {props.children}
     </EditorContextProvider>
   );
+}
+
+export type IRichEditorProps = Omit<
+  IRichEditorInnerProps,
+  'setEditorContextProps'
+> & {
+  editorContextValues?: [
+    IEditorContextProps,
+    React.Dispatch<React.SetStateAction<IEditorContextProps>>
+  ];
+};
+const ReactNativeRichEditor: FC<PropsWithChildren<IRichEditorProps>> = (
+  props
+) => {
+  if (props.editorContextValues) {
+    return (
+      <$ReactNativeRichEditor
+        {...props}
+        setEditorContextProps={props.editorContextValues[1]}
+      />
+    );
+  }
+
+  return <ContextProvidingEditor {...props} />;
 };
 
 export default ReactNativeRichEditor;

@@ -10,6 +10,12 @@ export {
   useFormat,
 } from './hooks';
 export {
+  EditorContextProvider,
+  IEditorContextProps,
+  IEditorContextValue,
+  EditorContext,
+} from './components/context/EditorContext';
+export {
   BridgeRegistryKey,
   BuiltinBridgeKey,
   QuillEditorKey,
