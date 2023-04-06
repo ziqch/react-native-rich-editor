@@ -262,72 +262,68 @@ export default function init(initProps: QuillEditorProps) {
       this.quill.setSelection(offset, 1);
     }
 
-    private onImageLoaded() {
-      this.updateViewHeight();
-      this.calculateScrollOffsetWhenTextChange();
-    }
+    // private onImageLoaded() {
+    //   this.updateViewHeight();
+    //   this.calculateScrollOffsetWhenTextChange();
+    // }
 
-    private undo() {
-      this.history.undo();
-    }
+    //     private undo() {
+    //       this.history.undo();
+    //     }
+    //
+    //     private redo() {
+    //       this.history.redo();
+    //     }
 
-    private redo() {
-      this.history.redo();
-    }
+    // public setSelection(index: number, length: number, source?: Sources) {
+    //   this.quill.setSelection(index, length, source);
+    // }
 
-    public setSelection(index: number, length: number, source?: Sources) {
-      this.quill.setSelection(index, length, source);
-    }
+    //     private getContents(index?: number, length?: number) {
+    //       return this.quill.getContents(index, length).ops;
+    //     }
+    //
+    //     private setContents(delta: DeltaOperation[], source?: Sources) {
+    //       return this.quill.setContents(new Delta(delta), source).ops;
+    //     }
+    //
+    //     private format(name: string, value: any, source?: Sources) {
+    //       const res = this.quill.format(name, value, source).ops;
+    //       this.updateViewHeight();
+    //       return res;
+    //     }
 
-    private getContents(index?: number, length?: number) {
-      return this.quill.getContents(index, length).ops;
-    }
-
-    private setContents(delta: DeltaOperation[], source?: Sources) {
-      return this.quill.setContents(new Delta(delta), source).ops;
-    }
-
-    private format(name: string, value: any, source?: Sources) {
-      const res = this.quill.format(name, value, source).ops;
-      this.updateViewHeight();
-      return res;
-    }
-
-    private addImage(sources: string[]) {
-      let index = this.quill.getSelection(true).index;
-      sources.forEach((src) => {
-        this.quill.insertEmbed(index++, EnhancedImage.blotName, { src });
-      });
-      this.quill.setSelection(index, 0, _Quill.sources.USER);
-    }
+    // private addImage(sources: string[]) {
+    //   let index = this.quill.getSelection(true).index;
+    //   sources.forEach((src) => {
+    //     this.quill.insertEmbed(index++, EnhancedImage.blotName, { src });
+    //   });
+    //   this.quill.setSelection(index, 0, _Quill.sources.USER);
+    // }
 
     private blur() {
       this.quill.blur();
     }
 
-    public getPlatform() {
-      return this.platform;
-    }
-
     private registerResolvers() {
       this.bridge.registerResolvers({
-        [QuillResolverTokenBuiltin.AddImage]: this.addImage.bind(this),
-        [QuillResolverTokenBuiltin.Undo]: this.undo.bind(this),
-        [QuillResolverTokenBuiltin.Redo]: this.redo.bind(this),
-        [QuillResolverTokenBuiltin.SetContents]: this.setContents.bind(this),
-        [QuillResolverTokenBuiltin.GetContents]: this.getContents.bind(this),
-        [QuillResolverTokenBuiltin.Format]: this.format.bind(this),
-        [QuillResolverTokenBuiltin.SetSelection]: this.setSelection.bind(this),
-        [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
-        [QuillResolverTokenBuiltin.Focus]: () => {
-          this.quill.focus();
-          this.quill.setSelection(this.quill.getLength(), 0);
-        },
-        [QuillResolverTokenBuiltin.Layout]:
-          this.calculateScrollOffsetWhenTextChange.bind(this),
-        [QuillResolverTokenBuiltin.GetMarkdown]: () => {
-          return deltaToMarkdown(this.quill.getContents().ops);
-        },
+        // [QuillResolverTokenBuiltin.AddImage]: this.addImage.bind(this),
+        // [QuillResolverTokenBuiltin.Undo]: this.undo.bind(this),
+        // [QuillResolverTokenBuiltin.Redo]: this.redo.bind(this),
+        // [QuillResolverTokenBuiltin.SetContents]: this.setContents.bind(this),
+        // [QuillResolverTokenBuiltin.GetContents]: this.getContents.bind(this),
+        // [QuillResolverTokenBuiltin.Format]: this.format.bind(this),
+        // [QuillResolverTokenBuiltin.SetSelection]: this.setSelection.bind(this),
+        // [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
+        // [QuillResolverTokenBuiltin.Focus]: () => {
+        //   this.quill.focus();
+        //   this.quill.setSelection(this.quill.getLength(), 0);
+        // },
+        // [QuillResolverTokenBuiltin.Layout]:
+        //   this.calculateScrollOffsetWhenTextChange.bind(this),
+        // [QuillResolverTokenBuiltin.GetMarkdown]: () => {
+        //   return deltaToMarkdown(this.quill.getContents().ops);
+        // },
       });
     }
   }
