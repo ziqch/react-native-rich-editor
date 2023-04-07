@@ -13,7 +13,6 @@ export {
   BridgeRegistryKey,
   BuiltinBridgeKey,
   QuillEditorKey,
-  OriginalQuillKey,
   WebViewBridgeSDK,
   RNResolverTokenBuiltin,
   QuillResolverTokenBuiltin,

@@ -1,6 +1,8 @@
 import { Resolver } from './Resolver';
 
-export type ResolverList = { [K in string]: (...args: any) => any };
+export type ResolverList = {
+  [K in string]: (...args: any) => Promise<any> | any;
+};
 export type ResolverFunctionType<
   T extends keyof RL,
   RL extends ResolverList

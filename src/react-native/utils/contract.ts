@@ -82,6 +82,7 @@ export enum QuillResolverTokenBuiltin {
   Focus = '@CALL[Focus]__builtin',
   QuillAPI = '@CALL[QuillAPI]__builtin',
   Layout = '@CALL[Layout]__builtin',
+  InsertMention = '@CALL[InsertMention]__builtin',
 }
 
 export type QuillResolversBuiltin = {
@@ -96,7 +97,7 @@ export type QuillResolversBuiltin = {
     index?: number,
     length?: number
   ) => DeltaOperation[];
-  [QuillResolverTokenBuiltin.GetMarkdown]: () => string;
+  [QuillResolverTokenBuiltin.GetMarkdown]: () => Promise<string>;
   [QuillResolverTokenBuiltin.Format]: (
     name: string,
     value: any,
@@ -110,6 +111,10 @@ export type QuillResolversBuiltin = {
   [QuillResolverTokenBuiltin.Blur]: () => void;
   [QuillResolverTokenBuiltin.Focus]: () => void;
   [QuillResolverTokenBuiltin.Layout]: () => void;
+  [QuillResolverTokenBuiltin.InsertMention]: (
+    searchTerm: string,
+    value: string
+  ) => void;
 };
 
 export enum WebViewResolverTokenBuiltin {
@@ -134,7 +139,6 @@ export type BuiltinBridgeWebView = Bridge<
 >;
 
 export const QuillEditorKey = '$QuillEditorKey';
-export const OriginalQuillKey = '$OriginalQuillKey';
 export const BuiltinBridgeKey = '$Bridge__builtin';
 export const BridgeRegistryKey = '$BridgeRegistryKey';
 

@@ -26,9 +26,13 @@
   },
   "dependencies": {
     "@lexical/clipboard": "^0.9.1",
+    "@lexical/hashtag": "^0.9.1",
+    "@lexical/history": "^0.9.1",
+    "@lexical/markdown": "^0.9.1",
     "@lexical/rich-text": "^0.9.1",
     "@lexical/selection": "^0.9.1",
     "@lexical/utils": "^0.9.1",
+    "document-offset": "^1.0.4",
     "lexical": "^0.9.1",
     "quill-md-shortcuts": "^0.1.0",
     "quill-mention": "^3.1.0"

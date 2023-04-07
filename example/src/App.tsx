@@ -53,9 +53,27 @@ export default function App() {
           { insert: 'World!!!!', attributes: { bold: true } },
           { insert: '\n' },
         ]}
+        onMentionsClose={() => console.log('onMentionsClose')}
+        onMentionsOpen={(e) => console.log('onMentionsOpen', e)}
+        placeholder={'Say gm...'}
+        injectedCssList={[
+          `
+        .text-base {
+          color: red;
+        }
+
+        .placeholder {
+          color: blue;
+          position: absolute;
+          font-size: 20px;
+          left: 2px;
+          top: 0;
+        }
+      `,
+        ]}
         syntax={true}
       >
-        {/* <RichEditorToolBar
+        <RichEditorToolBar
           fixedRight={<DismissKeyboard />}
           tools={[
             <CustomizeFormatSize />,
@@ -64,16 +82,16 @@ export default function App() {
             <Format.Basic format={'italic'} icon={FormatIcons.Italic} />,
             <Format.Basic format={'underline'} icon={FormatIcons.Underline} />,
             <Format.Basic format={'strike'} icon={FormatIcons.Strike} />,
-            <Format.CodeBlock
-              languages={['typescript', 'javascript']}
-              icon={FormatIcons.Code}
-            />,
+            // <Format.CodeBlock
+            //   languages={['typescript', 'javascript']}
+            //   icon={FormatIcons.Code}
+            // />,
             <Format.List type={'ordered'} icon={FormatIcons.ListOrdered} />,
             <Format.List type={'bullet'} icon={FormatIcons.ListBullet} />,
             <Format.Script type={'super'} icon={FormatIcons.ScriptSuper} />,
             <Format.Script type={'sub'} icon={FormatIcons.ScriptSub} />,
           ]}
-        /> */}
+        />
       </ReactNativeRichEditor>
     </SafeAreaView>
   );

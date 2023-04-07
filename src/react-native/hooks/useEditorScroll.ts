@@ -32,7 +32,6 @@ export const useEditorScroll = (props: IUseEditorScroll) => {
   const scrollWebView = (offset: number, direction: Direction) => {
     setTimeout(
       () => {
-        console.log(viewScrollInfoRef.current);
         const { scrollTop, h } = viewScrollInfoRef.current;
         if (scrollTop < offset && offset < scrollTop + h) return;
         scrollViewRef.current?.scrollTo({

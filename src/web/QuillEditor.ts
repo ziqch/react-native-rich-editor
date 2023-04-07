@@ -1,14 +1,26 @@
-// @ts-ignore
-// import mention from 'quill-mention';
-// @ts-ignore
-// import { deltaToMarkdown } from 'quill-delta-to-markdown';
 import {
-  createEditor,
-  $getTextContent,
+  $convertToMarkdownString,
+  HEADING,
+  QUOTE,
+  registerMarkdownShortcuts,
+  TEXT_FORMAT_TRANSFORMERS,
+} from '@lexical/markdown';
+import {
   $getSelection,
-  RangeSelection,
+  $getTextContent,
+  $isRangeSelection,
+  COMMAND_PRIORITY_LOW,
+  createEditor,
+  REDO_COMMAND,
+  SELECTION_CHANGE_COMMAND,
+  UNDO_COMMAND,
 } from 'lexical';
-import { registerRichText } from '@lexical/rich-text';
+import { HashtagNode } from '@lexical/hashtag';
+import { createEmptyHistoryState, registerHistory } from '@lexical/history';
+import { HeadingNode, QuoteNode, registerRichText } from '@lexical/rich-text';
+import { $canShowPlaceholder } from '@lexical/text';
+// @ts-expect-error no types
+import documentOffset from 'document-offset';
 import type {
   Bridge,
   QuillEditorOptions,
@@ -16,7 +28,6 @@ import type {
 } from '../react-native/utils';
 import {
   Direction,
-  OriginalQuillKey,
   QuillEditorKey,
   QuillResolversBuiltin,
   QuillResolverTokenBuiltin,
@@ -24,6 +35,11 @@ import {
   RNResolverTokenBuiltin,
   WebViewBridgeSDK,
 } from '../react-native/utils';
+import {
+  QueryMatch,
+  replaceQueryMatchWithValue,
+  triggerMentionCallbacksOnUpdate,
+} from './mentions';
 
 interface QuillEditorProps {
   bridge: Bridge<
@@ -33,110 +49,140 @@ interface QuillEditorProps {
   options?: QuillEditorOptions;
 }
 
-const DefaultScrollOffsetBuffer = 50;
+const MARKDOWN_TRANSFORMERS = [QUOTE, HEADING, ...TEXT_FORMAT_TRANSFORMERS];
+
 export default function init(initProps: QuillEditorProps) {
-  // const _Quill = (window as any).Quill as typeof Quill;
   class QuillEditor {
-    private readonly scrollOffsetBuffer: number = DefaultScrollOffsetBuffer;
+    private readonly scrollOffsetBuffer = 50;
     private readonly editor: ReturnType<typeof createEditor>;
-    private readonly history: any;
     private readonly bridge: Bridge<
       QuillResolversBuiltin & WebViewResolversBuiltin,
       RNResolversBuiltin
     >;
     private viewHeight = 0;
     private previousContentLength = 0;
-    // private previousSectionRange: RangeStatic | null = { index: 0, length: 0 };
+
+    private previousSectionRange: {
+      index: number;
+      length: number;
+      bounds: { top: number; bottom: number };
+    } | null = null;
+
+    private placeholderEl: HTMLElement | null = null;
+    private readonly queryMatches = new Map<string, QueryMatch>();
 
     constructor(props: QuillEditorProps) {
       const { bridge, options } = props;
 
       this.bridge = bridge;
 
-      const config = {
-        namespace: 'MyEditor',
-        // theme: {
-        //   ...
-        // },
-        onError: console.error,
-      };
+      const editor = createEditor({
+        nodes: [HeadingNode, QuoteNode, HashtagNode],
+        theme: {
+          text: {
+            base: 'text-base',
+          },
+        },
+      });
 
-      const editor = createEditor(config);
       this.editor = editor;
 
       const el = document.createElement('div');
+      el.style.minHeight = '40px';
       el.contentEditable = 'true';
-      window.document.body.append(el);
+      document.body.append(el);
       editor.setRootElement(el);
 
       registerRichText(editor);
+      registerMarkdownShortcuts(editor, MARKDOWN_TRANSFORMERS);
+      registerHistory(editor, createEmptyHistoryState(), 1000);
 
       this.updateViewHeight();
 
-      //       EnhancedImage.onclick = this.onImageClick.bind(this);
-      //       EnhancedImage.onload = this.onImageLoaded.bind(this);
-      //       _Quill.register(EnhancedImage, true);
-      //       _Quill.register('formats/horizontal', createHrBlot(_Quill));
-      //       _Quill.register('modules/mention', mention);
-      //       _Quill.register('modules/markdownShortcuts', QuillMarkdownShortcuts);
-      //       this.quill = this.mountQuill({
-      //         placeholder: options?.placeholder,
-      //         readOnly: options?.readOnly,
-      //         modules: {
-      //           syntax: options?.syntax,
-      //           markdownShortcuts: {},
-      //           mention: {
-      //             allowedChars: /^\w+/,
-      //             selectKeys: [13],
-      //             mentionDenotationChars: ['@', '#'],
-      //             onClose: () => {
-      //               this.bridge.call(RNResolverTokenBuiltin.OnMentionsClose);
-      //             },
-      //             disableRenderList: true,
-      //             source: (
-      //               searchTerm: string,
-      //               renderList: Function,
-      //               mentionChar: string
-      //             ) => {
-      //               if (
-      //                 !searchTerm ||
-      //                 searchTerm.includes(' ') ||
-      //                 searchTerm.includes('\n')
-      //               ) {
-      //                 renderList(undefined, searchTerm);
-      //
-      //                 return;
-      //               }
-      //
-      //               this.bridge.call(RNResolverTokenBuiltin.OnMentionsOpen, {
-      //                 searchTerm,
-      //                 mentionChar,
-      //               });
-      //
-      //               renderList([{ value: '', id: 1, disabled: true }], searchTerm);
-      //             },
-      //           },
-      //         },
-      //         theme: 'snow',
-      //       });
-      //       this.platform = options?.platform;
-      //       this.history = this.quill.getModule('history');
-      //       this.scrollOffsetBuffer =
-      //         options?.scrollOffsetBuffer ?? DefaultScrollOffsetBuffer;
       this.setEvents();
-      //       this.registerResolvers();
-      //       this.updateViewHeight();
+      this.registerResolvers();
+
+      if (options?.placeholder) {
+        const placeholderEl = document.createElement('div');
+        placeholderEl.innerText = options?.placeholder;
+        placeholderEl.className = 'placeholder';
+
+        this.placeholderEl = placeholderEl;
+
+        document.body.append(placeholderEl);
+
+        this.updatePlaceholder();
+      }
+
+      let mentionsOpen = false;
+
+      this.editor.registerUpdateListener(() => {
+        triggerMentionCallbacksOnUpdate(
+          this.editor,
+          (mentionChar, searchTerm, queryMatch) => {
+            mentionsOpen = true;
+
+            this.bridge.call(RNResolverTokenBuiltin.OnMentionsOpen, {
+              searchTerm,
+              mentionChar,
+            });
+
+            this.queryMatches.set(`${searchTerm}`, queryMatch);
+          },
+          () => {
+            if (mentionsOpen) {
+              this.bridge.call(RNResolverTokenBuiltin.OnMentionsClose);
+            }
+
+            this.queryMatches.clear();
+
+            mentionsOpen = false;
+          }
+        );
+      });
     }
 
-    //     private mountQuill(options?: QuillOptionsStatic) {
+    private updatePlaceholder = () => {
+      this.editor.getEditorState().read(() => {
+        if (!this.placeholderEl) {
+          return;
+        }
 
-    //       const quill = new _Quill(el, options);
-    //
-    //       (window as any)[WebViewBridgeSDK][OriginalQuillKey] = quill;
-    //       return quill;
-    //     }
+        const canShow = $canShowPlaceholder(this.editor.isComposing());
+
+        if (canShow) {
+          this.placeholderEl.style.opacity = '1';
+        } else {
+          this.placeholderEl.style.opacity = '0';
+        }
+      });
+    };
 
     private setEvents() {
+      this.editor.registerUpdateListener(() => {
+        this.updatePlaceholder();
+        this.updateViewHeight();
+        this.calculateScrollOffsetWhenTextChange();
+      });
+
+      this.editor.registerEditableListener(() => {
+        this.updatePlaceholder();
+      });
+
+      this.editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        () => {
+          const selection = $getSelection();
+
+          if (selection) {
+            this.calculateScrollOffsetWhenSelect(selection);
+          }
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      );
+
       //   this.quill.on('editor-change', () => {
       //     const currentSelection = this.quill.getSelection();
       //     if (currentSelection) {
@@ -147,29 +193,6 @@ export default function init(initProps: QuillEditorProps) {
       //     }
       //   });
 
-      this.editor.registerTextContentListener(() => {
-        this.updateViewHeight();
-        this.calculateScrollOffsetWhenTextChange();
-      });
-      //   this.quill.on('text-change', (delta, oldDelta, source) => {
-      //     this.updateViewHeight();
-      //     this.calculateScrollOffsetWhenTextChange();
-      //     this.bridge.call(
-      //       RNResolverTokenBuiltin.OnTextChange,
-      //       delta.ops,
-      //       oldDelta.ops,
-      //       source
-      //     );
-      //   });
-      //   this.quill.on('selection-change', (range, oldRange, source) => {
-      //     this.calculateScrollOffsetWhenSelect(range);
-      //     this.bridge.call(
-      //       RNResolverTokenBuiltin.OnSelectionChange,
-      //       range,
-      //       oldRange,
-      //       source
-      //     );
-      //   });
       //   this.quill.root.addEventListener('compositionstart', () => {
       //     this.bridge.call(
       //       RNResolverTokenBuiltin.SetReactNativeState,
@@ -204,39 +227,69 @@ export default function init(initProps: QuillEditorProps) {
       });
     }
 
+    private getSelectionBounds = (
+      currentSelection: ReturnType<typeof $getSelection>
+    ) => {
+      if (!currentSelection) {
+        return null;
+      }
+
+      const firstElement = this.editor.getElementByKey(
+        currentSelection?.getNodes()[0].getKey() || ''
+      );
+
+      const lastElement = this.editor.getElementByKey(
+        currentSelection
+          ?.getNodes()
+          [currentSelection?.getNodes().length - 1].getKey() || ''
+      );
+
+      if (!firstElement || !lastElement) {
+        return;
+      }
+
+      const firstElementOffset = documentOffset(firstElement);
+      const lastElementOffset = documentOffset(lastElement);
+
+      const firstBoundingBox = {
+        bottom:
+          firstElementOffset.top + firstElement.getBoundingClientRect().height,
+        top: firstElementOffset.top,
+      };
+
+      const lastBoundingBox = {
+        bottom:
+          lastElementOffset.top + lastElement.getBoundingClientRect().height,
+        top: lastElementOffset.top,
+      };
+
+      const currBound = {
+        bottom: Math.max(firstBoundingBox.bottom, lastBoundingBox.bottom),
+        top: Math.min(firstBoundingBox.top, lastBoundingBox.top),
+      };
+
+      return currBound;
+    };
+
     private calculateScrollOffsetWhenTextChange() {
       this.editor.getEditorState().read(() => {
         const currLen = $getTextContent().length;
         const currentSelection = $getSelection();
 
-        const firstBoundingBox = this.editor
-          .getElementByKey(currentSelection?.getNodes()[0].getKey() || '')
-          ?.getBoundingClientRect();
-
-        const lastBoundingBox = this.editor
-          .getElementByKey(
-            currentSelection
-              ?.getNodes()
-              [currentSelection?.getNodes().length - 1].getKey() || ''
-          )
-          ?.getBoundingClientRect();
-
-        if (!firstBoundingBox || !lastBoundingBox) {
-          return;
-        }
-
         const direction =
           this.previousContentLength <= currLen ? Direction.DOWN : Direction.UP;
 
-        const currBound = {
-          bottom: Math.min(firstBoundingBox.bottom, lastBoundingBox.bottom),
-          top: Math.min(firstBoundingBox.top, lastBoundingBox.top),
-        };
+        const currBound = this.getSelectionBounds(currentSelection);
+
+        if (!currBound) {
+          return;
+        }
 
         const offset =
           direction === Direction.DOWN
             ? currBound.bottom + this.scrollOffsetBuffer
             : currBound.top - this.scrollOffsetBuffer;
+
         if (offset !== -1) {
           this.bridge.call(
             RNResolverTokenBuiltin.ScrollWebView,
@@ -244,128 +297,116 @@ export default function init(initProps: QuillEditorProps) {
             direction
           );
         }
+
         this.previousContentLength = currLen;
       });
     }
 
-    //     private calculateScrollOffsetWhenSelect(range: RangeStatic) {
-    //       if (!range) {
-    //         this.previousSectionRange = null;
-    //         return;
-    //       }
-    //       const curBound = this.quill.getBounds(range.index, range.length);
-    //       let offset = -1,
-    //         direction = Direction.DOWN;
-    //       if (!range.length) {
-    //         offset = curBound.bottom + this.scrollOffsetBuffer;
-    //       } else {
-    //         if (!this.previousSectionRange || !this.previousSectionRange.length) {
-    //           offset = curBound.bottom + this.scrollOffsetBuffer;
-    //         } else if (this.previousSectionRange.length) {
-    //           const prevBound = this.quill.getBounds(
-    //             this.previousSectionRange.index,
-    //             this.previousSectionRange.length
-    //           );
-    //           const isBottomEqual = prevBound.bottom === curBound.bottom;
-    //           const isTopEqual = prevBound.top === curBound.top;
-    //           if (!isTopEqual && !isBottomEqual) {
-    //             offset = curBound.bottom + this.scrollOffsetBuffer;
-    //           } else if (!isBottomEqual) {
-    //             direction =
-    //               curBound.bottom > prevBound.bottom
-    //                 ? Direction.DOWN
-    //                 : Direction.UP;
-    //             offset =
-    //               curBound.bottom +
-    //               this.scrollOffsetBuffer * (direction === Direction.DOWN ? 1 : -1);
-    //           } else if (!isTopEqual) {
-    //             direction =
-    //               curBound.top > prevBound.top ? Direction.DOWN : Direction.UP;
-    //             offset =
-    //               curBound.top +
-    //               this.scrollOffsetBuffer * (direction === Direction.DOWN ? 1 : -1);
-    //           }
-    //         }
-    //       }
-    //       this.previousSectionRange = { ...range };
-    //       if (offset !== -1) {
-    //         this.bridge.call(
-    //           RNResolverTokenBuiltin.ScrollWebView,
-    //           offset,
-    //           direction
-    //         );
-    //       }
-    //     }
-    //
-    //     private onImageClick(e: MouseEvent) {
-    //       const target = e.target as HTMLElement;
-    //       const blot = _Quill.find(target);
-    //       const offset = this.quill.getIndex(blot);
-    //       this.quill.setSelection(offset, 1);
-    //     }
+    private calculateScrollOffsetWhenSelect(
+      selection: ReturnType<typeof $getSelection>
+    ) {
+      if (!selection || !$isRangeSelection(selection)) {
+        this.previousSectionRange = null;
 
-    // private onImageLoaded() {
-    //   this.updateViewHeight();
-    //   this.calculateScrollOffsetWhenTextChange();
-    // }
+        return;
+      }
 
-    //     private undo() {
-    //       this.history.undo();
-    //     }
-    //
-    //     private redo() {
-    //       this.history.redo();
-    //     }
+      const curBound = this.getSelectionBounds(selection);
 
-    // public setSelection(index: number, length: number, source?: Sources) {
-    //   this.quill.setSelection(index, length, source);
-    // }
+      if (!curBound) {
+        return;
+      }
 
-    //     private getContents(index?: number, length?: number) {
-    //       return this.quill.getContents(index, length).ops;
-    //     }
-    //
-    //     private setContents(delta: DeltaOperation[], source?: Sources) {
-    //       return this.quill.setContents(new Delta(delta), source).ops;
-    //     }
-    //
-    //     private format(name: string, value: any, source?: Sources) {
-    //       const res = this.quill.format(name, value, source).ops;
-    //       this.updateViewHeight();
-    //       return res;
-    //     }
+      let offset = -1;
+      let direction = Direction.DOWN;
 
-    // private addImage(sources: string[]) {
-    //   let index = this.quill.getSelection(true).index;
-    //   sources.forEach((src) => {
-    //     this.quill.insertEmbed(index++, EnhancedImage.blotName, { src });
-    //   });
-    //   this.quill.setSelection(index, 0, _Quill.sources.USER);
-    // }
+      const selectionLength =
+        selection.getCharacterOffsets()[1] - selection.getCharacterOffsets()[0];
 
-    private blur() {
-      // this.quill.blur();
+      if (!selectionLength) {
+        offset = curBound.bottom + this.scrollOffsetBuffer;
+      } else {
+        if (!this.previousSectionRange || !this.previousSectionRange.length) {
+          offset = curBound.bottom + this.scrollOffsetBuffer;
+        } else if (this.previousSectionRange.length) {
+          const prevBound = this.previousSectionRange.bounds;
+          const isBottomEqual = prevBound.bottom === curBound.bottom;
+          const isTopEqual = prevBound.top === curBound.top;
+          if (!isTopEqual && !isBottomEqual) {
+            offset = curBound.bottom + this.scrollOffsetBuffer;
+          } else if (!isBottomEqual) {
+            direction =
+              curBound.bottom > prevBound.bottom
+                ? Direction.DOWN
+                : Direction.UP;
+            offset =
+              curBound.bottom +
+              this.scrollOffsetBuffer * (direction === Direction.DOWN ? 1 : -1);
+          } else if (!isTopEqual) {
+            direction =
+              curBound.top > prevBound.top ? Direction.DOWN : Direction.UP;
+            offset =
+              curBound.top +
+              this.scrollOffsetBuffer * (direction === Direction.DOWN ? 1 : -1);
+          }
+        }
+      }
+      this.previousSectionRange = {
+        index: selection.getCharacterOffsets()[0],
+        length: selectionLength,
+        bounds: curBound,
+      };
+
+      if (offset !== -1) {
+        this.bridge.call(
+          RNResolverTokenBuiltin.ScrollWebView,
+          offset,
+          direction
+        );
+      }
     }
 
     private registerResolvers() {
       this.bridge.registerResolvers({
-        // [QuillResolverTokenBuiltin.AddImage]: this.addImage.bind(this),
-        // [QuillResolverTokenBuiltin.Undo]: this.undo.bind(this),
-        // [QuillResolverTokenBuiltin.Redo]: this.redo.bind(this),
-        // [QuillResolverTokenBuiltin.SetContents]: this.setContents.bind(this),
-        // [QuillResolverTokenBuiltin.GetContents]: this.getContents.bind(this),
-        // [QuillResolverTokenBuiltin.Format]: this.format.bind(this),
-        // [QuillResolverTokenBuiltin.SetSelection]: this.setSelection.bind(this),
-        // [QuillResolverTokenBuiltin.Blur]: this.blur.bind(this),
-        // [QuillResolverTokenBuiltin.Focus]: () => {
-        //   this.quill.focus();
-        //   this.quill.setSelection(this.quill.getLength(), 0);
-        // },
+        [QuillResolverTokenBuiltin.Undo]: () => {
+          // @ts-expect-error wrong type
+          this.editor.dispatchCommand(UNDO_COMMAND, true);
+        },
+        [QuillResolverTokenBuiltin.Redo]: () => {
+          // @ts-expect-error wrong type
+          this.editor.dispatchCommand(REDO_COMMAND, true);
+        },
+
+        [QuillResolverTokenBuiltin.Blur]: () => {
+          this.editor.blur();
+        },
+        [QuillResolverTokenBuiltin.Focus]: () => {
+          this.editor.focus();
+        },
         [QuillResolverTokenBuiltin.Layout]: () =>
           this.calculateScrollOffsetWhenTextChange(),
-        // [QuillResolverTokenBuiltin.GetMarkdown]: () => {
-        //   return deltaToMarkdown(this.quill.getContents().ops);
-        // },
+
+        [QuillResolverTokenBuiltin.GetMarkdown]: async () => {
+          return new Promise((resolve) => {
+            this.editor.getEditorState().read(() => {
+              const markdown = $convertToMarkdownString(MARKDOWN_TRANSFORMERS);
+
+              resolve(markdown);
+            });
+          });
+        },
+
+        [QuillResolverTokenBuiltin.InsertMention]: (searchTerm, value) => {
+          const queryMatch = this.queryMatches.get(searchTerm);
+
+          if (!queryMatch) {
+            return;
+          }
+
+          replaceQueryMatchWithValue(this.editor, queryMatch, value);
+
+          this.queryMatches.clear();
+        },
       });
     }
   }

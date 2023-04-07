@@ -112,7 +112,6 @@ const $ReactNativeRichEditor = React.forwardRef<
 
   const setReactNativeState = React.useCallback(
     (key: string, value: string) => {
-      console.log(key, value);
       try {
         const v = JSON.parse(value);
         if (key in state) {
@@ -219,9 +218,9 @@ const $ReactNativeRichEditor = React.forwardRef<
         scrollEventThrottle={16}
         onLayout={onLayout}
         onScroll={onScroll}
-        // onTouchStart={() => {
-        //   bridge__builtin.call(QuillResolverTokenBuiltin.Focus);
-        // }}
+        onTouchStart={() => {
+          bridge__builtin.call(QuillResolverTokenBuiltin.Focus);
+        }}
       >
         <WebView
           ref={webViewRef}

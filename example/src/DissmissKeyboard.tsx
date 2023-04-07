@@ -29,7 +29,7 @@ const DismissKeyboard = () => {
   const onPress = () => {
     // Keyboard.dismiss();
     bridge__builtin
-      .call(QuillResolverTokenBuiltin.GetMarkdown)
+      .call(QuillResolverTokenBuiltin.InsertMention, 'dog', '@dog123')
       .then(console.log);
   };
   return (
