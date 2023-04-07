@@ -9,7 +9,7 @@ import {
   RangeSelection,
   TextNode,
 } from 'lexical';
-import { $createHashtagNode } from '@lexical/hashtag';
+import { $createHashtagNode, $isHashtagNode } from '@lexical/hashtag';
 
 const PUNCTUATION =
   '\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%\'"~=<>_:;';
@@ -40,7 +40,7 @@ const VALID_JOINS =
 
 const LENGTH_LIMIT = 75;
 
-const AtSignMentionsRegex = new RegExp(
+const MentionRegex = new RegExp(
   '(^|\\s|\\()(' +
     '[' +
     TRIGGERS +
@@ -58,7 +58,7 @@ const AtSignMentionsRegex = new RegExp(
 const ALIAS_LENGTH_LIMIT = 50;
 
 // Regex used to match alias.
-const AtSignMentionsRegexAliasRegex = new RegExp(
+const MentionRegexAlias = new RegExp(
   '(^|\\s|\\()(' +
     '[' +
     TRIGGERS +
@@ -76,6 +76,10 @@ export type QueryMatch = {
   matchingString: string;
   replaceableString: string;
 };
+
+function isSimpleTextNode(anchorNode: TextNode): boolean {
+  return anchorNode.isSimpleText() || $isHashtagNode(anchorNode);
+}
 
 function tryToPositionRange(leadOffset: number, range: Range): boolean {
   const domSelection = window.getSelection();
@@ -100,14 +104,14 @@ function tryToPositionRange(leadOffset: number, range: Range): boolean {
   return true;
 }
 
-function checkForAtSignMentions(
+function checkForMentions(
   text: string,
   minMatchLength: number
 ): QueryMatch | null {
-  let match = AtSignMentionsRegex.exec(text);
+  let match = MentionRegex.exec(text);
 
   if (match === null) {
-    match = AtSignMentionsRegexAliasRegex.exec(text);
+    match = MentionRegexAlias.exec(text);
   }
   if (match !== null) {
     // The strategy ignores leading whitespace but we need to know it's
@@ -127,7 +131,7 @@ function checkForAtSignMentions(
 }
 
 function getPossibleQueryMatch(text: string): QueryMatch | null {
-  return checkForAtSignMentions(text, 1);
+  return checkForMentions(text, 1);
 }
 
 function getTextUpToAnchor(selection: RangeSelection): string | null {
@@ -136,9 +140,11 @@ function getTextUpToAnchor(selection: RangeSelection): string | null {
     return null;
   }
   const anchorNode = anchor.getNode();
-  if (!anchorNode.isSimpleText()) {
+
+  if (!isSimpleTextNode(anchorNode)) {
     return null;
   }
+
   const anchorOffset = anchor.offset;
   return anchorNode.getTextContent().slice(0, anchorOffset);
 }
@@ -206,8 +212,10 @@ export function triggerMentionCallbacksOnUpdate(
       !isSelectionOnEntityBoundary(editor, match.leadOffset)
     ) {
       const isRangePositioned = tryToPositionRange(match.leadOffset, range);
+
       if (isRangePositioned !== null) {
         onOpen(match.replaceableString[0], match.matchingString, match);
+
         return;
       }
     }
@@ -243,9 +251,10 @@ function splitNodeContainingQuery(
     return null;
   }
   const anchorNode = anchor.getNode();
-  if (!anchorNode.isSimpleText()) {
+  if (!isSimpleTextNode(anchorNode)) {
     return null;
   }
+
   const selectionOffset = anchor.offset;
   const textContent = anchorNode.getTextContent().slice(0, selectionOffset);
   const characterOffset = match.replaceableString.length;

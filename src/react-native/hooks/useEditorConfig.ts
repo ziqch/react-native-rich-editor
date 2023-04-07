@@ -31,6 +31,7 @@ export interface IRichEditorInnerProps {
   >;
   onMentionsOpen?: (e: { searchTerm: string; mentionChar: string }) => void;
   onMentionsClose?: () => void;
+  autoFocus?: boolean;
 }
 
 export const useEditorConfig = (
@@ -58,6 +59,7 @@ export const useEditorConfig = (
         ...(props.injectedCssList ?? []),
       ],
       quillOptions: {
+        autoFocus: props.autoFocus,
         platform: Platform.OS,
         readOnly: props.readOnly,
         placeholder: props.placeholder,
@@ -72,6 +74,7 @@ export const useEditorConfig = (
     };
   }, [
     overrideCss,
+    props.autoFocus,
     props.injectedCssList,
     props.injectedScriptList,
     props.placeholder,

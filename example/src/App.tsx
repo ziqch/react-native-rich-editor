@@ -56,11 +56,10 @@ export default function App() {
         onMentionsClose={() => console.log('onMentionsClose')}
         onMentionsOpen={(e) => console.log('onMentionsOpen', e)}
         placeholder={'Say gm...'}
+        autoFocus
         injectedCssList={[
           `
-        .text-base {
-          color: red;
-        }
+
 
         .placeholder {
           color: blue;
@@ -68,6 +67,10 @@ export default function App() {
           font-size: 20px;
           left: 2px;
           top: 0;
+        }
+
+        .hashtag {
+          color: orange;
         }
       `,
         ]}

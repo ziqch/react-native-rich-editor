@@ -1,3 +1,4 @@
+import { createEmptyHistoryState, registerHistory } from '@lexical/history';
 import {
   $convertToMarkdownString,
   HEADING,
@@ -5,6 +6,8 @@ import {
   registerMarkdownShortcuts,
   TEXT_FORMAT_TRANSFORMERS,
 } from '@lexical/markdown';
+import { HeadingNode, QuoteNode, registerRichText } from '@lexical/rich-text';
+import { $canShowPlaceholder } from '@lexical/text';
 import {
   $getSelection,
   $getTextContent,
@@ -15,10 +18,6 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND,
 } from 'lexical';
-import { HashtagNode } from '@lexical/hashtag';
-import { createEmptyHistoryState, registerHistory } from '@lexical/history';
-import { HeadingNode, QuoteNode, registerRichText } from '@lexical/rich-text';
-import { $canShowPlaceholder } from '@lexical/text';
 // @ts-expect-error no types
 import documentOffset from 'document-offset';
 import type {
@@ -35,11 +34,13 @@ import {
   RNResolverTokenBuiltin,
   WebViewBridgeSDK,
 } from '../react-native/utils';
+import { registerHashtag } from './hashtag';
 import {
   QueryMatch,
   replaceQueryMatchWithValue,
   triggerMentionCallbacksOnUpdate,
 } from './mentions';
+import { HashtagNode } from '@lexical/hashtag';
 
 interface QuillEditorProps {
   bridge: Bridge<
@@ -82,6 +83,7 @@ export default function init(initProps: QuillEditorProps) {
           text: {
             base: 'text-base',
           },
+          hashtag: 'hashtag',
         },
       });
 
@@ -96,6 +98,7 @@ export default function init(initProps: QuillEditorProps) {
       registerRichText(editor);
       registerMarkdownShortcuts(editor, MARKDOWN_TRANSFORMERS);
       registerHistory(editor, createEmptyHistoryState(), 1000);
+      registerHashtag(editor);
 
       this.updateViewHeight();
 
@@ -140,6 +143,10 @@ export default function init(initProps: QuillEditorProps) {
           }
         );
       });
+
+      if (options?.autoFocus) {
+        this.editor.getRootElement()?.focus();
+      }
     }
 
     private updatePlaceholder = () => {
@@ -376,12 +383,11 @@ export default function init(initProps: QuillEditorProps) {
           // @ts-expect-error wrong type
           this.editor.dispatchCommand(REDO_COMMAND, true);
         },
-
         [QuillResolverTokenBuiltin.Blur]: () => {
-          this.editor.blur();
+          this.editor.getRootElement()?.blur();
         },
         [QuillResolverTokenBuiltin.Focus]: () => {
-          this.editor.focus();
+          this.editor.getRootElement()?.focus();
         },
         [QuillResolverTokenBuiltin.Layout]: () =>
           this.calculateScrollOffsetWhenTextChange(),

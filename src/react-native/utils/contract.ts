@@ -48,6 +48,7 @@ export type RNResolversBuiltin = {
 };
 
 export interface QuillEditorOptions {
+  autoFocus?: boolean;
   placeholder?: string;
   scrollOffsetBuffer?: number;
   platform?: string;
