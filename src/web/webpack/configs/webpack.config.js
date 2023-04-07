@@ -31,9 +31,6 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
-  externals: {
-    quill: 'Quill',
-  },
   output: {
     filename: 'web.js',
     path: path.resolve(root, './src/react-native'),

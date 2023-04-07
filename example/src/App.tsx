@@ -55,7 +55,7 @@ export default function App() {
         ]}
         syntax={true}
       >
-        <RichEditorToolBar
+        {/* <RichEditorToolBar
           fixedRight={<DismissKeyboard />}
           tools={[
             <CustomizeFormatSize />,
@@ -73,7 +73,7 @@ export default function App() {
             <Format.Script type={'super'} icon={FormatIcons.ScriptSuper} />,
             <Format.Script type={'sub'} icon={FormatIcons.ScriptSub} />,
           ]}
-        />
+        /> */}
       </ReactNativeRichEditor>
     </SafeAreaView>
   );

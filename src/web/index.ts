@@ -89,6 +89,13 @@ try {
     //   },
     // });
 
+    init({
+      bridge: reactNativeBridge,
+      options: {},
+    });
+
+    reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
+
     // reactNativeBridge
     //   .call(RNResolverTokenBuiltin.OnWebViewInit)
     //   .then(async (config) => {
@@ -99,11 +106,9 @@ try {
     //     await loadScripts([config.quillScript]);
     //     await loadCss(config.cssList);
     //     init({
-    //       bridge: reactNativeBridge,
-    //       options: config.quillOptions,
+
     //     });
     //     loadScripts(config.scriptsList);
-    //     reactNativeBridge.call(RNResolverTokenBuiltin.OnEditorReady);
     //   });
   })();
 } catch (e: any) {

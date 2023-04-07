@@ -25,6 +25,11 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "@lexical/clipboard": "^0.9.1",
+    "@lexical/rich-text": "^0.9.1",
+    "@lexical/selection": "^0.9.1",
+    "@lexical/utils": "^0.9.1",
+    "lexical": "^0.9.1",
     "quill-md-shortcuts": "^0.1.0",
     "quill-mention": "^3.1.0"
   }
